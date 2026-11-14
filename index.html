@@ -1,305 +1,1016 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.svg?v=20261019" type="image/svg+xml" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="纹以载道·数启新章 —— AI 驱动的中国传统非遗纹样数字博物馆，收录 574 枚纹样、32 个分类，提供纹样识别、AI 共创、结构拆解与沉浸式浏览。"
-    />
-    <meta name="theme-color" content="#cfa23c" />
-    <meta name="format-detection" content="telephone=no" />
-    <!-- 社交分享（Open Graph / Twitter Card） -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="纹以载道·数启新章" />
-    <meta property="og:title" content="纹以载道·数启新章 | 非遗纹样数字博物馆" />
-    <meta
-      property="og:description"
-      content="AI 驱动的中国传统非遗纹样数字博物馆：574 枚纹样、32 分类、AI 共创与纹样库联动。"
-    />
-    <meta property="og:locale" content="zh_CN" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="纹以载道·数启新章 | 非遗纹样数字博物馆" />
-    <meta
-      name="twitter:description"
-      content="AI 驱动的中国传统非遗纹样数字博物馆：574 枚纹样、32 分类、AI 共创与纹样库联动。"
-    />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <!-- [CRAFT-FOUC] 非遗详情页首帧隐藏（关键内联样式：先于任何外部 CSS 生效，
-         消灭「点击后先闪无背景旧排版」的 FOUC）。.wxf-ready 落下后 0.3s 淡入。 -->
-    <style>
-      /* 用 html + 双 class 提升特异性，确保盖过 Vue scoped 的 .cr-intro[data-v-*]
-         与组件入场动画（GSAP 写入的行内 opacity），一律以本规则为准。 */
-      html[data-wb-craft-route] .cm.cm--topic,
-      html[data-wb-craft-route] .cm.cm--topic.cr-intro,
-      html[data-wb-craft-route] .cr-intro,
-      html[data-wb-craft-route] .cr-intro.cr-intro {
-        opacity: 0 !important;
-        transition: opacity 0.3s ease-in-out !important;
-      }
-      html[data-wb-craft-route].wxf-ready .cm.cm--topic,
-      html[data-wb-craft-route].wxf-ready .cm.cm--topic.cr-intro,
-      html[data-wb-craft-route].wxf-ready .cr-intro,
-      html[data-wb-craft-route].wxf-ready .cr-intro.cr-intro,
-      html.wxf-ready[data-wb-craft-route] .cr-intro,
-      html.wxf-ready[data-wb-craft-route] .cm.cm--topic {
-        opacity: 1 !important;
-        transition: opacity 0.3s ease-in-out !important;
-      }
-      html[data-wb-craft-route] body {
-        background-color: #f3e7cf;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        html[data-wb-craft-route] .cm.cm--topic,
-        html[data-wb-craft-route] .cr-intro {
-          transition: none !important;
-        }
-      }
-    </style>
-    <script>
-      /* 详情页路由标记：尽早打上，保证首帧就是隐藏态 */
-      (function () {
-        if (/^\/craft\/[a-z-]+\/?$/.test(location.pathname)) {
-          document.documentElement.setAttribute('data-wb-craft-route', '');
-        }
-      })();
-    </script>
-    <!-- 字体：标题思源宋体 / 正文思源黑体 / 数字英文 Playfair Display -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&family=Playfair+Display:wght@500;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>纹以载道·数启新章 | 非遗纹样数字博物馆</title>
-    <script type="module" crossorigin src="/assets/index-CmHYjBy8.js?v=20261107miao"></script>
-    <link rel="modulepreload" crossorigin href="/assets/vendor-vue-VRxU-hdw.js" />
-    <link rel="modulepreload" crossorigin href="/assets/vendor-XYS8_Jc0.js" />
-    <link rel="modulepreload" crossorigin href="/assets/vendor-gsap-iqAWp17U.js" />
-    <link rel="stylesheet" crossorigin href="/assets/index-CsD7uYws.css" />
-    <!-- 鎏金主题（务必位于框架样式之后，以覆盖背景令牌） -->
-    <link rel="stylesheet" href="/assets/gilt-intro.css?v=20261019" />
-    <link rel="stylesheet" href="/assets/gilt-theme.css?v=20261019" />
-    <link rel="stylesheet" href="/assets/gilt-hero.css?v=20261019" />
-    <link rel="stylesheet" href="/assets/gilt-logo.css?v=20261019" />
-    <!-- AI 功能「演示模式」标注层（叠加，不改变任何原有内容与跳转） -->
-    <link rel="stylesheet" href="/assets/gilt-demo.css?v=20261019" />
-    <!-- [CRAFT-VIDEO-LINK] 传承人纪实 · 外链引导卡片（去 iframe 弹窗，复用 :root 设计令牌） -->
-    <link rel="stylesheet" href="/assets/craft-video-link.css?v=20261111t7" />
-    <!-- [WAX-PATTERNS] 蜡染代表纹样取景：按图错开 object-position，仅命中 wax_photo_*.jpg -->
-    <link rel="stylesheet" href="/assets/wax-patterns.css?v=20261107miao6" />
-    <!-- [MAP-SANDTABLE] 纹样地图 · 国风 3D 数据沙盘（零依赖 CSS 增强层，含兜底回滚） -->
-    <link rel="stylesheet" href="/assets/map-sandtable.css?v=20261107sand6" />
-    <!-- [DAILY-COVERFLOW] 每日一纹 · 纯 CSS 3D 封面流（外层裁剪 / 舞台 3D / 状态变换 / 文字抬 Z） -->
-    <link rel="stylesheet" href="/assets/daily-coverflow.css?v=20261107jade" />
-    <!-- [DAILY-LINKED] 每日一纹 · 左侧纵向控制轴 + 右侧错落画册（替代 3D Coverflow / 纯 CSS marquee） -->
-    <link rel="stylesheet" href="/assets/daily-marquee.css?v=20261110type1" />
-    <!-- [HOME-SEAM] 六境 → 每日一纹长卷衔接：共用大背景 + 暗金国风小分割线 -->
-    <link rel="stylesheet" href="/assets/home-seam.css?v=20261108seam1" />
-    <!-- [LIB-FILTER-SCROLLBAR] 纹样宝库 · 多维筛选面板 4px 暗金国风细滚动条 -->
-    <link rel="stylesheet" href="/assets/library-scrollbar.css?v=20261109filter1" />
-    <!-- [EVOLUTION-SCROLLBAR] 朝代长廊 · 演变对比横向滚动条 6px 暗金国风化 -->
-    <!-- [EC-SQUARE] 演变对比卡片方形统一 + 隐藏横向滚动条（取代旧 evolution-scrollbar.css） -->
-    <link rel="stylesheet" href="/assets/evolution-cards-square.css?v=20261113ecsq2" />
-    <!-- [PROFILE-CLEANUP] 个人中心登录页 · 去演示痕迹 + 留白重平衡 -->
-    <link rel="stylesheet" href="/assets/profile-cleanup.css?v=20261108cleanup" />
-    <!-- [WAX-FUSION] 苗族蜡染详情页 · 人物融合式图文排版（传承人虚影 + 蝴蝶纹前景） -->
-    <link rel="stylesheet" href="/assets/craft-wax-fusion.css?v=20261113wxf3" />
-    <!-- [MAP-LEGEND] 纹样地图 · 图例重构（沙盘左下角横向放大版 / 宣纸毛玻璃 / 14px 同源圆点） -->
-    <link rel="stylesheet" href="/assets/map-legend.css?v=20261110legend3" />
-    <!-- [MAP-CULTURE] 纹样地图 · 文化归类联动筛选（史前考古学文化 / 历史时期民族·族群，零源码改动） -->
-    <link rel="stylesheet" href="/assets/map-culture-filter.css?v=20261110culture3" />
-    <!-- [MAP-ZOOM] 纹样地图 · 右上角缩放控件国风化（宣纸毛玻璃 / 暗金细边 / 深褐字 / 4px 方角） -->
-    <link rel="stylesheet" href="/assets/map-zoom.css?v=20261110zoom3" />
-    <!-- [MAP-CONTRAST] 纹样地图 · 文字对比度无障碍修复（状态文字 / 底部来源 / 辅助说明，WCAG AA） -->
-    <link rel="stylesheet" href="/assets/map-contrast.css?v=20261110contrast2" />
-    <!-- [MAP-FLIGHT-LEGEND] 纹样地图 · 流光飞线图例 / 学术角标 / 悬停释义（颜色与飞线同源） -->
-    <link rel="stylesheet" href="/assets/map-flight-legend.css?v=20261112flight8" />
-    <!-- [MAP-REGION-TYPO] 纹样地图 · 省份抽屉 · 纯字号放大（标题/统计/介绍/卡片标题释义/朝代标签） -->
-    <link rel="stylesheet" href="/assets/map-region-typography.css?v=20261112typo5" />
-    <!-- [CRAFT-CARDS] 非遗技艺馆总览页 · 六张展签统一正方形（aspect-ratio 1/1 + 12px 圆角 + cover） -->
-    <link rel="stylesheet" href="/assets/crafts-gallery-cards.css?v=20261113craftcard1" />
-    <script defer src="/assets/crafts-gallery-cards.js?v=20261113craftcard1"></script>
-    <!-- [PATTERN-MODEL-VIEWER] 纹样详情页 · 平面图 / 3D鉴赏（宣纸毛玻璃容器） -->
-    <link rel="stylesheet" href="/assets/pattern-model-viewer.css?v=20261111mv6" />
-    <!-- [BAOXIANG-FIVE] 宝相花结构拆解 · 五瓣花式五向散开（110px 局部圆 / px 坐标 / 5 组标签引线） -->
-    <link rel="stylesheet" href="/assets/baoxiang-five.css?v=20261112bx12a" />
-    <!-- [MODEL-VIEWER] Google <model-viewer> 3.4.0 · 纹样详情页 3D 鉴赏
-         需求指定的引入行（由下方守卫脚本注入到 <head>，URL / 版本 / type 完全一致）：
-         <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script> -->
-    <script>
-      (function () {
-        /* model-viewer 3.4.0 在模块顶层即创建 WebGLRenderer：无 WebGL 的环境会在
-           customElements.define 之前抛错，导致组件完全不可用。先做能力检测：
-           不支持时不加载组件，由详情页面板切换为静态预览，保证零报错。 */
-        var supported = false;
-        try {
-          var c = document.createElement('canvas');
-          supported = !!(c.getContext('webgl2') || c.getContext('webgl') ||
-                         c.getContext('experimental-webgl'));
-        } catch (e) { supported = false; }
-        window.__mvWebGL = supported;
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%239e2a2b'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='%23f5e8c8' font-family='serif'%3E纹%3C/text%3E%3C/svg%3E">
+<title>纹样管理后台 · 纹以载道</title>
+<style>
+/* ═══════════ 纹样管理后台 · 样式完全隔离（ad- 前缀，独立文档） ═══════════ */
+:root{
+  --ad-red:#9e2a2b; --ad-red-deep:#7a1f23; --ad-red-dark:#5c161a;
+  --ad-gold:#c89b3c; --ad-gold-light:#e8d5a8;
+  --ad-paper:#f7f3ea; --ad-card:#ffffff; --ad-ink:#3d2b1f; --ad-ink-2:#8a7a6a;
+  --ad-line:#e8e0d0; --ad-teal:#2d6a5f; --ad-blue:#2f4b7c; --ad-amber:#b8722c;
+  --ad-ok:#2e7d4f; --ad-warn:#c0392b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body.ad-body{
+  font-family:"Noto Serif SC","Source Han Serif SC","Songti SC",serif;
+  background:var(--ad-paper); color:var(--ad-ink); font-size:14px;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ad-ink)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#d8cbb2;border-radius:4px}
+.ad-fade{animation:adFade .28s ease}
+@keyframes adFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-        window.__mvBootstrap = (function () {
-          var started = false;
-          function local() {
-            if (!window.__mvWebGL) return;
-            if (started || (window.customElements && customElements.get('model-viewer'))) return;
-            started = true;
-            var s = document.createElement('script');
-            s.type = 'module';
-            s.src = '/assets/vendor/model-viewer-3.4.0.min.js?v=20261111mv1';
-            document.head.appendChild(s);
-          }
-          function check() {
-            if (window.__mvWebGL && !(window.customElements && customElements.get('model-viewer'))) local();
-          }
-          return { local: local, check: check };
-        })();
+/* ── 登录页 ── */
+.ad-login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#4a1215 0%,#7a1f23 45%,#9e2a2b 100%);position:relative;overflow:hidden}
+.ad-login::before{content:"";position:absolute;inset:0;opacity:.08;
+  background:radial-gradient(circle at 20% 30%,#e8d5a8 0,transparent 40%),radial-gradient(circle at 80% 70%,#e8d5a8 0,transparent 40%)}
+.ad-login__card{position:relative;width:400px;max-width:92vw;background:var(--ad-card);border-radius:14px;
+  padding:40px 36px 32px;box-shadow:0 24px 60px rgba(40,8,10,.45);text-align:center}
+.ad-login__logo{width:64px;height:64px;margin:0 auto 14px;border-radius:14px;background:linear-gradient(135deg,#9e2a2b,#7a1f23);
+  color:#f5e8c8;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;box-shadow:0 6px 16px rgba(158,42,43,.35)}
+.ad-login__card h1{font-size:22px;letter-spacing:4px;color:var(--ad-red-deep)}
+.ad-login__sub{font-size:12px;color:var(--ad-ink-2);margin:6px 0 26px;letter-spacing:2px}
+.ad-field{text-align:left;margin-bottom:16px}
+.ad-field label{display:block;font-size:12px;color:var(--ad-ink-2);margin-bottom:6px;letter-spacing:1px}
+.ad-input{width:100%;height:42px;border:1px solid var(--ad-line);border-radius:8px;padding:0 12px;background:#fbf8f1;outline:none;transition:border .2s}
+.ad-input:focus{border-color:var(--ad-red)}
+.ad-btn{height:42px;border:none;border-radius:8px;font-size:15px;letter-spacing:2px}
+.ad-btn--gold{width:100%;background:linear-gradient(135deg,#b8322f,#8c1f28);color:#f7ecd2;font-weight:600;transition:opacity .2s}
+.ad-btn--gold:hover{opacity:.9}
+.ad-btn--gold:disabled{opacity:.6;cursor:not-allowed}
+.ad-login__hint{margin-top:18px;font-size:12px;color:var(--ad-ink-2);background:#faf6ec;border:1px dashed var(--ad-gold-light);border-radius:8px;padding:10px;line-height:1.8}
+.ad-login__err{color:var(--ad-warn);font-size:12px;min-height:18px;margin-top:8px;text-align:left;padding:0 2px}
+.ad-login__err.ad-login__loading{color:var(--ad-ink-2)}
+.ad-shake{animation:adShake .4s}
+@keyframes adShake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
-        if (window.__mvWebGL) {
-          /* async：脱离 defer 队列，CDN 不可达时不阻塞 DOMContentLoaded 与站内其它注入脚本 */
-          var cdn = document.createElement('script');
-          cdn.type = 'module';
-          cdn.async = true;
-          cdn.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js';
-          cdn.onerror = function () { window.__mvBootstrap.local(); };
-          document.head.appendChild(cdn);
-          setTimeout(function () { window.__mvBootstrap.check(); }, 2500);
-        }
-      })();
-    </script>
-  </head>
-  <body>
-    <!-- ===== 鎏金开场：独立覆盖层，播放结束即从 DOM 移除，不影响站内任何内容与跳转 ===== -->
-    <div id="giltIntro" class="gilt-intro" role="presentation" aria-hidden="true">
-      <div class="gilt-intro__flash"></div>
-      <div class="gilt-intro__half gilt-intro__half--top"></div>
-      <div class="gilt-intro__half gilt-intro__half--bottom"></div>
-      <div class="gilt-intro__stage">
-        <div class="gilt-intro__halo"></div>
-        <svg class="gilt-intro__emblem" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="giltStroke" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#a1721d" />
-              <stop offset="22%" stop-color="#e6c778" />
-              <stop offset="42%" stop-color="#fff6d8" />
-              <stop offset="62%" stop-color="#d9b25e" />
-              <stop offset="82%" stop-color="#f2d68f" />
-              <stop offset="100%" stop-color="#b8860b" />
-            </linearGradient>
-          </defs>
-          <circle class="gi-draw" cx="100" cy="100" r="86" stroke-width="1.5" style="--len:541;--delay:0s" />
-          <circle class="gi-draw" cx="100" cy="100" r="64" stroke-width="1.2" style="--len:403;--delay:.1s" />
-          <path class="gi-draw" d="M100 26 L174 100 L100 174 L26 100 Z" stroke-width="1.2" style="--len:419;--delay:.2s" />
-          <path class="gi-draw" d="M52 52 H148 V148 H52 Z" stroke-width="1.2" style="--len:384;--delay:.3s" />
-          <circle class="gi-draw" cx="100" cy="100" r="12" stroke-width="1.6" style="--len:76;--delay:.42s" />
-          <circle class="gi-dot" cx="196" cy="100" r="2.4" style="--delay:.62s" />
-          <circle class="gi-dot" cx="167.9" cy="167.9" r="2.4" style="--delay:.68s" />
-          <circle class="gi-dot" cx="100" cy="196" r="2.4" style="--delay:.74s" />
-          <circle class="gi-dot" cx="32.1" cy="167.9" r="2.4" style="--delay:.8s" />
-          <circle class="gi-dot" cx="4" cy="100" r="2.4" style="--delay:.86s" />
-          <circle class="gi-dot" cx="32.1" cy="32.1" r="2.4" style="--delay:.92s" />
-          <circle class="gi-dot" cx="100" cy="4" r="2.4" style="--delay:.98s" />
-          <circle class="gi-dot" cx="167.9" cy="32.1" r="2.4" style="--delay:1.04s" />
-        </svg>
-        <h1 class="gilt-intro__title">纹以载道</h1>
-        <p class="gilt-intro__sub">数启新章</p>
-        <div class="gilt-intro__rule"></div>
-        <p class="gilt-intro__hint">中国非遗纹样数字博物馆</p>
-      </div>
-      <div class="gilt-intro__dust"></div>
-    </div>
-    <!-- ===== 鎏金首屏动态层：金丝光轮 · 回纹环带 · 金色涟漪 ===== -->
-    <div id="giltHeroFx" class="gilt-hero-fx" aria-hidden="true">
-      <div class="ghf-veil"></div>
-      <div class="ghf-lattice"></div>
-      <div class="ghf-beam"></div>
-      <svg class="ghf-rings" viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
-        <g class="ghf-spin-a">
-          <circle cx="500" cy="500" r="430" />
-          <circle class="ghf-dash-a" cx="500" cy="500" r="404" />
-        </g>
-        <g class="ghf-spin-b">
-          <circle cx="500" cy="500" r="336" />
-          <g class="ghf-meanders">
-            <g transform="translate(870 500) rotate(0) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(761.6 761.6) rotate(45) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(500 870) rotate(90) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(238.4 761.6) rotate(135) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(130 500) rotate(180) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(238.4 238.4) rotate(225) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(500 130) rotate(270) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-            <g transform="translate(761.6 238.4) rotate(315) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
-          </g>
-        </g>
-        <g class="ghf-spin-c">
-          <circle class="ghf-dash-b" cx="500" cy="500" r="268" />
-        </g>
-        <g class="ghf-glint-a">
-          <circle class="ghf-glint" cx="500" cy="500" r="404" stroke-dasharray="52 2486" />
-        </g>
-        <g class="ghf-glint-c">
-          <circle class="ghf-glint" cx="500" cy="500" r="268" stroke-dasharray="34 1650" />
-        </g>
-        <g class="ghf-spin-b">
-          <circle cx="500" cy="500" r="196" />
-        </g>
-      </svg>
-      <div class="ghf-ripples"><i></i><i></i><i></i></div>
-    </div>
-    <div id="app"></div>
-    <script src="/assets/gilt-intro.js?v=20261019" defer></script>
-    <script src="/assets/gilt-hero.js?v=20261019" defer></script>
-    <script src="/assets/gilt-logo.js?v=20261019" defer></script>
-    <script src="/assets/gilt-demo.js?v=20261019" defer></script>
-    <!-- [AI-WORKFLOW] 导航入口：bundle 导航数组已原生含「AI 共创」，注入脚本冗余（曾导致导航重复），已移除 -->
-    <!-- [ADMIN] 个人中心登录页管理员分流入口 -->
-    <script src="/admin_gate.js?v=20261019b" defer></script>
-    <!-- [MOCK] 测试账号（纯前端 mock，演示用） -->
-    <script src="/mock_users.js?v=20261024c" defer></script>
-    <!-- [FEEDBACK] 打通「关于我们」意见反馈表单 → 后台「反馈管理」页（localStorage 持久化） -->
-    <script src="/feedback_inject.js" defer></script>
-    <!-- [DETAIL-ARTIFACTS] 详情页「演变脉络/应用场景」通用图谱 v7：建立纹样→图文强关联字典（龙纹专属图谱 / 云纹入库中 / 其余沿用通用）+ 入库中优雅提示，杜绝图文串台 -->
-    <script src="/detail_artifacts_inject.js?v=20261112art9" defer></script>
-    <!-- [MOCK] 个人中心「我的创作」详情增强 -->
-    <script src="/profile_enhance.js" defer></script>
-    <!-- ===== AI 共创增强模块（智谱 GLM-4-Flash Function Calling 智能体工作流）=====
-         来自第二个项目，已调试完成。接管「AI 创艺工坊」页（/ai）的
-         纹样识别 / 纹样共创 / AI 导览 / 故事剧场 / 智能配色 / 问答知识库 六个 Tab，
-         样式运行于 Shadow DOM，不影响站内任何既有样式。 -->
-    <!-- [AI-GALLERY] AI 回答的站内纹样配图画廊（文字下方缩略图 + 点击跳详情页） -->
-    <script src="/assets/copilot/ai_gallery.js?v=20261106c" defer></script>
-    <script src="/assets/copilot/ai-copilot.js?v=20261105c" defer></script>
-    <!-- GLM-4-Flash 流式调用客户端 + 站内纹样库联动桥（复用已调试逻辑，国风主题） -->
-    <script src="/assets/copilot/ai_glm.js" defer></script>
-    <script src="/assets/copilot/ai_pattern_bridge.js?v=20261107quiz5" defer></script>
-    <!-- ★ AI 导览真接入补丁：把 copilot（Shadow DOM）里的本地模拟替换为真实
-         /api/agent_chat 调用（文本 + 图片 + ReAct 开关 + 工具标签点亮联动） -->
-    <script src="/assets/ws-real.js?v=20261113qa2" defer></script>
-    <!-- [AI-ACTIONS] 智能配色「一键复制色卡」+ 纹样共创「一键下载高清原图」 -->
-    <script src="/assets/copilot/ai_actions.js?v=20261107f" defer></script>
-    <!-- [CRAFT-VIDEO-LINK] 非遗技艺馆「传承人故事」→ 外链引导卡片（运行时把封面按钮改造为 <a target=_blank> 前往 B 站） -->
-    <script src="/craft_video_link.js?v=20261111t7" defer></script>
-    <!-- [FLOAT-DRAG] 右下角悬浮件（纹样联动 / AI 导览）改为可拖拽 + 边界限制 + 位置记忆 -->
-    <script src="/float_drag_inject.js?v=20261020" defer></script>
-    <!-- [MAP-SANDTABLE] 纹样地图 · 3D 舞台 / 流光飞线 / 雷达涟漪 / 热区展平 / 抽屉联动（自检失败自动回滚 2D） -->
-    <script src="/assets/map_sandtable.js?v=20261107sand6" defer></script>
-    <!-- [DAILY-LINKED] 每日一纹 · 左侧纵向控制轴 + 右侧错落画册（读取已渲染卡片数据，替换旧 coverflow 区块） -->
-    <script src="/assets/daily-marquee.js?v=20261110type1" defer></script>
-    <!-- [WAX-FUSION] 苗族蜡染详情页 · 人物融合式图文排版（仅 /craft/wax-dyeing 生效） -->
-    <script src="/assets/craft-wax-fusion.js?v=20261113wxf3" defer></script>
-    <!-- [CRAFT-FOUC] 非遗详情页 · 背景图预加载 + 外壳 ready 态 + 鎏金开场层清理 -->
-    <link rel="stylesheet" href="/assets/craft-fouc-guard.css?v=20261113fouc5" />
-    <script src="/assets/craft-fouc-guard.js?v=20261113fouc5" defer></script>
-    <!-- [MAP-CULTURE] 纹样地图 · 文化归类联动筛选（仅 /map 生效，幂等 tick 保活 + 离开清理） -->
-    <script src="/assets/map-culture-filter.js?v=20261110culture3" defer></script>
-    <!-- [MAP-FLIGHT-LEGEND] 纹样地图 · 流光飞线图例 / 学术角标 / 悬停释义 -->
-    <script src="/assets/map-flight-legend.js?v=20261112flight8" defer></script>
-    <!-- [PATTERN-MODEL-VIEWER] 纹样详情页 · 平面图/3D鉴赏 Tab + model-viewer 容器（仅 /pattern/:id 生效） -->
-    <script src="/assets/pattern-model-viewer.js?v=20261112mv8" defer></script>
-    <!-- [BAOXIANG-FIVE] 宝相花结构拆解 · 注入第 5 个局部/标签并镜像 Vue 的 composed/exploded 状态 -->
-    <script src="/assets/baoxiang-five.js?v=20261112bx12a" defer></script>
-  </body>
+/* ── 主布局 ── */
+.ad-layout{display:flex;min-height:100vh}
+.ad-side{width:216px;flex-shrink:0;background:linear-gradient(180deg,#4a1215 0%,#6d1c20 60%,#5c161a 100%);
+  color:#f0dfc0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.ad-side__logo{display:flex;align-items:center;gap:10px;padding:22px 18px 20px;border-bottom:1px solid rgba(232,213,168,.15)}
+.ad-side__logo .ad-mark{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#c89b3c,#a87d2a);
+  color:#4a1215;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center}
+.ad-side__logo b{font-size:16px;letter-spacing:2px}
+.ad-side__logo span{display:block;font-size:9px;opacity:.55;letter-spacing:1px;margin-top:2px}
+.ad-nav{flex:1;padding:14px 10px}
+.ad-nav a{display:flex;align-items:center;gap:10px;color:rgba(240,223,192,.8);text-decoration:none;
+  padding:11px 14px;border-radius:8px;margin-bottom:4px;font-size:14px;letter-spacing:1px;transition:background .15s}
+.ad-nav a:hover{background:rgba(232,213,168,.1)}
+.ad-nav a.is-on{background:linear-gradient(135deg,#b8322f,#8c1f28);color:#f7ecd2;font-weight:600;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.ad-nav a .ad-ico{width:18px;text-align:center;font-size:15px}
+.ad-side__foot{padding:14px 18px;font-size:10px;opacity:.4;letter-spacing:2px;border-top:1px solid rgba(232,213,168,.12)}
+.ad-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.ad-top{height:58px;background:var(--ad-card);border-bottom:1px solid var(--ad-line);display:flex;align-items:center;
+  padding:0 22px;gap:14px;position:sticky;top:0;z-index:20}
+.ad-top h2{font-size:17px;letter-spacing:2px;color:var(--ad-red-deep);flex:1}
+.ad-chip{font-size:11px;color:var(--ad-red);border:1px solid #e5c9c9;background:#fbf1ef;border-radius:20px;padding:3px 10px;letter-spacing:1px}
+.ad-user{position:relative}
+.ad-user__btn{display:flex;align-items:center;gap:8px;background:none;border:none;font-size:13px;color:var(--ad-ink)}
+.ad-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#9e2a2b,#7a1f23);color:#f5e8c8;
+  display:flex;align-items:center;justify-content:center;font-size:13px}
+.ad-user__menu{position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--ad-line);border-radius:10px;
+  box-shadow:0 10px 30px rgba(60,30,10,.15);min-width:130px;padding:6px;display:none}
+.ad-user__menu.open{display:block}
+.ad-user__menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 12px;border-radius:7px;font-size:13px;color:var(--ad-ink)}
+.ad-user__menu button:hover{background:#faf3e6;color:var(--ad-red-deep)}
+.ad-content{flex:1;padding:22px;max-width:1200px;width:100%;margin:0 auto}
+
+/* ── 看板 ── */
+.ad-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.ad-card{background:var(--ad-card);border:1px solid var(--ad-line);border-radius:12px;padding:20px;display:flex;align-items:center;gap:14px}
+.ad-card .ad-ico{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;background:#faf3e6;color:var(--ad-red)}
+.ad-card b{display:block;font-size:26px;color:var(--ad-red-deep);font-family:Georgia,serif}
+.ad-card span{font-size:12px;color:var(--ad-ink-2)}
+.ad-panel{background:var(--ad-card);border:1px solid var(--ad-line);border-radius:12px;padding:20px;margin-bottom:20px}
+.ad-panel h3{font-size:15px;color:var(--ad-red-deep);letter-spacing:1px;margin-bottom:14px}
+.ad-panel h3 small{font-weight:400;color:var(--ad-ink-2);font-size:12px;margin-left:8px}
+/* ── 看板 · 分类占比环形图（图例点击切换 + Tooltip） ── */
+.ad-donut-stage{position:relative;width:100%;max-width:380px;margin:0 auto}
+.ad-donut-stage svg{width:100%;height:auto;display:block}
+.ad-dseg{cursor:pointer;transition:opacity .18s}
+.ad-dseg:hover{opacity:.82}
+.ad-dleg{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 20px;margin-top:12px}
+.ad-dleg-item{display:flex;align-items:center;gap:7px;background:none;border:none;font-size:13px;color:#5c4a3a;padding:4px 8px;border-radius:999px;transition:background .15s,opacity .15s}
+.ad-dleg-item:hover{background:rgba(139,26,26,.07)}
+.ad-dleg-item i{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.ad-dleg-item b{color:var(--ad-ink)}
+.ad-dleg-item.off{opacity:.42}
+.ad-dleg-item.off i{background:transparent!important;border:1.5px dashed #b3a48e;box-shadow:none}
+.ad-dtip{position:absolute;pointer-events:none;display:none;background:rgba(61,32,23,.94);color:#f5e8c8;padding:6px 11px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:6;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.ad-bars{display:flex;align-items:flex-end;gap:18px;height:190px;padding-top:10px;overflow-x:auto}
+.ad-bar{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.ad-bar i{width:70%;max-width:38px;background:linear-gradient(180deg,#c89b3c,#9e2a2b);border-radius:5px 5px 0 0;min-height:4px;transition:height .5s}
+.ad-bar span{font-size:11px;color:var(--ad-ink-2);white-space:nowrap}
+.ad-bar b{font-size:11px;color:var(--ad-red-deep)}
+
+/* ── 通用表格 ── */
+.ad-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.ad-toolbar .ad-input{height:36px;width:220px}
+.ad-toolbar select{height:36px;border:1px solid var(--ad-line);border-radius:8px;padding:0 8px;background:#fbf8f1}
+.ad-count{font-size:12px;color:var(--ad-ink-2);margin-left:auto}
+.ad-reset{background:none;border:1px solid var(--ad-line);border-radius:8px;height:36px;padding:0 14px;font-size:12px;color:var(--ad-ink-2)}
+.ad-reset:hover{border-color:var(--ad-red);color:var(--ad-red)}
+.ad-table{width:100%;border-collapse:collapse;font-size:13px}
+.ad-table th{text-align:left;font-weight:600;color:var(--ad-ink-2);font-size:12px;letter-spacing:1px;
+  padding:10px 12px;border-bottom:2px solid var(--ad-line);background:#faf6ec;white-space:nowrap}
+.ad-table td{padding:10px 12px;border-bottom:1px solid #f0e9da;vertical-align:middle}
+.ad-table tr:hover td{background:#fdfaf3}
+.ad-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:#f3ecdd;display:block;border:1px solid var(--ad-line)}
+.ad-thumb--ph{display:flex;align-items:center;justify-content:center;color:#c9bda6;font-size:10px;writing-mode:vertical-rl}
+.ad-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;letter-spacing:1px}
+.ad-tag--ok{color:#2e7d4f;background:#e9f5ee}
+.ad-tag--warn{color:#b8860b;background:#faf3e0}
+.ad-tag--fail{color:#fff;background:#c0392b}
+.ad-op{display:flex;gap:6px}
+.ad-op button{background:none;border:none;font-size:12px;padding:4px 8px;border-radius:6px;letter-spacing:1px}
+.ad-op .edit{color:var(--ad-red-deep)} .ad-op .edit:hover{background:#fbefec}
+.ad-op .del{color:#b3563c} .ad-op .del:hover{background:#fdf0ec}
+.ad-pager{display:flex;align-items:center;gap:6px;justify-content:flex-end;padding:16px 4px 2px;font-size:13px;flex-wrap:wrap}
+.ad-pager button{min-width:30px;height:30px;border:1px solid var(--ad-line);background:#fff;border-radius:7px;font-size:12px;color:var(--ad-ink)}
+.ad-pager button.on{background:var(--ad-red);border-color:var(--ad-red);color:#fff;font-weight:600}
+.ad-pager button:disabled{opacity:.4;cursor:default}
+.ad-pager .ad-goto{width:52px;text-align:center;height:30px;border:1px solid var(--ad-line);border-radius:7px}
+.ad-pager .ad-pagesize{height:30px;border:1px solid var(--ad-line);border-radius:7px;padding:0 6px;background:#fbf8f1}
+
+/* ── 弹窗 ── */
+.ad-mask{position:fixed;inset:0;background:rgba(40,15,10,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.ad-modal{background:#fff;border-radius:14px;width:520px;max-width:96vw;max-height:88vh;overflow:auto;padding:24px;box-shadow:0 24px 70px rgba(30,8,6,.4)}
+.ad-modal h3{font-size:16px;color:var(--ad-red-deep);letter-spacing:2px;margin-bottom:18px;display:flex;align-items:center}
+.ad-modal h3 .x{margin-left:auto;background:none;border:none;font-size:18px;color:var(--ad-ink-2)}
+.ad-modal .ad-btn-row{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.ad-btn--sm{height:36px;padding:0 22px;border-radius:8px;font-size:13px;letter-spacing:1px}
+.ad-btn--primary{background:linear-gradient(135deg,#b8322f,#8c1f28);color:#f7ecd2;border:none;font-weight:600}
+.ad-btn--ghost{background:#fff;border:1px solid var(--ad-line);color:var(--ad-ink-2)}
+.ad-btn--danger{background:linear-gradient(135deg,#c0392b,#9e2a2b);color:#fff;border:none;font-weight:600}
+.ad-form-row{display:flex;gap:14px} .ad-form-row .ad-field{flex:1}
+.ad-field textarea{width:100%;border:1px solid var(--ad-line);border-radius:8px;padding:9px 12px;background:#fbf8f1;min-height:64px;resize:vertical;outline:none}
+.ad-field textarea:focus{border-color:var(--ad-red)}
+.ad-field select{width:100%;height:38px;border:1px solid var(--ad-line);border-radius:8px;padding:0 8px;background:#fbf8f1}
+.ad-replace{display:flex;align-items:center;gap:14px}
+.ad-replace .ad-thumb{width:56px;height:56px}
+.ad-replace button{background:#fff;border:1px solid var(--ad-line);border-radius:8px;height:34px;padding:0 14px;font-size:12px;color:var(--ad-ink-2)}
+.ad-replace button:hover{border-color:var(--ad-red);color:var(--ad-red)}
+
+/* ── AI 详情 ── */
+.ad-stage-flow{display:flex;align-items:center;margin:6px 0 18px}
+.ad-stage-flow .st{flex:1;text-align:center;font-size:12px;color:var(--ad-ok);position:relative;padding-top:16px}
+.ad-stage-flow .st::before{content:"✓";position:absolute;top:0;left:50%;transform:translateX(-50%);width:22px;height:22px;
+  border:1.5px solid var(--ad-ok);border-radius:50%;background:#fff;font-size:12px;line-height:20px}
+.ad-stage-flow .st.is-fail{color:var(--ad-warn)}
+.ad-stage-flow .st.is-fail::before{content:"✕";border-color:var(--ad-warn);color:var(--ad-warn)}
+.ad-stage-flow .ln{flex:.4;height:1.5px;background:var(--ad-ok);margin-top:-16px}
+.ad-stage-flow .ln.is-fail{background:var(--ad-warn)}
+.ad-alert{background:#fdf3f1;border:1px solid #f0d4cf;color:#a04a3a;border-radius:8px;padding:10px 14px;font-size:12px;margin-bottom:16px;line-height:1.7}
+.ad-alert.ok{background:#eef6f0;border-color:#cfe7d6;color:#2e7d4f}
+.ad-h4{font-size:13px;color:var(--ad-red-deep);margin:14px 0 8px;letter-spacing:1px}
+.ad-kv{display:flex;font-size:12px;border-bottom:1px dashed #eee5d4;padding:6px 2px;line-height:1.6}
+.ad-kv i{width:76px;color:var(--ad-ink-2);font-style:normal;flex-shrink:0}
+.ad-swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:8px}
+.ad-sw{border:1px solid var(--ad-line);border-radius:9px;overflow:hidden;font-size:11px}
+.ad-sw .c{height:34px}
+.ad-sw .t{padding:7px 9px;color:var(--ad-ink-2);line-height:1.6}
+.ad-sw .t b{color:var(--ad-ink);font-size:12px}
+.ad-kv .mono{font-family:Georgia,serif}
+
+/* ── 设置 ── */
+.ad-note{display:flex;gap:10px;background:#faf6ec;border:1px solid var(--ad-gold-light);border-radius:9px;padding:12px 14px;font-size:12px;color:#7a6a4a;line-height:1.8;margin-bottom:18px}
+.ad-note .ic{font-size:15px}
+.ad-preview{border-radius:12px;overflow:hidden;margin-top:22px;border:1px solid var(--ad-line)}
+.ad-preview .pv-banner{background:linear-gradient(135deg,#7a1f23,#9e2a2b 60%,#5c161a);text-align:center;padding:34px 20px;color:#f5e8c8}
+.ad-preview .pv-banner h1{font-size:22px;letter-spacing:6px}
+.ad-preview .pv-banner p{font-size:12px;opacity:.8;margin-top:8px;letter-spacing:2px}
+.ad-preview .pv-cap{text-align:center;font-size:11px;color:var(--ad-ink-2);padding:8px;background:#fbf8f1;letter-spacing:2px}
+
+/* ── Toast ── */
+.ad-toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#fff;border-left:4px solid var(--ad-ok);
+  border-radius:9px;box-shadow:0 12px 36px rgba(40,20,8,.2);padding:12px 20px;font-size:13px;z-index:200;display:flex;gap:8px;align-items:center}
+.ad-toast.err{border-left-color:var(--ad-warn)}
+
+/* ── 移动端 ── */
+@media(max-width:760px){
+  .ad-layout{flex-direction:column}
+  .ad-side{width:100%;height:auto;position:static}
+  .ad-nav{display:flex;overflow-x:auto;padding:8px}
+  .ad-nav a{white-space:nowrap;margin-bottom:0}
+  .ad-content{padding:14px}
+  .ad-table{font-size:12px}
+  .ad-toolbar .ad-input{width:150px}
+}
+</style>
+</head>
+<body class="ad-body">
+<div id="ad-root"></div>
+
+<script src="/admin/patterns-data.js"></script>
+<script>
+/* ═══════════════ 纹样管理后台 · 纯前端 Mock SPA（无构建、无外部依赖） ═══════════════ */
+(function(){
+'use strict';
+/* ── 认证：统一 token key，并与主站 admin_gate.js 对齐 ── */
+var TOKEN_KEY='wenyao:admin_token';        // 后台 SPA 读取的 token（唯一可信源）
+var LEGACY_KEY='admin_token';              // 主站 admin_gate.js 写入的兼容 key
+var ADMIN_USER='admin', ADMIN_PASS='Admin123456';
+var TOKEN_TTL=2*60*60*1000;                // 登录态有效期 2 小时
+
+function readJSON(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function writeJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function removeKey(k){try{localStorage.removeItem(k);}catch(e){}}
+
+/* 读取有效 token：兼容主站遗留 admin_token；过期自动清除并返回 null */
+function getValidToken(){
+  var t=readJSON(TOKEN_KEY);
+  if(t&&t.token&&t.exp&&Date.now()<t.exp)return t;
+  // 清理任何失效/损坏的 token
+  if(t) removeKey(TOKEN_KEY);
+  // 兼容：从主站 admin_gate.js 跳过来的遗留 admin_token
+  var legacy=readJSON(LEGACY_KEY);
+  if(legacy&&legacy.token){
+    var migrated={token:legacy.token, user:'admin', iat:Date.now(), exp:Date.now()+TOKEN_TTL};
+    writeJSON(TOKEN_KEY,migrated); removeKey(LEGACY_KEY);
+    return migrated;
+  }
+  return null;
+}
+function setToken(){
+  var tok={token:'mock-token-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
+    user:'admin', iat:Date.now(), exp:Date.now()+TOKEN_TTL};
+  writeJSON(TOKEN_KEY,tok);
+  return tok;
+}
+function clearToken(){removeKey(TOKEN_KEY);removeKey(LEGACY_KEY);}
+function isAuthed(){return !!getValidToken();}
+
+var PATTERNS_SRC=window.__ADMIN_PATTERNS__||[];
+
+/* ── Mock：AI 辅助设计工坊使用记录（GLM4-Flash 调用日志，15 条） ── */
+var AI_LOGS=[
+ {no:'AI-2026-001',req:'为宋代茶具设计一组莲花纹样',dyn:'宋代',status:'success',http:200,latency:842,tokens:512},
+ {no:'AI-2026-002',req:'春节礼盒包装用吉祥纹样',dyn:'明清',status:'success',http:200,latency:921,tokens:604},
+ {no:'AI-2026-003',req:'汉服周缘镶边的云与海水江崖',dyn:'明代',status:'success',http:200,latency:768,tokens:489},
+ {no:'AI-2026-004',req:'敦煌壁画藻井的莲花纹再设计',dyn:'唐代',status:'success',http:200,latency:1134,tokens:731},
+ {no:'AI-2026-005',req:'苗族银饰的蝴蝶纹样再设计',dyn:'苗族',status:'success',http:200,latency:877,tokens:558},
+ {no:'AI-2026-006',req:'明清家具的缠枝纹',dyn:'明清',status:'success',http:200,latency:803,tokens:497},
+ {no:'AI-2026-007',req:'唐代铜镜的瑞兽纹重构',dyn:'唐代',status:'success',http:200,latency:945,tokens:612},
+ {no:'AI-2026-008',req:'型糖用于抱枕的宝相花',dyn:'唐代',status:'success',http:200,latency:812,tokens:521},
+ {no:'AI-2026-009',req:'新中式茶室的回纹边框',dyn:'商周',status:'success',http:200,latency:734,tokens:466},
+ {no:'AI-2026-010',req:'七夕礼盒的喜鹊登梅纹',dyn:'明清',status:'fail',http:500,latency:3210,tokens:0},
+ {no:'AI-2026-011',req:'汉代瓦当的四种纹样',dyn:'汉代',status:'success',http:200,latency:899,tokens:573},
+ {no:'AI-2026-012',req:'瓷器咖啡杯的菊花缠枝',dyn:'元代',status:'success',http:200,latency:856,tokens:539},
+ {no:'AI-2026-013',req:'彝族刺绣的火焰纹应用',dyn:'彝族',status:'success',http:200,latency:792,tokens:503},
+ {no:'AI-2026-014',req:'书院匾额的卷草纹',dyn:'高棉',status:'fail',http:524,latency:60450,tokens:0},
+ {no:'AI-2026-015',req:'婚纱礼裙的孔雀纹样',dyn:'明清',status:'success',http:200,latency:933,tokens:601}
+].map(function(l,i){
+ var d=new Date(2026,9,20-i,9+(i*3)%9,12+(i*7)%40);
+ return {no:l.no,req:l.req,dyn:l.dyn,status:l.status,http:l.http,latency:l.latency,tokens:l.tokens,
+   model:'glm-4-flash',promptTokens:Math.round(l.tokens*0.35),time:d.getTime()};
+});
+
+var SWATCHES=[
+ {name:'胭脂红',hex:'#9e2933',use:'主色 · 主题色',lab:'C10 M85 Y55 K35',rgb:'RGB(158,41,51)'},
+ {name:'朱红',hex:'#c3272b',use:'辅助色 · 花头过渡',lab:'C0 M88 Y80 K8',rgb:'RGB(195,39,43)'},
+ {name:'赭金',hex:'#c8963c',use:'点缀 · 花蕊',lab:'C18 M43 Y85 K0',rgb:'RGB(200,150,60)'},
+ {name:'石绿',hex:'#414d3a',use:'叶色 · 冷调平衡',lab:'C55 M35 Y75 K25',rgb:'RGB(65,77,58)'},
+ {name:'黛蓝',hex:'#2e4a6b',use:'底色 · 衬托',lab:'C80 M60 Y35 K10',rgb:'RGB(46,74,107)'}
+];
+
+/* ── 状态 ── */
+var patterns=PATTERNS_SRC.map(function(p){
+  var o={};
+  try{o=readJSON('wenyao:admin_pattern_overrides')[p.id]||{};}catch(e){}
+  return {id:p.id,name:p.name,category:p.category,period:p.period,origin:p.origin,
+    meaning:o.meaning!=null?o.meaning:p.meaning, morphology:o.morphology!=null?o.morphology:p.morphology,
+    status:o.status||'完好', replaced:!!o.replaced};
+});
+function saveOverrides(){
+  var out={};
+  patterns.forEach(function(p){
+    var src=null;
+    for(var i=0;i<PATTERNS_SRC.length;i++) if(PATTERNS_SRC[i].id===p.id){src=PATTERNS_SRC[i];break;}
+    if(src && (p.meaning!==src.meaning||p.morphology!==src.morphology||p.status!=='完好'||p.replaced)){
+      out[p.id]={meaning:p.meaning,morphology:p.morphology,status:p.status,replaced:p.replaced?1:0};
+    }
+  });
+  writeJSON('wenyao:admin_pattern_overrides',out);
+}
+var PAGE_SIZE=10;
+var PAGE_SIZE_AI=8;
+var ui={route:'dashboard',q:'',cat:'',per:'',page:1,pageSize:PAGE_SIZE,
+  dialog:null,editId:null,delId:null,detailNo:null,
+  aiStatus:'',aiPage:1,
+  fbStatus:'',fbPage:1,fbPageSize:10,fbDetail:null,
+  donutHide:{}};
+
+/* ── 统计 ── */
+function missingCount(){var n=0;patterns.forEach(function(p){if(p.status==='缺图')n++;});return n;}
+function catStats(){
+  /* 按五大主题聚合 574 枚纹样的真实分类（32 类）：
+     几何纹样 / 动物纹样 / 植物纹样 / 吉祥纹样(符号+组合) / 器物与专题(其余) */
+  var g={'几何纹样':0,'动物纹样':0,'植物纹样':0,'吉祥纹样':0,'器物与专题':0};
+  patterns.forEach(function(p){
+    var c=p.category||'';
+    if(c.indexOf('几何')>=0)g['几何纹样']++;
+    else if(c.indexOf('动物')>=0)g['动物纹样']++;
+    else if(c.indexOf('植物')>=0)g['植物纹样']++;
+    else if(c.indexOf('吉祥')>=0)g['吉祥纹样']++;
+    else g['器物与专题']++;
+  });
+  return Object.keys(g).map(function(k){return{k:k,v:g[k],c:DONUT_COLORS[k]};});
+}
+function catCount(){var m={};patterns.forEach(function(p){m[p.category]=1;});return Object.keys(m).length;}
+function dynStats(){
+  var m={};patterns.forEach(function(p){m[p.period]=(m[p.period]||0)+1;});
+  var arr=Object.keys(m).map(function(k){return{k:k,v:m[k]};});
+  arr.sort(function(a,b){return b.v-a.v;});
+  var top=arr.slice(0,7),rest=0;arr.slice(7).forEach(function(x){rest+=x.v;});
+  var res=top;if(rest>0)res=res.concat([{k:'其他',v:rest}]);
+  return res;
+}
+
+/* ── 工具 ── */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fmtDate(t){var d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function fmtDur(ms){return ms>=1000?(ms/1000).toFixed(2)+' s':ms+' ms';}
+function toast(msg,err){
+  var t=document.createElement('div');t.className='ad-toast'+(err?' err':'');
+  t.innerHTML=(err?'⚠️':'✅')+' '+esc(msg);document.body.appendChild(t);
+  setTimeout(function(){t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(function(){t.remove();},320);},2200);
+}
+function thumbURL(p){return p.replaced?('/patterns/'+p.id+'.webp?v=r'):('/patterns/'+p.id+'.webp');}
+
+/* ═══════════ 渲染 ═══════════ */
+var root=document.getElementById('ad-root');
+var closeMenuHandler=null;
+function render(){
+  var authed=isAuthed();
+  if(!authed){
+    // 未登录（含登录态过期）：强制落到登录页，且只 replaceState 一次，避免死循环
+    if(ui.route!=='login'){history.replaceState({},'','/admin/login');ui.route='login';}
+  }else if(ui.route==='login'||!TITLES[ui.route]){
+    history.replaceState({},'','/admin/dashboard');ui.route='dashboard';
+  }
+  if(ui.route==='login'){document.title='登录 · 纹样管理后台';root.innerHTML=renderLogin();bindLogin();}
+  else{document.title='纹样管理后台 · 纹以载道';root.innerHTML=renderLayout();bindLayout();}
+}
+function renderLogin(){
+  return '<div class="ad-login"><div class="ad-login__card">'
+    +'<div class="ad-login__logo">纹</div><h1>纹样管理后台</h1>'
+    +'<div class="ad-login__sub">WENYANG MUSEUM · ADMIN CONSOLE</div>'
+    +'<form id="ad-lf">'
+    +'<div class="ad-field"><label>账号</label><input class="ad-input" id="ad-u" placeholder="请输入管理员账号" autocomplete="username"></div>'
+    +'<div class="ad-field"><label>密码</label><input class="ad-input" id="ad-p" type="password" placeholder="请输入密码" autocomplete="current-password"></div>'
+    +'<div class="ad-login__err" id="ad-err"></div>'
+    +'<button class="ad-btn ad-btn--gold" type="submit" id="ad-submit">登 录</button></form>'
+    +'<div class="ad-login__hint">🔐 演示账号：admin ／ Admin123456<br>登录后可进入数据看板 · 纹样管理 · AI 记录 · 系统设置</div>'
+    +'</div></div>';
+}
+function loginRequest(u,p){
+  /* 真实网络探测：先确认服务可达，再比对凭证。
+     - 服务不可达 / 超时 → 网络异常
+     - 可达但凭证错误 → 账号或密码错误
+     - 可达且凭证正确 → 登录成功 */
+  return new Promise(function(resolve,reject){
+    if(typeof fetch!=='function'){ // 极端情况下退化为纯本地校验
+      if(p===ADMIN_PASS&&(u===ADMIN_USER||u.indexOf('@')>=0))resolve({ok:true});
+      else reject(new Error('net'));
+      return;
+    }
+    var ctrl;
+    var hasAbort=typeof AbortController==='function';
+    if(hasAbort){ctrl=new AbortController();}
+    var timer=setTimeout(function(){
+      if(ctrl)ctrl.abort();
+      reject(new Error('timeout'));
+    },6000);
+    fetch('/api/patterns?probe='+Date.now(),{cache:'no-store',signal:ctrl?ctrl.signal:undefined})
+      .then(function(){
+        clearTimeout(timer);
+        if(p===ADMIN_PASS&&(u===ADMIN_USER||u.indexOf('@')>=0))resolve({ok:true});
+        else resolve({ok:false,reason:'cred'});
+      })
+      .catch(function(){clearTimeout(timer);reject(new Error('net'));});
+  });
+}
+function bindLogin(){
+  var f=document.getElementById('ad-lf');if(!f)return;
+  f.onsubmit=function(ev){
+    ev.preventDefault();
+    var u=document.getElementById('ad-u').value.trim(),p=document.getElementById('ad-p').value;
+    var errEl=document.getElementById('ad-err');
+    var btn=document.getElementById('ad-submit');
+    errEl.textContent='登录中…';errEl.className='ad-login__err ad-login__loading';
+    btn.disabled=true;
+    loginRequest(u,p).then(function(r){
+      if(r.ok){
+        setToken();
+        toast('登录成功，欢迎回来');
+        history.pushState({},'','/admin/dashboard');ui.route='dashboard';render();
+      }else{
+        errEl.textContent='账号或密码错误，请重试';errEl.className='ad-login__err';
+        var c=document.querySelector('.ad-login__card');c.classList.remove('ad-shake');void c.offsetWidth;c.classList.add('ad-shake');
+      }
+    }).catch(function(){
+      errEl.textContent='网络异常，请稍后重试';errEl.className='ad-login__err';
+    }).then(function(){btn.disabled=false;});
+  };
+}
+var MENUS=[
+  {k:'dashboard',ico:'📊',t:'数据看板'},
+  {k:'patterns',ico:'🧩',t:'纹样管理'},
+  {k:'ai-logs',ico:'📝',t:'AI 记录'},
+  {k:'feedback',ico:'💬',t:'反馈管理'},
+  {k:'settings',ico:'⚙️',t:'系统设置'}
+];
+var TITLES={dashboard:'数据看板',patterns:'纹样管理','ai-logs':'AI 记录',feedback:'反馈管理',settings:'系统设置'};
+function renderLayout(){
+  var body='';
+  if(ui.route==='patterns')body=renderPatterns();
+  else if(ui.route==='ai-logs')body=renderLogs();
+  else if(ui.route==='feedback')body=renderFeedback();
+  else if(ui.route==='settings')body=renderSettings();
+  else body=renderDash();
+  var nav=MENUS.map(function(m){
+    return '<a href="/admin/'+m.k+'" data-k="'+m.k+'" class="'+(ui.route===m.k?'is-on':'')+'">'
+      +'<span class="ad-ico">'+m.ico+'</span>'+m.t+'</a>';
+  }).join('');
+  return '<div class="ad-layout"><aside class="ad-side">'
+    +'<div class="ad-side__logo"><span class="ad-mark">纹</span><div><b>纹样后台</b><span>ADMIN CONSOLE</span></div></div>'
+    +'<nav class="ad-nav">'+nav+'</nav>'
+    +'<div class="ad-side__foot">版权归属 · 数启新章</div></aside>'
+    +'<div class="ad-main"><header class="ad-top"><h2>'+TITLES[ui.route]+'</h2>'
+    +'<span class="ad-chip">演示环境</span>'
+    +'<div class="ad-user"><button class="ad-user__btn" id="ad-ub"><span class="ad-avatar">管</span> 管理员 ▾</button>'
+    +'<div class="ad-user__menu" id="ad-um"><button id="ad-logout">↩ 退出登录</button></div></div></header>'
+    +'<main class="ad-content ad-fade">'+body+'</main></div></div>';
+}
+function bindLayout(){
+  document.querySelectorAll('.ad-nav a').forEach(function(a){
+    a.onclick=function(ev){ev.preventDefault();go(a.getAttribute('data-k'));};
+  });
+  var ub=document.getElementById('ad-ub');
+  if(ub){ub.onclick=function(ev){ev.stopPropagation();document.getElementById('ad-um').classList.toggle('open');};}
+  if(closeMenuHandler)document.removeEventListener('click',closeMenuHandler);
+  closeMenuHandler=function(ev){
+    var um=document.getElementById('ad-um'),ub=document.getElementById('ad-ub');
+    if(um&&ub&&!ub.contains(ev.target)&&!um.contains(ev.target))um.classList.remove('open');
+  };
+  document.addEventListener('click',closeMenuHandler);
+  var lo=document.getElementById('ad-logout');
+  if(lo){lo.onclick=function(){
+    clearToken();toast('已退出登录');
+    history.pushState({},'','/admin/login');ui.route='login';render();
+  };}
+  if(ui.route==='dashboard')bindDonut();
+  if(ui.route==='patterns')bindPatterns();
+  if(ui.route==='ai-logs')bindLogs();
+  if(ui.route==='feedback')bindFeedback();
+  if(ui.route==='settings')bindSettings();
+}
+function go(k){ui.route=k;ui.q='';ui.cat='';ui.per='';ui.page=1;ui.pageSize=PAGE_SIZE;ui.dialog=null;
+  ui.fbStatus='';ui.fbPage=1;ui.fbPageSize=10;ui.fbDetail=null;
+  history.pushState({},'','/admin/'+k);render();}
+window.addEventListener('popstate',function(){
+  var m=location.pathname.match(/^\/admin\/?([a-z-]*)/i);
+  var k=m&&m[1]?m[1]:'';
+  if(!isAuthed()){ui.route='login';render();return;}
+  ui.route=TITLES[k]?k:'dashboard';
+  render();
+});
+
+/* ── 看板 · 分类占比环形图（纯 SVG：引线标签 + 图例点击切换 + Tooltip） ── */
+var DONUT_COLORS={'几何纹样':'#8B1A1A','动物纹样':'#C89B3C','植物纹样':'#3C5A4A','吉祥纹样':'#2A5C8A','器物与专题':'#D48806'};
+function donutPanel(){
+  var data=catStats();
+  var total=data.reduce(function(s,x){return s+x.v;},0);
+  var vis=data.filter(function(x){return !ui.donutHide[x.k];});
+  var sumVis=vis.reduce(function(s,x){return s+x.v;},0);
+  var CX=160,CY=150,R1=88,R0=56,LR=110,svg='';
+  function pt(r,a){return (CX+r*Math.cos(a)).toFixed(2)+' '+(CY+r*Math.sin(a)).toFixed(2);}
+  if(sumVis<=0){
+    svg='<circle cx="'+CX+'" cy="'+CY+'" r="'+((R0+R1)/2)+'" fill="none" stroke="#e8e0d0" stroke-width="'+(R1-R0)+'"/>';
+  }else if(vis.length===1){
+    svg='<circle class="ad-dseg" cx="'+CX+'" cy="'+CY+'" r="'+((R0+R1)/2)+'" fill="none" stroke="'+vis[0].c
+      +'" stroke-width="'+(R1-R0)+'" data-name="'+esc(vis[0].k)+'" data-v="'+vis[0].v+'" data-pct="100.0"/>';
+  }else{
+    var a0=-Math.PI/2,labels=[];
+    vis.forEach(function(x){
+      var a1=a0+x.v/sumVis*2*Math.PI,large=(a1-a0)>Math.PI?1:0;
+      svg+='<path class="ad-dseg" d="M '+pt(R1,a0)+' A '+R1+' '+R1+' 0 '+large+' 1 '+pt(R1,a1)
+        +' L '+pt(R0,a1)+' A '+R0+' '+R0+' 0 '+large+' 0 '+pt(R0,a0)+' Z" fill="'+x.c
+        +'" data-name="'+esc(x.k)+'" data-v="'+x.v+'" data-pct="'+(x.v/sumVis*100).toFixed(1)+'"/>';
+      var mid=(a0+a1)/2;
+      if(x.v/sumVis>=0.03){ /* 空间足够才出引线标签，过小仅靠 Tooltip */
+        labels.push({k:x.k,v:x.v,x:CX+LR*Math.cos(mid),y:CY+LR*Math.sin(mid),
+          dir:CX+LR*Math.cos(mid)>=CX?1:-1,
+          ax:CX+(R1+4)*Math.cos(mid),ay:CY+(R1+4)*Math.sin(mid)});
+      }
+      a0=a1;
+    });
+    /* 同侧标签防重叠：按 y 排序后强制最小间距 26px */
+    ['1','-1'].forEach(function(d){
+      var g=labels.filter(function(L){return String(L.dir)===d;}).sort(function(a,b){return a.y-b.y;});
+      for(var i=1;i<g.length;i++){if(g[i].y<g[i-1].y+26)g[i].y=g[i-1].y+26;}
+    });
+    labels.forEach(function(L){
+      svg+='<line x1="'+L.ax.toFixed(1)+'" y1="'+L.ay.toFixed(1)+'" x2="'+(L.x-L.dir*6).toFixed(1)+'" y2="'+(L.y-4).toFixed(1)+'" stroke="#b3a48e" stroke-width="1"/>';
+      svg+='<text x="'+L.x.toFixed(1)+'" y="'+L.y.toFixed(1)+'" text-anchor="'+(L.dir>0?'start':'end')+'" font-size="12" fill="#6b5744">'+esc(L.k)+'</text>';
+      svg+='<text x="'+L.x.toFixed(1)+'" y="'+(L.y+14).toFixed(1)+'" text-anchor="'+(L.dir>0?'start':'end')+'" font-size="13" font-weight="700" fill="#3d2b1f">'+L.v+'</text>';
+    });
+  }
+  return '<div class="ad-donut-stage" id="ad-dstage"><svg viewBox="0 0 320 300" role="img" aria-label="纹样分类占比环形图">'+svg
+    +'<text x="'+CX+'" y="'+(CY-2)+'" text-anchor="middle" font-size="30" font-weight="700" fill="#7a1f23" font-family="Georgia,serif">'+sumVis+'</text>'
+    +'<text x="'+CX+'" y="'+(CY+22)+'" text-anchor="middle" font-size="11" fill="#8a7a6a">'+(sumVis===total?'纹样总数':'当前展示 · 枚')+'</text></svg>'
+    +'<div class="ad-tip" id="ad-dtip"></div></div>'
+    +'<div class="ad-dleg">'+data.map(function(x){
+      var off=!!ui.donutHide[x.k];
+      return '<button type="button" class="ad-dleg-item'+(off?' off':'')+'" data-dleg="'+esc(x.k)+'" title="点击'+(off?'显示':'隐藏')+'「'+esc(x.k)+'」">'
+        +'<i style="background:'+x.c+'"></i><span>'+esc(x.k)+'</span><b>'+x.v+'</b></button>';
+    }).join('')+'</div>';
+}
+function bindDonut(){
+  var stage=document.getElementById('ad-dstage'),tip=document.getElementById('ad-dtip');
+  if(stage&&tip){
+    stage.querySelectorAll('.ad-dseg').forEach(function(pth){
+      pth.addEventListener('mousemove',function(ev){
+        var r=stage.getBoundingClientRect();
+        tip.textContent=pth.getAttribute('data-name')+'：'+pth.getAttribute('data-v')+' 枚 · 占比 '+pth.getAttribute('data-pct')+'%';
+        tip.style.display='block';
+        var x=ev.clientX-r.left+14,y=ev.clientY-r.top+14;
+        if(x>r.width-170)x=r.width-175;if(y>r.height-42)y=r.height-44;
+        tip.style.left=x+'px';tip.style.top=y+'px';
+      });
+      pth.addEventListener('mouseleave',function(){tip.style.display='none';});
+    });
+  }
+  document.querySelectorAll('[data-dleg]').forEach(function(b){
+    b.onclick=function(){var k=b.getAttribute('data-dleg');ui.donutHide[k]=!ui.donutHide[k];refreshView(true);};
+  });
+}
+
+/* ═══ 数据看板 ═══ */
+function renderDash(){
+  var dyns=dynStats();
+  var mx=Math.max.apply(null,dyns.map(function(x){return x.v;}));
+  var bars=dyns.map(function(x){
+    var h=Math.max(6,Math.round(x.v/mx*130));
+    return '<div class="ad-bar"><b>'+x.v+'</b><i style="height:'+h+'px" title="'+esc(x.k)+':'+x.v+'枚"></i><span>'+esc(x.k)+'</span></div>';
+  }).join('');
+  var aiOk=AI_LOGS.filter(function(l){return l.status==='success';}).length;
+  var recent=AI_LOGS.slice(0,5).map(function(l){
+    return '<tr><td><span class="mono">'+l.no+'</span></td><td>'+esc(l.req)+'</td><td>'+esc(l.dyn)+'</td>'
+      +'<td><span class="ad-tag '+(l.status==='success'?'ad-tag--ok':'ad-tag--fail')+'">'+(l.status==='success'?'成功':'失败')+'</span></td>'
+      +'<td>'+fmtDur(l.latency)+'</td><td>'+fmtDate(l.time)+'</td></tr>';
+  }).join('');
+  return '<div class="ad-cards">'
+    +'<div class="ad-card"><span class="ad-ico">🧩</span><div><b>'+patterns.length+'</b><span>收录纹样总数</span></div></div>'
+    +'<div class="ad-card"><span class="ad-ico">📁</span><div><b>'+catCount()+'</b><span>纹样分类数量</span></div></div>'
+    +'<div class="ad-card"><span class="ad-ico">🖼️</span><div><b>'+missingCount()+'</b><span>缺图纹样数量</span></div></div>'
+    +'<div class="ad-card"><span class="ad-ico">✨</span><div><b>'+AI_LOGS.length+'</b><span>AI 调用记录</span></div></div>'
+    +'<div class="ad-card"><span class="ad-ico">💬</span><div><b>'+fbRead().length+'</b><span>用户反馈留言</span></div></div></div>'
+    +'<div class="ad-panel"><h3>纹样分类占比</h3>'+donutPanel()+'</div>'
+    +'<div class="ad-panel"><h3>朝代分布 <small>（枚）</small></h3><div class="ad-bars">'+bars+'</div></div>'
+    +'<div class="ad-panel"><h3>最近 AI 辅助设计记录<small>GLM4-Flash · 演示数据</small></h3>'
+    +'<table class="ad-table"><thead><tr><th>编号</th><th>需求描述</th><th>解析朝代</th><th>状态</th><th>耗时</th><th>生成时间</th></tr></thead>'
+    +'<tbody>'+recent+'</tbody></table>'
+    +'<div class="ad-count" style="margin-top:10px">共 '+AI_LOGS.length+' 条调用 · 成功 '+aiOk+' 条</div></div>';
+}
+
+/* ═══ 纹样管理 ═══ */
+function filtered(){
+  var q=ui.q.trim().toLowerCase();
+  return patterns.filter(function(p){
+    if(q&&p.name.toLowerCase().indexOf(q)<0&&p.id.toLowerCase().indexOf(q)<0)return false;
+    if(ui.cat&&p.category!==ui.cat)return false;
+    if(ui.per&&p.period!==ui.per)return false;
+    return true;
+  });
+}
+function pager(total,pages,cur){
+  var btns=[];
+  function b(l,k,dis,on){return '<button data-p="'+k+'"'+(dis?' disabled':'')+(on?' class="on"':'')+'>'+l+'</button>';}
+  btns.push(b('‹',Math.max(1,cur-1),cur===1));
+  var show=[];for(var i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-cur)<=2)show.push(i);}
+  var last=0;show.forEach(function(i){
+    if(i-last>1)btns.push('<span style="color:#8a7a6a">…</span>');
+    btns.push(b(i,i,false,i===cur));last=i;
+  });
+  btns.push(b('›',Math.min(pages,cur+1),cur===pages));
+  btns.push('<span style="margin-left:8px;color:#8a7a6a">每页 <select class="ad-pagesize" id="ad-ps">'
+    +[10,20,50].map(function(s){return '<option value="'+s+'"'+(s===ui.pageSize?' selected':'')+'>'+s+'</option>';}).join('')
+    +'</select> 条 · 前往 <input class="ad-goto" id="ad-goto" value="'+cur+'"> 页 / 共 '+pages+' 页</span>');
+  return btns.join('');
+}
+function renderPatterns(){
+  var cats={};patterns.forEach(function(p){cats[p.category]=1;});
+  var pers={};patterns.forEach(function(p){pers[p.period]=1;});
+  var list=filtered();
+  var pages=Math.max(1,Math.ceil(list.length/ui.pageSize));
+  if(ui.page>pages)ui.page=pages;
+  var rows=list.slice((ui.page-1)*ui.pageSize,ui.page*ui.pageSize).map(function(p){
+    return '<tr><td class="mono">'+p.id+'</td>'
+      +'<td><img class="ad-thumb" loading="lazy" src="'+esc(thumbURL(p))+'" alt=""></td>'
+      +'<td>'+esc(p.name)+'</td><td><span class="ad-tag ad-tag--warn">'+esc(p.category)+'</span></td>'
+      +'<td>'+esc(p.period)+'</td>'
+      +'<td><span class="ad-tag '+(p.status==='完好'?'ad-tag--ok':'ad-tag--warn')+'">'+esc(p.status)+'</span></td>'
+      +'<td><div class="ad-op"><button class="edit" data-id="'+p.id+'">✏️ 编辑</button>'
+      +'<button class="del" data-id="'+p.id+'">🗑 删除</button></div></td></tr>';
+  }).join('');
+  function opts(sel){return function(v){return '<option value="'+esc(v)+'"'+(v===sel?' selected':'')+'>'+esc(v)+'</option>';};}
+  var catOpts=Object.keys(cats).sort().map(opts(ui.cat)).join('');
+  var perOpts=Object.keys(pers).sort().map(opts(ui.per)).join('');
+  return '<div class="ad-panel" style="padding:16px 20px">'
+    +'<div class="ad-toolbar">'
+    +'<input class="ad-input" id="ad-q" placeholder="🔍 按名称或编号搜索" value="'+esc(ui.q)+'">'
+    +'<select id="ad-cat"><option value="">全部分类</option>'+catOpts+'</select>'
+    +'<select id="ad-per"><option value="">全部朝代</option>'+perOpts+'</select>'
+    +'<span class="ad-count">共 <b style="color:#9e2a2b">'+list.length+'</b> 枚</span>'
+    +'<button class="ad-reset" id="ad-reset">↺ 重置数据</button></div>'
+    +'<table class="ad-table"><thead><tr><th>编号</th><th>缩略图</th><th>名称</th><th>分类</th><th>朝代</th><th>状态</th><th>操作</th></tr></thead>'
+    +'<tbody>'+(rows||'<tr><td colspan="7" style="text-align:center;color:#8a7a6a;padding:30px">未找到匹配的纹样</td></tr>')+'</tbody></table>'
+    +'<div class="ad-pager">'+pager(list.length,pages,ui.page)+'</div></div>'
+    +(ui.dialog==='edit'?editDialog():'')+(ui.dialog==='del'?delDialog():'');
+}
+function bindPatterns(){
+  var q=document.getElementById('ad-q');
+  if(q){q.oninput=function(){ui.q=q.value;ui.page=1;refreshView(true);};}
+  var c=document.getElementById('ad-cat');if(c)c.onchange=function(){ui.cat=c.value;ui.page=1;refreshView(true);};
+  var pe=document.getElementById('ad-per');if(pe)pe.onchange=function(){ui.per=pe.value;ui.page=1;refreshView(true);};
+  var rs=document.getElementById('ad-reset');if(rs)rs.onclick=function(){
+    removeKey('wenyao:admin_pattern_overrides');
+    patterns=PATTERNS_SRC.map(function(p){return {id:p.id,name:p.name,category:p.category,period:p.period,origin:p.origin,meaning:p.meaning,morphology:p.morphology,status:'完好',replaced:false};});
+    toast('已重置为初始数据');refreshView();
+  };
+  document.querySelectorAll('.ad-op .edit').forEach(function(b){b.onclick=function(){ui.dialog='edit';ui.editId=b.getAttribute('data-id');refreshView();};});
+  document.querySelectorAll('.ad-op .del').forEach(function(b){b.onclick=function(){ui.dialog='del';ui.delId=b.getAttribute('data-id');refreshView();};});
+  document.querySelectorAll('.ad-pager button[data-p]').forEach(function(b){b.onclick=function(){ui.page=+b.getAttribute('data-p');refreshView(true);};});
+  var g=document.getElementById('ad-goto');
+  if(g){g.onkeydown=function(ev){if(ev.key==='Enter'){ev.stopPropagation();
+    var pages=Math.max(1,Math.ceil(filtered().length/ui.pageSize));
+    ui.page=Math.min(Math.max(1,+g.value||1),pages);refreshView(true);}};}
+  var ps=document.getElementById('ad-ps');
+  if(ps)ps.onchange=function(){ui.pageSize=+ps.value;ui.page=1;refreshView(true);};
+  bindDialog();
+}
+function editDialog(){
+  var p=null;patterns.forEach(function(x){if(x.id===ui.editId)p=x;});
+  if(!p)return '';
+  return '<div class="ad-mask" id="ad-mask"><div class="ad-modal">'
+    +'<h3>编辑纹样<button class="x" id="ad-x">✕</button></h3>'
+    +'<div class="ad-form-row"><div class="ad-field"><label>编号</label><input class="ad-input" value="'+p.id+'" disabled style="opacity:.6"></div>'
+    +'<div class="ad-field"><label>名称</label><input class="ad-input" value="'+esc(p.name)+'" disabled style="opacity:.6"></div></div>'
+    +'<div class="ad-form-row"><div class="ad-field"><label>分类</label><input class="ad-input" value="'+esc(p.category)+'" disabled style="opacity:.6"></div>'
+    +'<div class="ad-field"><label>朝代</label><input class="ad-input" value="'+esc(p.period)+'" disabled style="opacity:.6"></div></div>'
+    +'<div class="ad-field"><label>文化寓意</label><textarea id="ad-meaning">'+esc(p.meaning)+'</textarea></div>'
+    +'<div class="ad-field"><label>形态特征</label><textarea id="ad-morph">'+esc(p.morphology)+'</textarea></div>'
+    +'<div class="ad-field"><label>状态</label><select id="ad-status">'
+    +['完好','缺图','已修复'].map(function(s){return '<option'+(p.status===s?' selected':'')+'>'+s+'</option>';}).join('')
+    +'</select></div>'
+    +'<div class="ad-field"><label>缩略图</label><div class="ad-replace">'
+    +'<img class="ad-thumb" id="ad-pv" src="'+esc(thumbURL(p))+'" alt="">'
+    +'<button id="ad-rep" type="button">⇄ 模拟替换图片</button></div></div>'
+    +'<div class="ad-btn-row"><button class="ad-btn--sm ad-btn--ghost" id="ad-cancel">取消</button>'
+    +'<button class="ad-btn--sm ad-btn--primary" id="ad-save">保存修改</button></div>'
+    +'</div></div>';
+}
+function delDialog(){
+  return '<div class="ad-mask" id="ad-mask"><div class="ad-modal" style="width:420px">'
+    +'<h3>删除纹样<button class="x" id="ad-x">✕</button></h3>'
+    +'<p style="font-size:13px;line-height:1.9;color:#5a4636">确定要删除纹样 <b style="color:#9e2a2b">'+esc(ui.delId)+'</b> 吗？<br>'
+    +'<span style="font-size:12px;color:#8a7a6a">此操作不可撤销。本次为 Mock 演示，仅影响后台本地数据。</span></p>'
+    +'<div class="ad-btn-row"><button class="ad-btn--sm ad-btn--ghost" id="ad-cancel">取消</button>'
+    +'<button class="ad-btn--sm ad-btn--danger" id="ad-del-ok">确认删除</button></div></div></div>';
+}
+function bindDialog(){
+  var mask=document.getElementById('ad-mask');if(!mask)return;
+  function close(){ui.dialog=null;refreshView();}
+  mask.onclick=function(ev){if(ev.target===mask)close();};
+  var x=document.getElementById('ad-x');if(x)x.onclick=close;
+  var cancel=document.getElementById('ad-cancel');if(cancel)cancel.onclick=close;
+  var rep=document.getElementById('ad-rep');
+  if(rep){rep.onclick=function(){
+    var p=null;patterns.forEach(function(t){if(t.id===ui.editId)p=t;});
+    p.replaced=!p.replaced;
+    document.getElementById('ad-pv').src=thumbURL(p);
+    toast(p.replaced?'已模拟替换图片（本地状态生效）':'已还原原图');
+  };}
+  var save=document.getElementById('ad-save');
+  if(save){save.onclick=function(){
+    var p=null;patterns.forEach(function(t){if(t.id===ui.editId)p=t;});
+    p.meaning=document.getElementById('ad-meaning').value;
+    p.morphology=document.getElementById('ad-morph').value;
+    p.status=document.getElementById('ad-status').value;
+    saveOverrides();ui.dialog=null;refreshView();toast('保存成功（Mock 环境，已存于本地）');
+  };}
+  var del=document.getElementById('ad-del-ok');
+  if(del){del.onclick=function(){
+    var idx=-1;patterns.forEach(function(t,i){if(t.id===ui.delId)idx=i;});
+    if(idx>=0){patterns.splice(idx,1);saveOverrides();}
+    var id=ui.delId;ui.dialog=null;refreshView();toast('已删除纹样 '+id+'（Mock 模拟）');
+  };}
+}
+
+/* ═══ AI 记录（GLM4-Flash 调用日志） ═══ */
+function aiFiltered(){
+  return AI_LOGS.filter(function(l){return !ui.aiStatus||l.status===ui.aiStatus;});
+}
+function aiPager(total,pages,cur){
+  var btns=[];
+  function b(l,k,dis,on){return '<button data-ap="'+k+'"'+(dis?' disabled':'')+(on?' class="on"':'')+'>'+l+'</button>';}
+  btns.push(b('‹',Math.max(1,cur-1),cur===1));
+  var show=[];for(var i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-cur)<=2)show.push(i);}
+  var last=0;show.forEach(function(i){
+    if(i-last>1)btns.push('<span style="color:#8a7a6a">…</span>');
+    btns.push(b(i,i,false,i===cur));last=i;
+  });
+  btns.push(b('›',Math.min(pages,cur+1),cur===pages));
+  btns.push('<span style="margin-left:8px;color:#8a7a6a">前往 <input class="ad-goto" id="ad-agoto" value="'+cur+'"> 页 / 共 '+pages+' 页</span>');
+  return btns.join('');
+}
+function renderLogs(){
+  var list=aiFiltered();
+  var pages=Math.max(1,Math.ceil(list.length/PAGE_SIZE_AI));
+  if(ui.aiPage>pages)ui.aiPage=pages;
+  var rows=list.slice((ui.aiPage-1)*PAGE_SIZE_AI,ui.aiPage*PAGE_SIZE_AI).map(function(l){
+    var ok=l.status==='success';
+    return '<tr><td class="mono">'+l.no+'</td>'
+      +'<td>'+fmtDate(l.time)+'</td>'
+      +'<td><span class="ad-tag ad-tag--warn">glm-4-flash</span></td>'
+      +'<td><span class="ad-tag '+(ok?'ad-tag--ok':'ad-tag--fail')+'">'+(ok?'成功':'失败')+'</span></td>'
+      +'<td class="mono">HTTP '+l.http+'</td>'
+      +'<td class="mono">'+fmtDur(l.latency)+'</td>'
+      +'<td><button class="ad-reset" style="height:30px;color:#9e2a2b;border-color:#e0b9b6" data-no="'+l.no+'">👁 查看详情</button></td></tr>';
+  }).join('');
+  return '<div class="ad-panel" style="padding:16px 20px">'
+    +'<h3 style="font-size:15px;color:#7a1f23;margin-bottom:6px">AI 辅助设计工坊 · GLM4-Flash 调用日志'
+    +'<small style="font-weight:400;color:#8a7a6a;font-size:12px">（共 '+AI_LOGS.length+' 条 · 演示数据，模拟智谱 GLM4-Flash 实际调用）</small></h3>'
+    +'<div class="ad-toolbar">'
+    +'<select id="ad-aist"><option value="">全部状态</option>'
+    +'<option value="success"'+(ui.aiStatus==='success'?' selected':'')+'>成功</option>'
+    +'<option value="fail"'+(ui.aiStatus==='fail'?' selected':'')+'>失败</option></select>'
+    +'<span class="ad-count">共 <b style="color:#9e2a2b">'+list.length+'</b> 条</span></div>'
+    +'<table class="ad-table"><thead><tr><th>调用编号</th><th>调用时间</th><th>模型</th><th>响应状态</th><th>请求/响应码</th><th>耗时</th><th>操作</th></tr></thead>'
+    +'<tbody>'+(rows||'<tr><td colspan="7" style="text-align:center;color:#8a7a6a;padding:30px">无匹配日志</td></tr>')+'</tbody></table>'
+    +'<div class="ad-pager">'+aiPager(list.length,pages,ui.aiPage)+'</div></div>'
+    +(ui.dialog==='detail'?detailDialog():'');
+}
+function detailDialog(){
+  var l=null;AI_LOGS.forEach(function(x){if(x.no===ui.detailNo)l=x;});
+  if(!l)return '';
+  var ok=l.status==='success';
+  var failNote=ok?'':'<div class="ad-alert">● 本次调用失败：模型返回 <b>HTTP '+l.http+'</b>，耗时 '+fmtDur(l.latency)
+    +'，已记入异常日志并触发重试策略（演示环境仅展示，未真正重试）。</div>';
+  var sws=ok?SWATCHES.map(function(s){
+    return '<div class="ad-sw"><div class="c" style="background:'+s.hex+'"></div><div class="t"><b>'+s.name+' '+s.hex+'</b><br>'
+      +s.use+'<br>'+esc(s.lab)+'<br>'+s.rgb+'</div></div>';
+  }).join(''):'';
+  var stages=ok
+    ? '<div class="ad-stage-flow"><span class="st">需求解析</span><span class="ln"></span><span class="st">纹样检索</span><span class="ln"></span>'
+      +'<span class="st">结构拆解</span><span class="ln"></span><span class="st">配色方案</span></div>'
+    : '<div class="ad-stage-flow"><span class="st is-fail">需求解析</span><span class="ln is-fail"></span>'
+      +'<span class="st is-fail">纹样检索</span><span class="ln is-fail"></span>'
+      +'<span class="st is-fail">结构拆解</span><span class="ln is-fail"></span><span class="st is-fail">配色方案</span></div>';
+  var body1=ok
+    ? '<div class="ad-h4">① 需求解析</div>'
+      +'<p style="font-size:12px;color:#5a4636;line-height:1.8">围绕「'+esc(l.req)+'」这一核心设计意图，提取核心文化语义，并将其转化为可落地的视觉母题与构成框架。</p>'
+      +'<div style="margin-top:8px">'
+      +'<div class="ad-kv"><i>应用场景</i>'+esc(l.dyn)+'风格 · '+esc(l.req)+'</div>'
+      +'<div class="ad-kv"><i>风格偏好</i>典雅端庄，富贵祥瑞，纹样层次分明与古风韵味</div>'
+      +'<div class="ad-kv"><i>文化意象</i>'+esc(l.dyn)+' · 传统工艺 · 纹样符号 · 文化传承</div></div>'
+      +'<div class="ad-h4">② 纹样检索</div>'
+      +'<p style="font-size:12px;color:#5a4636;line-height:1.8">基于 <b>'+esc(l.dyn)+'</b> / 类型 / 工艺特征检索，命中 <b>3</b> 枚相关纹样，精选 3 枚用于拆解：</p>'
+      +'<table class="ad-table" style="margin-top:8px"><thead><tr><th>纹样</th><th>朝代</th><th>分类</th><th>寓意</th></tr></thead><tbody>'
+      +'<tr><td>莲花纹</td><td>'+esc(l.dyn)+'</td><td>植物纹样</td><td>高洁、清雅</td></tr>'
+      +'<tr><td>缠枝纹</td><td>'+esc(l.dyn)+'</td><td>植物纹样</td><td>生生不息</td></tr>'
+      +'<tr><td>宝相花</td><td>'+esc(l.dyn)+'</td><td>吉祥符号纹</td><td>圆满、富贵</td></tr></tbody></table>'
+      +'<div class="ad-h4">③ 结构拆解 <small style="color:#8a7a6a;font-weight:400">（思想 · 构成 · 元素）</small></div>'
+      +'<div class="ad-kv"><i>母题提取</i>核心以传统纹样为文化原型，提炼其吉祥寓意与识别特征。</div>'
+      +'<div class="ad-kv"><i>设计延伸</i>从器物功能「'+esc(l.req)+'」适配延展出对应的叙事框架。</div>'
+      +'<div class="ad-h4" style="margin-top:12px">构成方式</div>'
+      +'<div class="ad-kv"><i>骨架</i>主纹对称连续排布，保留可试铺、可连续的延展性。</div>'
+      +'<div class="ad-kv"><i>节奏</i>主纹 + 辅纹 + 边角三层叠合以增强层次。</div>'
+      +'<div class="ad-h4" style="margin-top:12px">元素拆解</div>'
+      +'<div class="ad-kv"><i>线</i>以圆融曲线勾勒轮廓，构建柔和的韵律感。</div>'
+      +'<div class="ad-kv"><i>面</i>主体花头依饱和度着色，留白占比约 30%。</div>'
+      +'<div class="ad-kv"><i>留白</i>以空间呼应「气韵」，避免满铺。</div>'
+      +'<div class="ad-h4">④ 配色方案</div><div class="ad-swatches">'+sws+'</div>'
+    : '<p style="font-size:12px;color:#5a4636;line-height:1.8">调用在「需求解析」阶段即因模型服务异常中断，'
+      +'未进入纹样检索与后续拆解流程，故无结构拆解与配色方案产出。</p>';
+  return '<div class="ad-mask" id="ad-mask"><div class="ad-modal">'
+    +'<h3>GLM4-Flash 调用详情 · '+l.no+'<button class="x" id="ad-x">✕</button></h3>'
+    +'<div class="ad-alert '+(ok?'ok':'')+'">● 模型 <b>'+l.model+'</b> · 解析朝代 <b>'+esc(l.dyn)+'</b> · 状态 <b>'+(ok?'调用成功':'调用失败')+'</b></div>'
+    +'<div class="ad-kv"><i>调用时间</i>'+fmtDate(l.time)+'</div>'
+    +'<div class="ad-kv"><i>调用编号</i><span class="mono">'+l.no+'</span></div>'
+    +'<div class="ad-kv"><i>模型</i><span class="mono">'+l.model+'</span></div>'
+    +'<div class="ad-kv"><i>请求状态</i>已发起 POST /v4/chat/completions</div>'
+    +'<div class="ad-kv"><i>响应状态</i><span class="mono">HTTP '+l.http+'</span> · '+(ok?'200 OK':'服务端异常')+'</div>'
+    +'<div class="ad-kv"><i>耗时</i><span class="mono">'+fmtDur(l.latency)+'</span></div>'
+    +'<div class="ad-kv"><i>Token</i><span class="mono">'+(ok?('总 '+l.tokens+'（输入 '+l.promptTokens+' / 输出 '+(l.tokens-l.promptTokens)+'）'):'0（未返回）')+'</span></div>'
+    +'<div class="ad-kv"><i>需求描述</i>'+esc(l.req)+'</div>'
+    +failNote
+    +'<div class="ad-h4">生成环节拆解</div>'+stages+body1
+    +'</div></div>';
+}
+function bindLogs(){
+  var f=document.getElementById('ad-aist');
+  if(f)f.onchange=function(){ui.aiStatus=f.value;ui.aiPage=1;refreshView(true);};
+  document.querySelectorAll('[data-no]').forEach(function(b){
+    b.onclick=function(){ui.dialog='detail';ui.detailNo=b.getAttribute('data-no');refreshView();};
+  });
+  document.querySelectorAll('.ad-pager button[data-ap]').forEach(function(b){b.onclick=function(){ui.aiPage=+b.getAttribute('data-ap');refreshView(true);};});
+  var g=document.getElementById('ad-agoto');
+  if(g){g.onkeydown=function(ev){if(ev.key==='Enter'){ev.stopPropagation();
+    var pages=Math.max(1,Math.ceil(aiFiltered().length/PAGE_SIZE_AI));
+    ui.aiPage=Math.min(Math.max(1,+g.value||1),pages);refreshView(true);}};}
+  bindDialog();
+}
+
+/* ═══ 反馈管理（前端「意见反馈」提交数据，localStorage 持久化） ═══ */
+var FB_KEY='wenyao:feedbacks';
+function fbSeed(){
+  var now=Date.now(),d=86400000;
+  return [
+    {id:'FB-2001',name:'李慕白',email:'limubai@example.com',type:'建议',content:'首页「朝代长廊」能否增加纹样故事的音频讲解？通勤时听很合适。',time:now-d*2-3600000,status:'已处理'},
+    {id:'FB-2002',name:'王思齐',email:'wangsq@example.com',type:'纠错',content:'「缠枝纹」条目里把唐代写成了宋代，麻烦核对一下出处。',time:now-d-7200000,status:'待处理'},
+    {id:'FB-2003',name:'陈砚',email:'chenyan@example.com',type:'合作',content:'我们是文创团队，想探讨纹样授权与联合设计的可能性。',time:now-3600000*5,status:'待处理'}
+  ];
+}
+function fbRead(){
+  var arr=readJSON(FB_KEY);
+  if(!Array.isArray(arr)){arr=fbSeed();writeJSON(FB_KEY,arr);}
+  return arr.map(function(f){
+    return {id:f.id||'',name:f.name||'匿名',email:f.email||'—',type:f.type||'其他',
+      content:f.content||'',time:f.time||Date.now(),status:f.status||'待处理'};
+  });
+}
+function fbWrite(arr){writeJSON(FB_KEY,arr);}
+function fbFiltered(){
+  var arr=fbRead();
+  if(ui.fbStatus)arr=arr.filter(function(f){return f.status===ui.fbStatus;});
+  return arr;
+}
+function fbPager(total,pages,cur){
+  var btns=[];
+  function b(l,k,dis,on){return '<button data-fbp="'+k+'"'+(dis?' disabled':'')+(on?' class="on"':'')+'>'+l+'</button>';}
+  btns.push(b('‹',Math.max(1,cur-1),cur===1));
+  var show=[];for(var i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-cur)<=2)show.push(i);}
+  var last=0;show.forEach(function(i){
+    if(i-last>1)btns.push('<span style="color:#8a7a6a">…</span>');
+    btns.push(b(i,i,false,i===cur));last=i;
+  });
+  btns.push(b('›',Math.min(pages,cur+1),cur===pages));
+  btns.push('<span style="margin-left:8px;color:#8a7a6a">每页 <select class="ad-pagesize" id="ad-fbps">'
+    +[10,20,50].map(function(s){return '<option value="'+s+'"'+(s===ui.fbPageSize?' selected':'')+'>'+s+'</option>';}).join('')
+    +'</select> 条 · 前往 <input class="ad-goto" id="ad-fbgoto" value="'+cur+'"> 页 / 共 '+pages+' 页</span>');
+  return btns.join('');
+}
+function renderFeedback(){
+  var list=fbFiltered();
+  var pages=Math.max(1,Math.ceil(list.length/ui.fbPageSize));
+  if(ui.fbPage>pages)ui.fbPage=pages;
+  var rows=list.slice((ui.fbPage-1)*ui.fbPageSize,ui.fbPage*ui.fbPageSize).map(function(f){
+    var ok=f.status==='已处理';
+    return '<tr><td>'+esc(f.name)+'</td>'
+      +'<td>'+esc(f.email)+'</td>'
+      +'<td><span class="ad-tag ad-tag--warn">'+esc(f.type)+'</span></td>'
+      +'<td style="max-width:300px;line-height:1.6">'+esc(f.content)+'</td>'
+      +'<td class="mono" style="white-space:nowrap">'+fmtDate(f.time)+'</td>'
+      +'<td><span class="ad-tag '+(ok?'ad-tag--ok':'ad-tag--warn')+'">'+esc(f.status)+'</span></td>'
+      +'<td><div class="ad-op">'
+      +'<button class="edit" data-fb="'+esc(f.id)+'">👁 查看</button>'
+      +(ok?'':'<button class="del" data-fbdone="'+esc(f.id)+'">✓ 标记已处理</button>')
+      +'</div></td></tr>';
+  }).join('');
+  var statusOpts=['','待处理','已处理'].map(function(s){return '<option value="'+s+'"'+(s===ui.fbStatus?' selected':'')+'>'+(s||'全部状态')+'</option>';}).join('');
+  var all=fbRead(),pend=all.filter(function(f){return f.status==='待处理';}).length;
+  return '<div class="ad-panel" style="padding:16px 20px">'
+    +'<div class="ad-note"><span class="ic">💬</span><span>本页展示前端「关于我们 · 意见反馈」提交的留言。数据保存于浏览器 <b>localStorage</b>（演示环境共享存储），管理员可筛选状态并标记处理进度。</span></div>'
+    +'<div class="ad-toolbar">'
+    +'<select id="ad-fbst">'+statusOpts+'</select>'
+    +'<span class="ad-count">共 <b style="color:#9e2a2b">'+all.length+'</b> 条 · 待处理 <b style="color:#b8722c">'+pend+'</b> 条</span></div>'
+    +'<table class="ad-table"><thead><tr><th>姓名</th><th>邮箱</th><th>类型</th><th>反馈内容</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead>'
+    +'<tbody>'+(rows||'<tr><td colspan="7" style="text-align:center;color:#8a7a6a;padding:30px">暂无反馈</td></tr>')+'</tbody></table>'
+    +'<div class="ad-pager">'+fbPager(list.length,pages,ui.fbPage)+'</div></div>'
+    +(ui.fbDetail?fbDetailDialog():'');
+}
+function fbDetailDialog(){
+  var f=null;fbRead().forEach(function(x){if(x.id===ui.fbDetail)f=x;});
+  if(!f)return '';
+  var ok=f.status==='已处理';
+  return '<div class="ad-mask" id="ad-fb-mask"><div class="ad-modal">'
+    +'<h3>反馈详情<button class="x" id="ad-fb-x">✕</button></h3>'
+    +'<div class="ad-kv"><i>姓名</i>'+esc(f.name)+'</div>'
+    +'<div class="ad-kv"><i>邮箱</i>'+esc(f.email)+'</div>'
+    +'<div class="ad-kv"><i>类型</i><span class="ad-tag ad-tag--warn">'+esc(f.type)+'</span></div>'
+    +'<div class="ad-kv"><i>提交时间</i>'+fmtDate(f.time)+'</div>'
+    +'<div class="ad-kv"><i>状态</i><span class="ad-tag '+(ok?'ad-tag--ok':'ad-tag--warn')+'">'+esc(f.status)+'</span></div>'
+    +'<div class="ad-h4">反馈内容</div>'
+    +'<div class="ad-field"><textarea style="min-height:120px" disabled>'+esc(f.content)+'</textarea></div>'
+    +(ok?'':'<div class="ad-btn-row"><button class="ad-btn--sm ad-btn--primary" id="ad-fb-mark">✓ 标记为已处理</button></div>')
+    +'</div></div>';
+}
+function bindFeedback(){
+  var st=document.getElementById('ad-fbst');
+  if(st)st.onchange=function(){ui.fbStatus=st.value;ui.fbPage=1;refreshView(true);};
+  var ps=document.getElementById('ad-fbps');
+  if(ps)ps.onchange=function(){ui.fbPageSize=+ps.value;ui.fbPage=1;refreshView(true);};
+  document.querySelectorAll('[data-fb]').forEach(function(b){b.onclick=function(){ui.fbDetail=b.getAttribute('data-fb');refreshView();};});
+  document.querySelectorAll('[data-fbdone]').forEach(function(b){b.onclick=function(){
+    var id=b.getAttribute('data-fbdone');var arr=fbRead();
+    arr.forEach(function(f){if(f.id===id)f.status='已处理';});fbWrite(arr);refreshView();toast('已标记为「已处理」');
+  };});
+  document.querySelectorAll('.ad-pager button[data-fbp]').forEach(function(b){b.onclick=function(){ui.fbPage=+b.getAttribute('data-fbp');refreshView(true);};});
+  var g=document.getElementById('ad-fbgoto');
+  if(g){g.onkeydown=function(ev){if(ev.key==='Enter'){ev.stopPropagation();
+    var pages=Math.max(1,Math.ceil(fbFiltered().length/ui.fbPageSize));
+    ui.fbPage=Math.min(Math.max(1,+g.value||1),pages);refreshView(true);}};}
+  var mask=document.getElementById('ad-fb-mask');
+  if(mask){
+    mask.onclick=function(ev){if(ev.target===mask){ui.fbDetail=null;refreshView();}};
+    var x=document.getElementById('ad-fb-x');if(x)x.onclick=function(){ui.fbDetail=null;refreshView();};
+    var mk=document.getElementById('ad-fb-mark');
+    if(mk)mk.onclick=function(){
+      var arr=fbRead();arr.forEach(function(f){if(f.id===ui.fbDetail)f.status='已处理';});fbWrite(arr);
+      ui.fbDetail=null;refreshView();toast('已标记为「已处理」');
+    };
+  }
+}
+
+/* ═══ 系统设置 ═══ */
+function renderSettings(){
+  var cfg={};
+  try{cfg=JSON.parse(localStorage.getItem('wenyao:site_settings')||'{}');}catch(e){}
+  var title=cfg.title||'纹以载道 · 数启新章', sub=cfg.subtitle||'AI 驱动的中国传统纹样数字博物馆';
+  return '<div class="ad-panel" style="padding:16px 20px"><h3 style="font-size:15px;color:#7a1f23;margin-bottom:14px">前台首页文案设置</h3>'
+    +'<div class="ad-note"><span class="ic">ℹ️</span><span><b>纯 Mock 环境说明：</b>当前为静态部署 + 纯后台 Mock，设置保存至浏览器 localStorage。由于前后台分属独立页面与运行环境，前台刷新后如未读到新文案属正常演示逻辑；可点击「前往首页」验证前台读取效果。</span></div>'
+    +'<div class="ad-field"><label>首页主标题 <span id="ad-tc" style="float:right;color:#8a7a6a">'+title.length+' / 30</span></label>'
+    +'<input class="ad-input" id="ad-title" maxlength="30" value="'+esc(title)+'"></div>'
+    +'<div class="ad-field"><label>首页副标题 <span id="ad-sc" style="float:right;color:#8a7a6a">'+sub.length+' / 60</span></label>'
+    +'<input class="ad-input" id="ad-subtitle" maxlength="60" value="'+esc(sub)+'"></div>'
+    +'<div style="display:flex;gap:12px;margin-top:6px;flex-wrap:wrap">'
+    +'<button class="ad-btn--sm ad-btn--primary" id="ad-cfg-save">✔ 保存设置</button>'
+    +'<button class="ad-btn--sm ad-btn--ghost" id="ad-cfg-reset">↺ 恢复默认</button>'
+    +'<a class="ad-btn--sm ad-btn--ghost" href="/" target="_blank" style="display:inline-flex;align-items:center;text-decoration:none;color:#8a7a6a">↗ 前往首页</a></div>'
+    +'<h3 style="font-size:13px;color:#8a7a6a;margin-top:22px;letter-spacing:2px">实时预览</h3>'
+    +'<div class="ad-preview"><div class="pv-banner"><h1 id="ad-pv-t">'+esc(title)+'</h1><p id="ad-pv-s">'+esc(sub)+'</p></div>'
+    +'<div class="pv-cap">— 首页 Banner 预览 —</div></div></div>';
+}
+function bindSettings(){
+  var t=document.getElementById('ad-title'),s=document.getElementById('ad-subtitle');
+  if(!t)return;
+  function sync(){
+    document.getElementById('ad-pv-t').textContent=t.value;
+    document.getElementById('ad-pv-s').textContent=s.value;
+    document.getElementById('ad-tc').textContent=t.value.length+' / 30';
+    document.getElementById('ad-sc').textContent=s.value.length+' / 60';
+  }
+  t.oninput=sync;s.oninput=sync;
+  document.getElementById('ad-cfg-save').onclick=function(){
+    if(!t.value.trim()){toast('主标题不能为空',true);return;}
+    try{localStorage.setItem('wenyao:site_settings',JSON.stringify({title:t.value,subtitle:s.value}));}catch(e){}
+    toast('已保存，前台待生效');
+  };
+  document.getElementById('ad-cfg-reset').onclick=function(){
+    localStorage.removeItem('wenyao:site_settings');
+    t.value='纹以载道 · 数启新章';s.value='AI 驱动的中国传统纹样数字博物馆';sync();toast('已恢复默认文案');
+  };
+}
+
+/* ── 视图刷新 ── */
+function refreshView(keepFocus){
+  var ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
+  root.innerHTML=renderLayout();
+  bindLayout();
+  if(keepFocus&&aid){
+    var el=document.getElementById(aid);
+    if(el){el.focus();try{el.setSelectionRange(pos,pos);}catch(e){}}
+  }
+}
+/* ── 初始路由 ── */
+(function init(){
+  var m=location.pathname.match(/^\/admin\/?([a-z-]*)/i);
+  var k=m&&m[1]?m[1]:'';
+  var authed=isAuthed();
+  if(authed){
+    // 已登录：合法子路由进入，否则回看板
+    if(k==='login'||!TITLES[k]){ui.route='dashboard';history.replaceState({},'','/admin/dashboard');}
+    else ui.route=k;
+  }else{
+    // 未登录（含过期）：仅登录页可访问，其余强制落到登录页
+    if(k!=='login'){ui.route='login';history.replaceState({},'','/admin/login');}
+    else ui.route='login';
+  }
+  render();
+})();
+})();
+</script>
+</body>
 </html>
