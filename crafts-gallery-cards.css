@@ -1,0 +1,74 @@
+/* ===== 非遗技艺馆 · 总览页卡片展签重做（06 张统一正方形） =====
+   问题定位：
+   1) 原 .cm__thumb 只约束宽度、高度随图片比例走，六张卡高度参差；
+   2) 图片取的是 /patterns/*.webp「纹样矢量图」（407×615 / 407×910），
+      object-fit: contain，配合卡片 overflow:hidden，于是出现「左直右半圆」的畸形遮罩；
+   3) 图片与技艺本身不对应（蜡染配青花、扎染配几何、刺绣配龙纹……）。
+   做法：容器强制 aspect-ratio:1/1 + 12px 圆角 + object-fit:cover，
+        图片换成各技艺专属实拍特写（craft-card/craft_1~6.jpg）。
+   —— 选择器统一带 #wbCraftGallery（脚本注入的标记 id），不影响其它页面。
+*/
+
+#wbCraftGallery .cm__grid { align-items: stretch; }
+
+#wbCraftGallery .cm__card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1) 图片容器：标准正方形 + 圆角 + 裁切铺满 */
+#wbCraftGallery .cm__thumb {
+  width: 100%;
+  margin: 14px 0 16px;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  display: block;
+  overflow: hidden;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-gold) 10%, transparent);
+  box-shadow: 0 6px 18px rgba(60, 34, 12, .14), 0 0 0 1px rgba(200, 155, 60, .26) inset;
+}
+
+#wbCraftGallery .cm__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  transition: transform .45s cubic-bezier(.25, 1, .5, 1);
+}
+
+#wbCraftGallery .cm__card:hover .cm__thumb img {
+  transform: scale(1.05);
+}
+
+/* 2) 文字区自适应，六张卡底部「进入专题」对齐 */
+#wbCraftGallery .cm__desc { flex: 1 1 auto; }
+#wbCraftGallery .cm__more { margin-top: auto; }
+
+/* 3) 图片加载失败兜底：国风渐变色块 + 居中大字（不会出现破图） */
+#wbCraftGallery .cm__thumb[data-wb-fallback] {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#wbCraftGallery .cm__thumb[data-wb-fallback]::after {
+  content: attr(data-wb-fallback);
+  font-family: var(--font-serif, "Noto Serif SC", serif);
+  font-size: clamp(26px, 3.4vw, 42px);
+  letter-spacing: .26em;
+  text-indent: .26em;
+  color: rgba(255, 248, 232, .94);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+}
+
+/* 4) 深色主题阴影减弱 */
+[data-theme="dark"] #wbCraftGallery .cm__thumb {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .45), 0 0 0 1px rgba(200, 155, 60, .28) inset;
+}
+
+@media (max-width: 900px) {
+  #wbCraftGallery .cm__thumb { border-radius: 10px; }
+}

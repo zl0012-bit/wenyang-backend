@@ -1,0 +1,636 @@
+/* ============================================================================
+ * [PATTERN-MODEL-VIEWER] 纹样详情页 · 平面图 / 3D鉴赏
+ *   mv6：一对多模型 —— 手动左右切换 + 图文数据强联动 + 全屏鉴赏
+ *
+ *   · Tab 分段控件：宣纸底 + 暗金激活态
+ *   · 3D 容器：固定 400px 视口，双 model-viewer 层交叉淡入（切换零闪烁、零跳动）
+ *   · 左右国风圆形箭头（仅当模型数 > 1 时出现）
+ *   · 「正在展示」高亮条：模型名 + 序号，与右侧年代/技艺字段同源
+ *   · 全屏鉴赏：右上角宣纸半透明小按钮 + :fullscreen 铺满 / 宣纸黄底 / 控件保留
+ *   · 仅 /pattern/:id 生效；选择器带 html body:has(.pm) 作用域，零外溢
+ * ========================================================================== */
+
+/* 原页面「3D 旋转展示即将上线」占位角标已过时，由本功能替代 */
+html body:has(.pm) .pm__rotate-hint { display: none !important; }
+
+/* ── Tab 分段控件 ───────────────────────────────────────────────────── */
+html body:has(.pm) .pmv-tabs {
+  order: -1;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: 3px;
+  margin: 0;
+  border: 1px solid rgba(168, 128, 62, .42);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(250, 244, 228, .80), rgba(238, 225, 194, .66));
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(122, 85, 18, .12), inset 0 1px 0 rgba(255, 255, 255, .55);
+}
+
+html body:has(.pm) .pmv-tabs__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  min-width: 104px;
+  height: 30px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #6b5330;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: .06em;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color .25s ease, color .25s ease, box-shadow .25s ease;
+}
+
+html body:has(.pm) .pmv-tabs__btn svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+html body:has(.pm) .pmv-tabs__btn:not(.is-active):hover {
+  background: rgba(200, 155, 60, .14);
+  color: #7a5512;
+}
+
+html body:has(.pm) .pmv-tabs__btn.is-active {
+  color: #fff8e6;
+  background: linear-gradient(135deg, #c9a24a 0%, #a9802c 100%);
+  box-shadow: 0 2px 8px rgba(150, 110, 35, .34), inset 0 1px 0 rgba(255, 255, 255, .34);
+  text-shadow: 0 1px 1px rgba(90, 60, 15, .30);
+}
+
+html body:has(.pm) .pmv-tabs__btn:focus-visible {
+  outline: 2px solid #a9802c;
+  outline-offset: 2px;
+}
+
+/* ── 3D 容器（毛玻璃） ──────────────────────────────────────────────── */
+html body:has(.pm) .pmv-stage {
+  display: none;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 8px 0;
+  border: 1px solid rgba(168, 128, 62, .48);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(90, 60, 20, .16), inset 0 1px 0 rgba(255, 255, 255, .5);
+  isolation: isolate;
+  /* 切换模型时锁定内部布局，任何子元素变化都不外溢 */
+  contain: layout paint;
+}
+
+html body:has(.pm) .pm.is-mv-3d .pm__media-wrap > .pmv-stage { display: block; }
+
+/* 独立毛玻璃层：与 WebGL canvas 分层，避免合成洗白 */
+html body:has(.pm) .pmv-stage__glass {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 18% 8%, rgba(255, 251, 236, .72), transparent 62%),
+    repeating-linear-gradient(45deg, rgba(160, 120, 55, .022) 0 2px, transparent 2px 5px),
+    linear-gradient(140deg, rgba(248, 240, 218, .80), rgba(232, 216, 183, .62));
+  -webkit-backdrop-filter: blur(14px) saturate(1.12);
+  backdrop-filter: blur(14px) saturate(1.12);
+}
+
+/* 切换态：顶部一条极细暗金流光，作为「正在换藏品」的轻提示（不遮挡、不位移） */
+html body:has(.pm) .pmv-stage.is-switching::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  z-index: 7;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, #b8862c 38%, #f2dfa8 50%, #b8862c 62%, transparent 100%);
+  background-size: 45% 100%;
+  background-repeat: no-repeat;
+  animation: pmvSweep 1.05s linear infinite;
+}
+
+@keyframes pmvSweep {
+  0%   { background-position: -45% 0; }
+  100% { background-position: 145% 0; }
+}
+
+/* 国风内框 + 四角暗金细线 */
+html body:has(.pm) .pmv-stage::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  z-index: 3;
+  pointer-events: none;
+  border: 1px solid rgba(168, 128, 62, .24);
+  border-radius: 7px;
+}
+
+/* ── 模型视口：固定尺寸，双层叠放（切换靠 opacity 交叉，不动布局）────── */
+html body:has(.pm) .pmv-mvbox {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 400px;
+  box-sizing: border-box;
+  /* 内部绝对定位子元素不参与外部流，切换时零回流 */
+  contain: strict;
+}
+
+html body:has(.pm) .pmv-mvbox > model-viewer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: transparent !important;
+  --poster-color: transparent;
+  --interaction-prompt-display: none;  /* 官方变量：隐藏自带手势提示 */
+  outline: none;
+  opacity: 0;
+  visibility: hidden;
+  /* 只过渡透明度：绝不触发尺寸动画 */
+  transition: opacity .34s ease, visibility .34s ease;
+  will-change: opacity;
+}
+
+html body:has(.pm) .pmv-mvbox > model-viewer.is-front {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 加载进度条：暗金细线，替换默认蓝色 */
+html body:has(.pm) .pmv-mvbox > model-viewer::part(default-progress-bar) {
+  height: 2px;
+  background: linear-gradient(90deg, rgba(122, 85, 18, .30), #c9a24a);
+}
+
+/* ── 左右切换箭头（国风半透明圆钮，垂直居中）──────────────────────── */
+html body:has(.pm) .pmv-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 6;
+  display: none;                      /* 默认隐藏；length > 1 时才由 .is-multi 打开 */
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 1px solid rgba(150, 112, 48, .72);
+  border-radius: 50%;
+  background: rgba(252, 247, 235, .86);
+  -webkit-backdrop-filter: blur(9px) saturate(1.15);
+  backdrop-filter: blur(9px) saturate(1.15);
+  box-shadow:
+    0 3px 12px rgba(96, 64, 14, .20),
+    inset 0 0 0 1px rgba(255, 255, 255, .58);
+  color: #7d5a18;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: transform .22s cubic-bezier(.25,1,.5,1), box-shadow .22s ease,
+              background-color .22s ease, color .22s ease, opacity .22s ease;
+}
+
+html body:has(.pm) .pmv-stage.is-multi .pmv-nav { display: inline-flex; }
+
+html body:has(.pm) .pmv-nav--prev { left: 12px; }
+html body:has(.pm) .pmv-nav--next { right: 12px; }
+
+html body:has(.pm) .pmv-nav svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* 悬停：暗金底、米白笔锋，轻微外扩 + 上浮 */
+html body:has(.pm) .pmv-nav:hover {
+  border-color: rgba(150, 112, 48, .95);
+  color: #fff8e4;
+  background: linear-gradient(135deg, rgba(201, 162, 74, .96) 0%, rgba(169, 128, 44, .96) 100%);
+  box-shadow:
+    0 6px 18px rgba(120, 84, 22, .32),
+    inset 0 0 0 1px rgba(255, 255, 255, .30);
+  transform: translateY(-50%) scale(1.07);
+}
+
+html body:has(.pm) .pmv-nav:active {
+  transform: translateY(-50%) scale(.96);
+}
+
+html body:has(.pm) .pmv-nav:focus-visible {
+  outline: 2px solid #a9802c;
+  outline-offset: 3px;
+}
+
+/* ── 「正在展示」高亮条：模型名与右侧数据同源，一眼可对 ────────────── */
+html body:has(.pm) .pmv-now {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-sizing: border-box;
+  min-height: 30px;
+  margin: 2px auto 0;
+  padding: 4px 14px 4px 10px;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  border: 1px solid rgba(168, 128, 62, .40);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 246, 222, .92), rgba(244, 231, 199, .80));
+  box-shadow: 0 2px 10px rgba(120, 84, 22, .13), inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+/* 左侧朱砂小印 */
+html body:has(.pm) .pmv-now__seal {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: #a1382c;
+  color: #fdeccd;
+  font-family: var(--font-title, serif);
+  font-size: 11px;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(90, 30, 20, .35);
+}
+
+html body:has(.pm) .pmv-now__k {
+  flex: none;
+  color: #96703a;
+  font-size: 12px;
+  letter-spacing: .10em;
+}
+
+html body:has(.pm) .pmv-now__v {
+  color: #5d3f12;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+html body:has(.pm) .pmv-now__idx {
+  flex: none;
+  padding-left: 8px;
+  border-left: 1px solid rgba(168, 128, 62, .34);
+  color: #8a6420;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+}
+
+/* 切换瞬间给高亮条一个极轻的呼吸，提示数据已更新（不位移） */
+@keyframes pmvNowPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(201, 162, 74, .40), 0 2px 10px rgba(120, 84, 22, .13); }
+  100% { box-shadow: 0 0 0 7px rgba(201, 162, 74, 0), 0 2px 10px rgba(120, 84, 22, .13); }
+}
+html body:has(.pm) .pmv-now.is-pulse { animation: pmvNowPulse .65s ease-out; }
+
+/* ── 当前藏品标题 ─────────────────────────────────────────────────── */
+html body:has(.pm) .pmv-stage__title {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 28px;
+  margin: 4px 0 0;
+  color: #6b4a22;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .10em;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html body:has(.pm) .pmv-stage__title::before,
+html body:has(.pm) .pmv-stage__title::after {
+  content: "";
+  flex: none;
+  width: 26px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168, 128, 62, .7));
+}
+html body:has(.pm) .pmv-stage__title::after {
+  background: linear-gradient(90deg, rgba(168, 128, 62, .7), transparent);
+}
+
+/* ── 载入中占位（触发 load 后淡出）────────────────────────────────── */
+html body:has(.pm) .pmv-stage__loading {
+  position: absolute;
+  inset: 8px 8px 68px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #7a5512;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+  pointer-events: none;
+  transition: opacity .45s ease, visibility .45s ease;
+}
+
+html body:has(.pm) .pmv-stage.is-loaded .pmv-stage__loading {
+  opacity: 0;
+  visibility: hidden;
+}
+
+html body:has(.pm) .pmv-stage__ring {
+  width: 26px;
+  height: 26px;
+  box-sizing: border-box;
+  border: 2px solid rgba(168, 128, 62, .24);
+  border-top-color: #b8862c;
+  border-radius: 50%;
+  animation: pmv-spin .9s linear infinite;
+}
+
+@keyframes pmv-spin { to { transform: rotate(360deg); } }
+
+/* ── 底部小字提示 ─────────────────────────────────────────────────── */
+html body:has(.pm) .pmv-stage__hint {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 28px;
+  color: #6b4a22;
+  font-size: 12px;
+  letter-spacing: .05em;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+html body:has(.pm) .pmv-stage__hint i {
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168, 128, 62, .7));
+}
+
+html body:has(.pm) .pmv-stage__hint i:last-child {
+  background: linear-gradient(90deg, rgba(168, 128, 62, .7), transparent);
+}
+
+/* ── 3D 态：让位给模型，隐藏原平面图与「全屏查看」 ─────────────────── */
+html body:has(.pm) .pm.is-mv-3d .pm__media-wrap > .pattern-border {
+  display: none !important;
+}
+
+html body:has(.pm) .pm.is-mv-3d .pm__media-wrap > .pm__full-btn {
+  display: none !important;
+}
+
+/* ── 无 WebGL 环境：与 3D 组件同尺寸的静态预览（零报错、不空白） ─────── */
+html body:has(.pm) .pmv-stage.is-fallback .pmv-stage__poster {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 400px;
+  object-fit: contain;
+}
+
+/* ── 窄屏：控件收紧，视口高度按比例降，保持比例不裁切 ──────────────── */
+@media (max-width: 720px) {
+  html body:has(.pm) .pmv-mvbox { height: 340px; }
+  html body:has(.pm) .pmv-stage__loading { inset: 8px 8px 64px; }
+  html body:has(.pm) .pmv-stage.is-fallback .pmv-stage__poster { height: 340px; }
+  html body:has(.pm) .pmv-nav { width: 42px; height: 42px; }
+  html body:has(.pm) .pmv-nav svg { width: 18px; height: 18px; }
+  html body:has(.pm) .pmv-nav--prev { left: 8px; }
+  html body:has(.pm) .pmv-nav--next { right: 8px; }
+}
+
+@media (max-width: 520px) {
+  html body:has(.pm) .pmv-mvbox { height: 300px; }
+  html body:has(.pm) .pmv-stage.is-fallback .pmv-stage__poster { height: 300px; }
+  html body:has(.pm) .pmv-tabs__btn { min-width: 0; padding: 0 12px; font-size: 12px; }
+  html body:has(.pm) .pmv-stage__hint { font-size: 11px; gap: 6px; }
+  html body:has(.pm) .pmv-stage__hint i { width: 12px; }
+  html body:has(.pm) .pmv-stage__title { font-size: 12px; }
+  html body:has(.pm) .pmv-now { gap: 6px; padding: 4px 10px 4px 8px; }
+  html body:has(.pm) .pmv-now__k { font-size: 11px; letter-spacing: .04em; }
+  html body:has(.pm) .pmv-now__v { font-size: 12.5px; }
+  html body:has(.pm) .pmv-now__idx { font-size: 10.5px; padding-left: 6px; }
+}
+
+/* ==========================================================================
+ * 全屏鉴赏（HTML5 Fullscreen API）
+ *   · 右上角国风胶囊小按钮：宣纸半透明 + 暗金细边 + 悬浮金晕微光
+ *   · 全屏目标 .pmv-stage 铺满视口，背景恒定温暖宣纸黄（覆盖 UA 默认黑底）
+ *   · 全屏后 mvbox / poster 撑满剩余空间，箭头、高亮条、标题、按钮全部保留
+ * ========================================================================== */
+
+/* ── 按钮 ─────────────────────────────────────────────────────────── */
+html body:has(.pm) .pmv-fs {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(150, 112, 48, .62);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(252, 246, 230, .90), rgba(238, 224, 192, .80));
+  -webkit-backdrop-filter: blur(9px) saturate(1.12);
+  backdrop-filter: blur(9px) saturate(1.12);
+  box-shadow: 0 2px 10px rgba(96, 64, 14, .18), inset 0 1px 0 rgba(255, 255, 255, .6);
+  color: #6b4a22;
+  font: inherit;
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .25s ease, border-color .25s ease, background-color .25s ease,
+              box-shadow .25s ease, transform .25s ease;
+}
+
+html body:has(.pm) .pmv-fs__ico {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+html body:has(.pm) .pmv-fs__ico svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+html body:has(.pm) .pmv-fs__ico--exit { display: none; }
+
+/* 悬停：描金 + 金晕微光 + 轻微上浮 */
+html body:has(.pm) .pmv-fs:hover {
+  color: #5d3f12;
+  border-color: rgba(201, 162, 74, .95);
+  background: linear-gradient(135deg, rgba(255, 250, 234, .98), rgba(246, 230, 194, .92));
+  box-shadow:
+    0 4px 16px rgba(120, 84, 22, .28),
+    0 0 0 3px rgba(201, 162, 74, .18),
+    0 0 14px rgba(201, 162, 74, .38),
+    inset 0 1px 0 rgba(255, 255, 255, .7);
+  transform: translateY(-1px);
+}
+
+html body:has(.pm) .pmv-fs:active { transform: translateY(0) scale(.97); }
+
+html body:has(.pm) .pmv-fs:focus-visible {
+  outline: 2px solid #a9802c;
+  outline-offset: 2px;
+}
+
+/* 全屏态：按钮切换为「退出全屏」图标 + 文案 */
+html body:has(.pm) .pmv-stage.is-fullscreen .pmv-fs__ico--enter { display: none; }
+html body:has(.pm) .pmv-stage.is-fullscreen .pmv-fs__ico--exit { display: inline-flex; }
+
+/* ── 全屏铺满 + 宣纸黄背景（标准）────────────────────────────────── */
+html body:has(.pm) .pmv-stage:fullscreen {
+  display: flex !important;
+  flex-direction: column;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  padding: 18px 22px 12px !important;
+  border-radius: 0 !important;
+  border-color: rgba(168, 128, 62, .55) !important;
+  /* 分写而非 background 简写：简写会把 background-color 重置为 transparent，
+     UA 的全屏默认黑底便有透出风险。显式钉死宣纸黄底色 + 叠一层柔和渐变。 */
+  background-color: #f1e4c6 !important;
+  background-image:
+    radial-gradient(130% 100% at 20% 6%, rgba(255, 251, 236, .96), transparent 66%),
+    linear-gradient(150deg, #f6eed9 0%, #efe1c2 58%, #e7d5ad 100%) !important;
+  contain: none !important;
+  overflow: hidden;
+}
+
+/* Safari / 旧 WebKit 前缀：单独成块，避免与标准选择器并列被整条丢弃 */
+html body:has(.pm) .pmv-stage:-webkit-full-screen {
+  display: flex !important;
+  flex-direction: column;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  padding: 18px 22px 12px !important;
+  border-radius: 0 !important;
+  background-color: #f1e4c6 !important;
+  background-image: linear-gradient(150deg, #f6eed9 0%, #efe1c2 58%, #e7d5ad 100%) !important;
+  contain: none !important;
+  overflow: hidden;
+}
+
+/* 全屏元素背后的默认黑底 → 宣纸黄（双保险） */
+html body:has(.pm) .pmv-stage::backdrop { background: #efe1c2; }
+html body:has(.pm) .pmv-stage:-webkit-full-screen::backdrop { background: #efe1c2; }
+
+/* 铺满后内框、载入层、按钮随之对齐 */
+html body:has(.pm) .pmv-stage:fullscreen::after { inset: 8px; border-radius: 4px; }
+html body:has(.pm) .pmv-stage:fullscreen .pmv-stage__loading { inset: 18px 22px 82px; }
+html body:has(.pm) .pmv-stage:fullscreen .pmv-fs { top: 18px; right: 22px; }
+
+/* 视口撑满剩余高度：去掉 size containment，交给 flex */
+html body:has(.pm) .pmv-stage:fullscreen .pmv-mvbox {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  contain: layout paint !important;
+}
+html body:has(.pm) .pmv-stage:-webkit-full-screen .pmv-mvbox {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  contain: layout paint !important;
+}
+
+/* 无 WebGL 静态预览：图片等比撑满，不拉伸 */
+html body:has(.pm) .pmv-stage:fullscreen .pmv-stage__poster {
+  flex: 1 1 auto;
+  height: auto !important;
+  min-height: 0;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* 全屏态子布局：stage 变 flex 后预览图 flex:1 会抢空间，
+   若不锁定，标题/高亮条/提示会被压缩到几像素、文字溢出被图压住。
+   用 JS 同步的 .is-fullscreen 类承载，避开 :fullscreen 各前缀重复声明。 */
+html body:has(.pm) .pmv-stage.is-fullscreen .pmv-stage__title {
+  flex: 0 0 auto;
+  height: 28px;
+  margin-top: 6px;
+}
+html body:has(.pm) .pmv-stage.is-fullscreen .pmv-now {
+  flex: 0 0 auto;
+  margin-top: 8px;
+}
+html body:has(.pm) .pmv-stage.is-fullscreen .pmv-stage__hint {
+  flex: 0 0 auto;
+  height: 28px;
+}
+
+/* ── 窄屏：全屏按钮收为纯图标圆钮，避开与居中藏品标题抢同一行 ──────
+   放在文件末尾：本文件里 .pmv-fs 的基础样式是后追加的，
+   若把覆盖写在前面的 @media 块里会被同特异性、更靠后的基础规则反压。 */
+@media (max-width: 720px) {
+  html body:has(.pm) .pmv-fs {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+  html body:has(.pm) .pmv-fs__txt { display: none; }
+  /* 非对称右留白：文字视觉中心略左移，给右上角图标钮让位 */
+  html body:has(.pm) .pmv-stage__title { padding-right: 38px; }
+}

@@ -1,0 +1,63 @@
+/* ==========================================================================
+   [EVOLUTION-SCROLLBAR] 朝代长廊 · 「演变对比」横向滚动条国风化
+   --------------------------------------------------------------------------
+   目标容器：.ec__cards[data-v-e71a2d77]（DynastyGallery-BVZEsbga.css，/dynasty）
+             原规则仅有 ::-webkit-scrollbar{height:6px} 与
+             ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}，
+             且同一条规则里写了 scrollbar-width:thin。
+
+   ⚠ 关键坑：Chromium 一旦把 scrollbar-width 设为非 auto 值（thin），就走标准
+     滚动条渲染路径，并整体忽略 ::-webkit-scrollbar-* 伪元素。实测「只加
+     webkit 规则」完全无变化，页面依旧是白轨道(252,252,252) + 冷灰滑块
+     (139,139,139) + 两端小箭头的系统默认条。故必须先把 scrollbar-width
+     复位为 auto，让 webkit 伪元素重新接管；Firefox 另用标准属性兜底。
+
+   注入实验（1440×900 /dynasty，关闭 --hide-scrollbars 后逐像素采样）：
+     A 仅 webkit 规则                  → 无变化，滚动带 y744..753（约 10px）
+     B webkit + scrollbar-width:auto  → 生效，滚动带 y748..753（精确 6px），
+                                        轨道 (227,212,174) / 滑块 (199,169,124)
+     C 标准 scrollbar-color           → 颜色对但高度仍约 10px，button 隐藏失效
+
+   作用域：仅 /dynasty 的 .ec__cards；删掉 index.html 里本文件 <link> 即可回滚。
+   ========================================================================== */
+
+/* —— 0. 复位 scrollbar-width，让 Chromium 回到 webkit 伪元素路径 ——
+        带 !important 以压过运行时注入的 .ec__cards[data-v-…]{scrollbar-width:thin} */
+.ec__cards {
+  scrollbar-width: auto !important;
+}
+
+/* —— 1. 整体高度：6px —— */
+.ec__cards::-webkit-scrollbar {
+  height: 6px !important;
+}
+
+/* —— 2. 轨道：极浅米色，去掉生硬白底 —— */
+.ec__cards::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-radius: 4px !important;
+}
+
+/* —— 3. 滑块：暗金 + 圆角 —— */
+.ec__cards::-webkit-scrollbar-thumb {
+  background: rgba(180, 140, 90, 0.6) !important;
+  border-radius: 4px !important;
+}
+
+/* —— 4. 悬停加深 —— */
+.ec__cards::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 140, 90, 0.9) !important;
+}
+
+/* —— 5. 隐藏两端上下/左右小箭头 —— */
+.ec__cards::-webkit-scrollbar-button {
+  display: none !important;
+}
+
+/* —— Firefox 兜底：标准属性（此 at-rule 仅 Firefox 解析，写在最后以覆盖上面的 auto） —— */
+@-moz-document url-prefix() {
+  .ec__cards {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(180, 140, 90, 0.6) rgba(0, 0, 0, 0.05) !important;
+  }
+}

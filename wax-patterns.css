@@ -1,0 +1,93 @@
+/* 苗族蜡染 · 代表纹样 统一视觉增强（v5）
+   仅命中蜡染页的 wax_photo_*.jpg；其他技艺页、纹样库、详情页封面零串台。
+   容器用 :has() 按图片文件名精确锁定，避免改动全局 .pattern-card__media。 */
+
+/* 1) 图片容器：强制 1:1 正方形，配合 object-fit:cover 防止拉伸变形 */
+.cr-patterns__grid .pattern-card__media[data-v-8c8de748]:has(img[src*="wax_photo_"]) {
+  aspect-ratio: 1 / 1;
+}
+
+/* 2) 统一滤镜：拉齐 14 张图偏灰/偏暗/色差，靛蓝更鲜明、蓝白更分明
+      filter 只作用于 img，不影响角标文字与 hover 遮罩。 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_"] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  filter: contrast(1.15) brightness(1.08) saturate(1.2);
+  --wax-scale: 1.16;
+  transform: scale(var(--wax-scale));
+  transform-origin: 50% 50%;
+  border-radius: var(--radius-sm);
+}
+/* hover 叠加：在当前倍率基础上微增，不覆盖逐图差异 */
+.pattern-card:hover .pattern-card__media img[data-v-8c8de748][src*="wax_photo_"] {
+  transform: scale(calc(var(--wax-scale) + 0.06));
+}
+
+/* 3) 统一内阴影：img 是替换元素，直接写 inset 阴影会被图片内容盖住看不见，
+      因此由覆盖层伪元素承载同一句 box-shadow，视觉等价且 pointer-events:none 不挡交互。 */
+.cr-patterns__grid .pattern-card__media[data-v-8c8de748]:has(img[src*="wax_photo_"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  z-index: 1;
+}
+/* 角标与 hover「查看详情」遮罩保持在阴影之上，不被压暗 */
+.cr-patterns__grid .pattern-card__media[data-v-8c8de748]:has(img[src*="wax_photo_"]) .pattern-card__cat,
+.cr-patterns__grid .pattern-card__media[data-v-8c8de748]:has(img[src*="wax_photo_"]) .pattern-card__overlay {
+  z-index: 2;
+}
+
+/* 4) 色调统一补充（针对素材本身的白平衡差异，可一键撤掉本段）
+      10 张实拍布料偏青绿/灰褐、4 张插画是纯靛蓝；全局 filter 只是等比增强，
+      改不了色相。用 mix-blend-mode:color 叠一层淡靛蓝，只替换色相与饱和度、
+      保留原图明暗，把偏色拉回蓝白，白色纹样不会被染蓝。 */
+.cr-patterns__grid .pattern-card__media[data-v-8c8de748]:has(img[src*="wax_photo_"]) {
+  isolation: isolate;
+}
+.cr-patterns__grid .pattern-card__media[data-v-8c8de748]:has(img[src*="wax_photo_"])::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #1E3F78;
+  mix-blend-mode: color;
+  opacity: .42;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 逐图放大倍率：把木桌/柜子/相框等实景背景推出画面，只留布料特写。
+   01/03/09/10 为用户上传的完整纹样插画，倍率保持温和以免切掉主体。 */
+/* 01 蝴蝶纹 · 触须/尾须完整 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_01.jpg"] { --wax-scale: 1.02; object-position: 50% 50%; }
+/* 02 鱼戏莲 · 右上木桌，放大并向下取景 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_02.jpg"] { --wax-scale: 1.36; object-position: 44% 62%; }
+/* 03 龙纹 · 龙头/龙身/龙尾完整 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_03.jpg"] { --wax-scale: 1.02; object-position: 50% 50%; }
+/* 04 莲花纹 · 团花特写 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_04.jpg"] { --wax-scale: 1.12; object-position: 50% 40%; }
+/* 05 蝴蝶妈妈纹 · 人形纹居中保全身形 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_05.jpg"] { --wax-scale: 1.12; object-position: 50% 50%; }
+/* 06 窝妥纹 · 两侧背景裁掉 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_06.jpg"] { --wax-scale: 1.26; object-position: 52% 50%; }
+/* 07 蛇皮花 · 侧边几何鳞纹特写 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_07.jpg"] { --wax-scale: 1.16; object-position: 50% 50%; }
+/* 08 水牛龙纹 · 上方深色背景裁掉 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_08.jpg"] { --wax-scale: 1.34; object-position: 50% 68%; }
+/* 09 鱼龙纹 · 圆形旋纹+芒刺完整 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_09.jpg"] { --wax-scale: 1.02; object-position: 50% 50%; }
+/* 10 鸟龙纹 · 双鸟+中央团花完整 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_10.jpg"] { --wax-scale: 1.02; object-position: 50% 50%; }
+/* 11 铜鼓纹 · 同心圆居中 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_11.jpg"] { --wax-scale: 1.14; object-position: 50% 50%; }
+/* 12 光芒纹 · 放射芒居中 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_12.jpg"] { --wax-scale: 1.14; object-position: 50% 52%; }
+/* 13 螺旋纹 · 取景居中保住螺旋主体 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_13.jpg"] { --wax-scale: 1.18; object-position: 50% 50%; }
+/* 14 踞齿纹 · 底部木桌裁掉 */
+.cr-patterns__grid .pattern-card__media img[data-v-8c8de748][src*="wax_photo_14.jpg"] { --wax-scale: 1.28; object-position: 50% 36%; }

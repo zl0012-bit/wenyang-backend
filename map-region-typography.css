@@ -1,0 +1,33 @@
+/* ===== 纹样地图 · 省份抽屉「纯字号放大」=====
+   范围：只改 font-size（描述行高原样保留 1.6 附近），不改任何颜色、不改间距、
+         不隐藏滚动条、不动卡片高度与栅格。全部限定在 .region-popup 内，
+         纹样库 / 详情页的同名卡片样式零影响。
+   选择器加 .region-popup 前缀是为了压过组件 scoped 样式的特异性，
+   不依赖构建产物里的 data-v-* 哈希。 */
+
+/* 1) 顶部标题区：省份名 28 → 32px；右上角统计 13 → 15px（颜色保持原样） */
+.region-popup .region-popup__panel .region-popup__title {
+  font-size: 32px;
+}
+.region-popup .region-popup__panel .region-popup__count {
+  font-size: 15px;
+}
+
+/* 2) 省份介绍：15px / line-height 1.6 */
+.region-popup .region-popup__panel .region-popup__desc {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 3) 卡片内文字：纹样名 19 → 21px；释义 13 → 14px（释义自带 line-height:1.6） */
+.region-popup .region-popup__panel .region-popup__cards .pattern-card__name {
+  font-size: 21px;
+}
+.region-popup .region-popup__panel .region-popup__cards .pattern-card__meaning {
+  font-size: 14px;
+}
+
+/* 4) 卡片底部朝代标签：12 → 13px，内边距保持组件原值，避免改变标签形态 */
+.region-popup .region-popup__panel .region-popup__cards .pattern-tag {
+  font-size: 13px;
+}

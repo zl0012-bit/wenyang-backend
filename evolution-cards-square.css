@@ -1,0 +1,148 @@
+/* ==========================================================================
+   [EC-SQUARE] 朝代长廊 ·「演变对比」卡片方形统一 + 隐藏横向滚动条
+   --------------------------------------------------------------------------
+   真实 DOM（DynastyGallery 组件，scoped id = data-v-e71a2d77）：
+     section.ec  >  .ec__pickers …
+                 >  .ec__cards（横向滚动容器，scroll-snap-type:x proximity）
+                      > article.ec__card
+                          > h4.ec__card-title
+                          > .ec__pair
+                              > .ec__side  (--accent: 朝代色)
+                                  > span.ec__side-tag
+                                  > a.ec__thumb  > img + span.ec__thumb-name
+
+   ⚠ 用户提供的示例选择器 .dynasty-pattern-item / .img-box 在本项目不存在，
+     故按等价语义映射到真实类名（.ec__thumb / .ec__thumb img）。
+
+   ▍畸形根因（实测，非 clip-path）
+     纹样原图宽高比差异极大：抽样 120 张，0.76 占 56 张、0.66 占 27 张、
+     0.45 占 9 张，仅 4 张为正方形。原规则 img{aspect-ratio:1;object-fit:contain}
+     把竖长图塞进正方形框，左右露出容器底色 → 视觉上就是「左直右半圆」。
+     现改为 object-fit:cover + overflow:hidden，一律裁切填满。
+
+   ▍滚动条
+     原 .ec__cards[data-v-e71a2d77]{scrollbar-width:thin} + 6px 轨道。
+     此处用 !important 强制隐藏（标准属性 + webkit 伪元素双写），
+     Dom 仍可正常滚轮/拖拽横向滑动。
+
+   ▍回滚
+     删除 index.html 中本文件的 <link> 即可完全还原。
+   ========================================================================== */
+
+/* —— 1. 图片容器：统一 4/3 + 微圆角 + 裁切 —— */
+.ec__cards .ec__thumb,
+.ec__cards .ec__side {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.ec__cards .ec__thumb img,
+.ec__cards .ec__thumb img[data-v-e71a2d77] {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 4 / 3 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  background-color: #fff8e8 !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, #e6d9bf) !important;
+  /* 清掉任何残留的裁切/遮罩机制 */
+  clip-path: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+  transform: none !important;
+}
+
+/* 悬停轻微提亮，不做位移以免破坏方块网格的整齐感 */
+.ec__cards .ec__thumb:hover img {
+  transform: none !important;
+  filter: brightness(1.04) saturate(1.04);
+}
+
+/* 兜底：图片加载失败时留纯米色块，不撑破方块 */
+.ec__cards .ec__thumb img[data-wb-fallback] {
+  object-fit: contain !important;
+  padding: 12%;
+}
+
+/* 空态占位同步成 4/3，与图片方块对齐 */
+.ec__cards .ec__empty,
+.ec__cards .ec__empty[data-v-e71a2d77] {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 4 / 3 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* —— 2. 隐藏横向滚动条（保留滚动能力） —— */
+.ec__cards,
+.ec__cards[data-v-e71a2d77] {
+  scrollbar-width: none !important; /* Firefox / 新版 Chromium */
+  -ms-overflow-style: none !important;
+  /* 滚轮横向滑动 + 触控惯性保留 */
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ec__cards::-webkit-scrollbar,
+.ec__cards[data-v-e71a2d77]::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.ec__cards::-webkit-scrollbar-track,
+.ec__cards[data-v-e71a2d77]::-webkit-scrollbar-track,
+.ec__cards::-webkit-scrollbar-thumb,
+.ec__cards[data-v-e71a2d77]::-webkit-scrollbar-thumb,
+.ec__cards::-webkit-scrollbar-button,
+.ec__cards[data-v-e71a2d77]::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  background: transparent !important;
+}
+
+/* 无滚动条后补回底部呼吸空间，卡片阴影不被裁 */
+.ec__cards,
+.ec__cards[data-v-e71a2d77] {
+  padding-bottom: 16px !important;
+}
+
+/* 时间轴（朝代长廊左侧）本身也有滚动条，同类处理保持视觉一致 */
+.tl__track,
+.tl__track[data-v-0faaa255] {
+  scrollbar-width: none !important;
+}
+.tl__track::-webkit-scrollbar,
+.tl__track[data-v-0faaa255]::-webkit-scrollbar {
+  display: none !important;
+  height: 0 !important;
+}
+
+/* —— 3. 顺带修掉 /dynasty 顶栏溢出（原有问题：.dg__tools 在 1440 宽下撑到 1620px，
+        导致整页出现横向滚动。此处仅允许收缩/换行，不改视觉风格） —— */
+.dg__bar-inner,
+.dg__bar-inner[data-v-5d8e6175] {
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+  row-gap: 8px;
+}
+
+.dg__tools,
+.dg__tools[data-v-5d8e6175] {
+  flex: 0 1 auto !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+  justify-content: flex-end;
+}
+
+.dg__bar-inner > *,
+.dg__bar-inner[data-v-5d8e6175] > * {
+  min-width: 0;
+}

@@ -1,0 +1,62 @@
+/* ==========================================================================
+   [LIB-FILTER-SCROLLBAR] 纹样宝库 · 多维筛选面板国风滚动条
+   --------------------------------------------------------------------------
+   目标容器：aside.lib__filters（桌面左侧，position:sticky / overflow-y:auto /
+             max-height:calc(100vh - 100px)）与 .lib__sheet（<900px 筛选抽屉）。
+             两者都出自 PatternLibrary-CeSrjkg0.css 的 [data-v-68e23aac] 作用域。
+
+   方案选择：采用「方案二 · 自定义国风细滚动条」。
+     实测面板 scrollHeight≈1650px / clientHeight≈798px，内容是可视高度的 2 倍多
+     （纹样类型、朝代、技艺、寓意、色彩…）。若按方案一彻底隐藏，滚轮虽能用，
+     但用户没有任何线索知道下面还有筛选维度 —— 这正是启用方案二的条件。
+     4px 暗金半透明滑块 + 全透明轨道，视觉上依然干干净净，又保留可发现性，
+     且与站内「纹样地图」已有的暗金→暗红细滚动条语言一致。
+
+   ★ 想切回「方案一 · 彻底隐藏」：把下方规则整体替换为
+       aside.lib__filters, .lib__sheet {
+         scrollbar-width: none !important;
+         -ms-overflow-style: none !important;
+       }
+       aside.lib__filters::-webkit-scrollbar,
+       .lib__sheet::-webkit-scrollbar { display: none !important; }
+
+   浏览器分工：Chrome/Safari/新 Edge → ::-webkit-scrollbar 伪元素（宽度精确 4px）；
+               Firefox → @-moz-document 里的标准属性（Firefox 不支持这套伪元素）；
+               旧 Edge/IE → -ms-overflow-style 自动隐藏，杜绝常驻灰色系统条。
+   作用域：仅这两个筛选容器；删掉 index.html 里本文件的 <link> 即可完整回滚。
+   ========================================================================== */
+
+aside.lib__filters,
+.lib__sheet {
+  -ms-overflow-style: -ms-autohiding-scrollbar !important;
+}
+
+/* —— Chrome / Safari / Chromium Edge：4px 暗金细条 —— */
+aside.lib__filters::-webkit-scrollbar,
+.lib__sheet::-webkit-scrollbar {
+  width: 4px !important;
+}
+aside.lib__filters::-webkit-scrollbar-track,
+.lib__sheet::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 4px !important;
+}
+aside.lib__filters::-webkit-scrollbar-thumb,
+.lib__sheet::-webkit-scrollbar-thumb {
+  background: rgba(180, 140, 90, .5) !important;
+  border-radius: 4px !important;
+}
+/* 悬停滑块时略提亮，暗示可拖拽 */
+aside.lib__filters::-webkit-scrollbar-thumb:hover,
+.lib__sheet::-webkit-scrollbar-thumb:hover {
+  background: rgba(155, 108, 42, .72) !important;
+}
+
+/* —— Firefox：标准属性（此 at-rule 仅 Firefox 解析，避免与上式互相覆盖） —— */
+@-moz-document url-prefix() {
+  aside.lib__filters,
+  .lib__sheet {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(180, 140, 90, .5) transparent !important;
+  }
+}

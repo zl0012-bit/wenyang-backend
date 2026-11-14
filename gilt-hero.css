@@ -1,0 +1,212 @@
+/* ==========================================================================
+   鎏金首屏动态 · Gilt Hero Effect
+   --------------------------------------------------------------------------
+   替代原首屏的「金色粒子」形式，改为「鎏金光轮 · 金丝回纹」：
+     聚光暗芯（让标题更突出）+ 极淡回纹地纹 + 匀速旋转的金色光束
+     + 三层金丝同心环（含回纹环带、沿线游走的金色流光）+ 中心扩散金色涟漪。
+   实现方式：纯 CSS 动画 + 内联 SVG，不触碰 Vue 组件、内容与路由。
+   仅在首页 .hero 内生效（元素由 gilt-hero.js 移入），离开首页即不可见。
+   ========================================================================== */
+
+/* 默认不显示；只有被移入 .hero 后才铺开 */
+.gilt-hero-fx {
+  display: none;
+}
+
+.hero > .gilt-hero-fx {
+  --ghf-ring: min(96vh, 96vw);
+  --ghf-ripple: min(34vh, 34vw);
+  --ghf-hairline: rgba(240, 211, 138, 0.4);
+  --ghf-hairline-soft: rgba(240, 211, 138, 0.26);
+
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ---------- 1. 聚光：中心压暗让鎏金标题跳出来，外围一圈极淡金晕 ---------- */
+.gilt-hero-fx .ghf-veil {
+  position: absolute;
+  inset: -6%;
+  background:
+    radial-gradient(40% 30% at 50% 45%, rgba(8, 5, 0, 0.44) 0%, rgba(8, 5, 0, 0) 74%),
+    radial-gradient(60% 48% at 50% 45%, rgba(255, 238, 190, 0.1) 0%, rgba(255, 238, 190, 0) 80%);
+  animation: ghfBreath 11s ease-in-out infinite alternate;
+}
+
+@keyframes ghfBreath {
+  from { opacity: 0.62; transform: scale(1); }
+  to   { opacity: 1;    transform: scale(1.07); }
+}
+
+/* ---------- 2. 地纹：极淡回纹，缓慢漂移，只作肌理不作主体 ---------- */
+.gilt-hero-fx .ghf-lattice {
+  position: absolute;
+  inset: -18%;
+  opacity: 0.075;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cpath d='M16 80H80V16H16V64H64V32H32V48H48' fill='none' stroke='%23f0d38a' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-size: 96px 96px;
+  -webkit-mask-image: radial-gradient(62% 52% at 50% 50%, #000 0%, rgba(0, 0, 0, 0.35) 62%, transparent 82%);
+  mask-image: radial-gradient(62% 52% at 50% 50%, #000 0%, rgba(0, 0, 0, 0.35) 62%, transparent 82%);
+  animation: ghfDrift 64s linear infinite;
+}
+
+@keyframes ghfDrift {
+  from { background-position: 0 0; }
+  to   { background-position: 96px 96px; }
+}
+
+/* ---------- 3. 金色光束：一道极细的鎏金光沿圆周匀速扫过（罗盘感） ---------- */
+.gilt-hero-fx .ghf-beam {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--ghf-ring);
+  height: var(--ghf-ring);
+  margin: calc(var(--ghf-ring) / -2) 0 0 calc(var(--ghf-ring) / -2);
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 240, 200, 0) 0deg,
+    rgba(255, 240, 200, 0.03) 22deg,
+    rgba(255, 238, 190, 0.32) 34deg,
+    rgba(255, 236, 170, 0.05) 46deg,
+    rgba(255, 240, 200, 0) 72deg,
+    rgba(255, 240, 200, 0) 360deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, transparent 44%, #000 58%, #000 94%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 44%, #000 58%, #000 94%, transparent 100%);
+  animation: ghfSpin 19s linear infinite;
+  will-change: transform;
+}
+
+/* ---------- 4. 金丝同心环 ---------- */
+.gilt-hero-fx .ghf-rings {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--ghf-ring);
+  height: var(--ghf-ring);
+  transform: translate(-50%, -50%);
+  overflow: visible;
+}
+
+.gilt-hero-fx .ghf-rings circle,
+.gilt-hero-fx .ghf-rings path {
+  fill: none;
+  stroke: var(--ghf-hairline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.gilt-hero-fx .ghf-rings .ghf-dash-a {
+  stroke: var(--ghf-hairline-soft);
+  stroke-dasharray: 3 14;
+}
+
+.gilt-hero-fx .ghf-rings .ghf-dash-b {
+  stroke: var(--ghf-hairline-soft);
+  stroke-dasharray: 44 26;
+}
+
+/* 回纹环带：细金线，随环带整体反向缓转 */
+.gilt-hero-fx .ghf-rings .ghf-meanders path {
+  stroke: rgba(240, 211, 138, 0.44);
+  stroke-width: 1.15;
+}
+
+/* 沿线游走的金色流光 */
+.gilt-hero-fx .ghf-rings .ghf-glint {
+  stroke: rgba(255, 246, 216, 0.92);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 6px rgba(255, 226, 150, 0.85));
+}
+
+/* 旋转基座 */
+.gilt-hero-fx .ghf-spin-a,
+.gilt-hero-fx .ghf-spin-b,
+.gilt-hero-fx .ghf-spin-c,
+.gilt-hero-fx .ghf-glint-a,
+.gilt-hero-fx .ghf-glint-c {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.gilt-hero-fx .ghf-spin-a { animation: ghfSpin 150s linear infinite; }
+.gilt-hero-fx .ghf-spin-b { animation: ghfSpinRev 92s linear infinite; }
+.gilt-hero-fx .ghf-spin-c { animation: ghfSpin 58s linear infinite; }
+.gilt-hero-fx .ghf-glint-a { animation: ghfSpin 11s linear infinite; }
+.gilt-hero-fx .ghf-glint-c { animation: ghfSpinRev 7.5s linear infinite; }
+
+@keyframes ghfSpin { to { transform: rotate(360deg); } }
+@keyframes ghfSpinRev { to { transform: rotate(-360deg); } }
+
+/* ---------- 5. 金色涟漪：自中心向外扩散，把视线收回标题 ---------- */
+.gilt-hero-fx .ghf-ripples {
+  position: absolute;
+  inset: 0;
+}
+
+.gilt-hero-fx .ghf-ripples i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--ghf-ripple);
+  height: var(--ghf-ripple);
+  margin: calc(var(--ghf-ripple) / -2) 0 0 calc(var(--ghf-ripple) / -2);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 232, 170, 0.5);
+  box-shadow:
+    0 0 22px rgba(255, 226, 150, 0.16),
+    inset 0 0 22px rgba(255, 226, 150, 0.09);
+  opacity: 0;
+  animation: ghfRipple 7.8s cubic-bezier(0.22, 0.55, 0.3, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.gilt-hero-fx .ghf-ripples i:nth-child(2) { animation-delay: 2.6s; }
+.gilt-hero-fx .ghf-ripples i:nth-child(3) { animation-delay: 5.2s; }
+
+@keyframes ghfRipple {
+  0%   { transform: scale(0.32); opacity: 0; }
+  14%  { opacity: 0.55; }
+  68%  { opacity: 0.14; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+
+/* ---------- 6. 静态降级：画质选「静态」或系统偏好减少动态时，只留静帧 ---------- */
+.gilt-hero-fx[data-still] .ghf-veil,
+.gilt-hero-fx[data-still] .ghf-lattice,
+.gilt-hero-fx[data-still] .ghf-beam,
+.gilt-hero-fx[data-still] .ghf-spin-a,
+.gilt-hero-fx[data-still] .ghf-spin-b,
+.gilt-hero-fx[data-still] .ghf-spin-c,
+.gilt-hero-fx[data-still] .ghf-glint-a,
+.gilt-hero-fx[data-still] .ghf-glint-c {
+  animation: none !important;
+}
+
+.gilt-hero-fx[data-still] .ghf-ripples {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gilt-hero-fx .ghf-veil,
+  .gilt-hero-fx .ghf-lattice,
+  .gilt-hero-fx .ghf-beam,
+  .gilt-hero-fx .ghf-spin-a,
+  .gilt-hero-fx .ghf-spin-b,
+  .gilt-hero-fx .ghf-spin-c,
+  .gilt-hero-fx .ghf-glint-a,
+  .gilt-hero-fx .ghf-glint-c {
+    animation: none !important;
+  }
+
+  .gilt-hero-fx .ghf-ripples {
+    display: none;
+  }
+}

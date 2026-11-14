@@ -1,0 +1,211 @@
+/* ============================================================================
+ * [CRAFT-VIDEO-LINK] 非遗技艺馆 · 传承人纪实 · 外链引导卡片
+ *
+ *   版权合规改造：彻底移除「点击弹出 iframe 模态框」的旧逻辑。
+ *   在原本放视频封面的位置，渲染一张国风外链卡片：
+ *     · 背景沿用苗族蜡染高清图 + 一层淡淡遮罩，保证文字清晰
+ *     · 中间大字「观看传承人纪实」，下方小字「前往 Bilibili 官方观看 ↗」
+ *     · 左下角保留「视频来源：bilibili」说明
+ *     · 暗金描边，悬停时微微放大（scale 1.03）
+ *   整张卡片是一个真正的 <a target="_blank" rel="noopener">，
+ *   点击即在新标签页打开 B 站视频完整页，绝不在当前页内嵌播放器。
+ *
+ *   作用域：卡片由 craft_video_link.js 在运行期注入，元素不带 Vue 的
+ *   data-v 作用域属性，故此处用全局（无属性）选择器自包含全部布局与质感，
+ *   不依赖 Vue bundle 的 scoped 样式。外层 .cr-inherit__video（PatternBorder）
+ *   仍由 Vue 渲染，保留其金角边框与留白。
+ * ========================================================================== */
+
+/* ── 0) 卡片本体：自包含布局，替代原 button 的 scoped 样式 ─────────────── */
+.cr-inherit__video-stage {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 6;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md, 8px);
+  color: inherit;
+  font: inherit;
+  text-decoration: none;            /* <a> 去下划线 */
+  cursor: pointer;
+  background-color: var(--c-indigo, #1b3a5c);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* 暗金描边：外发光投影 + 内嵌金线 + 细暗金实边框 */
+  box-shadow:
+    0 10px 30px -12px rgba(20, 20, 40, .45),
+    inset 0 0 0 1.5px rgba(180, 140, 60, .55),
+    inset 0 0 22px rgba(10, 14, 24, .35);
+  transition: transform .45s var(--ease, ease), box-shadow .45s var(--ease, ease);
+}
+
+/* 悬停：微微放大 + 描边提亮
+   注意：Vue bundle 的 `.cr-inherit__video-stage:hover{transform:translateY(-2px)}`
+   带 scope 属性，特异性高于单类；这里用 html body + 双类把它压过去，
+   否则只会上下位移、看不到要求的「微放大」。不用 !important，避免以后
+   若给卡片挂动画时又被 transform 的 !important 卡死。 */
+html body .cr-inherit__video-stage.cvm-card:hover {
+  transform: scale(1.03);
+  box-shadow:
+    0 18px 46px -14px rgba(20, 20, 40, .55),
+    inset 0 0 0 1.5px rgba(214, 176, 96, .9),
+    inset 0 0 26px rgba(10, 14, 24, .3);
+}
+
+.cr-inherit__video-stage:focus-visible {
+  outline: 2px solid var(--c-gold, #c89b3c);
+  outline-offset: 3px;
+}
+
+/* ── 1) 淡淡遮罩：让金白文字浮于蜡染图之上 ───────────────────────────── */
+.cvm-card__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(12, 22, 36, .10) 0%, rgba(12, 22, 36, .34) 100%),
+    radial-gradient(ellipse 58% 78% at 50% 50%, rgba(12, 22, 36, .06), rgba(12, 22, 36, .30) 100%);
+  pointer-events: none;
+}
+
+/* ── 2) 中央文案 ───────────────────────────────────────────────────────── */
+.cvm-card__inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  pointer-events: none;            /* 让点击穿透到 <a> */
+}
+
+/* ── 2.1) 播放图标：金色细圆环 + 实心三角，两张卡片共用 ───────────────── */
+.cvm-card__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 0;
+  color: #eecf92;
+  border-radius: 50%;
+  background: rgba(10, 18, 30, .52);
+  border: 1px solid rgba(214, 176, 96, .62);
+  box-shadow:
+    0 4px 16px rgba(4, 12, 22, .38),
+    inset 0 0 14px rgba(214, 176, 96, .12);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: transform .45s var(--ease, ease), border-color .45s var(--ease, ease),
+              box-shadow .45s var(--ease, ease), color .45s var(--ease, ease);
+}
+
+.cvm-card__play svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+.cr-inherit__video-stage:hover .cvm-card__play {
+  transform: scale(1.08);
+  color: #f6e3b6;
+  border-color: rgba(238, 206, 142, .95);
+  box-shadow:
+    0 6px 22px rgba(4, 12, 22, .46),
+    0 0 0 6px rgba(214, 176, 96, .12),
+    inset 0 0 16px rgba(214, 176, 96, .2);
+}
+
+.cvm-card__title {
+  font-family: var(--font-title, "Noto Serif SC", "Songti SC", serif);
+  font-size: clamp(20px, 3.4vw, 30px);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: .16em;
+  color: #f8f1e2;
+  text-shadow: 0 2px 14px rgba(4, 12, 22, .85), 0 0 1px rgba(214, 176, 96, .6);
+}
+
+.cvm-card__sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(12px, 1.6vw, 14px);
+  letter-spacing: .08em;
+  color: rgba(234, 216, 180, .94);
+  padding: 5px 15px;
+  border-radius: 999px;
+  background: rgba(28, 18, 8, .42);
+  border: 1px solid rgba(214, 176, 96, .5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* ── 3) 左下角来源说明 ─────────────────────────────────────────────────── */
+.cvm-card__hint {
+  position: absolute;
+  left: var(--sp-4, 16px);
+  bottom: var(--sp-3, 12px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs, 12px);
+  letter-spacing: .08em;
+  color: rgba(247, 243, 236, .82);
+  text-shadow: 0 1px 6px rgba(5, 14, 24, .85);
+  pointer-events: none;
+}
+
+.cvm-card__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-gold, #c89b3c);
+  box-shadow: 0 0 0 3px rgba(200, 155, 60, .22);
+}
+
+/* ── 4) 窄屏：降为 16:9，字号自适应 ───────────────────────────────────── */
+@media (max-width: 700px) {
+  .cr-inherit__video-stage { aspect-ratio: 16 / 9; }
+
+  /* 小屏卡片高度有限，整体压一档，并给底部来源说明留出安全带，
+     避免副文字胶囊与「视频来源」两行贴在一起 */
+  .cvm-card__inner {
+    gap: 6px;
+    padding: 0 12px 22px;
+  }
+  .cvm-card__play { width: 42px; height: 42px; }
+  .cvm-card__play svg { width: 21px; height: 21px; }
+  .cvm-card__title {
+    font-size: 17px;
+    letter-spacing: .1em;
+  }
+  .cvm-card__sub {
+    font-size: 11px;
+    padding: 4px 11px;
+    gap: 4px;
+  }
+  .cvm-card__hint {
+    left: 12px;
+    bottom: 8px;
+    font-size: 10.5px;
+    gap: 5px;
+  }
+  .cvm-card__dot { width: 6px; height: 6px; }
+}
+
+/* ── 5) 封面铺满兜底 ───────────────────────────────────────────────────────
+   Vue bundle 的 `.cr-inherit__video-stage{background:var(--c-indigo)}` 是简写，
+   会把 background-size/position/repeat 一并重置为 auto/0% 0%/repeat，封面就会
+   按 1:1 平铺。JS 已用内联样式钉死，这里再用高特异性规则兜一层，防止样式表
+   加载顺序变化导致封面铺不满。 */
+html body .cr-inherit__video-stage.cvm-card {
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}

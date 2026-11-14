@@ -1,0 +1,58 @@
+/* ============================================================
+ * [MAP-ZOOM] 纹样地图 · 右上角缩放控件国风质感
+ *   + / − / 复位 —— 去纯白底，改半透明宣纸毛玻璃 + 极细暗金线，
+ *   深褐字、4px 方正古典圆角、微弱阴影，悬停提亮 / 描金。
+ *
+ * 作用域：仅地图页生效（body:has(.china-map__stage)）
+ * 覆盖链：Vue 原生  .china-map__zoom button[data-v-e893edc4]
+ *        → 3D 沙盘  html.wb-sand-on .china-map__zoom button（带 !important）
+ *        → 本文件    html body:has(...) ...（更高特异性 + !important + 最后加载）
+ *
+ * 只改样式：DOM 结构、按钮数量、缩放 / 拖拽 / 复位逻辑一律不动。
+ * 层级沿用 map-legend.css 的 .china-map__zoom{z-index:21}，此处不重复声明。
+ * ============================================================ */
+
+/* ---------- 一、三个按钮：宣纸半透明 · 暗金细边 · 方正古典 ----------
+ * 录屏稳定性修复：不再依赖 backdrop-filter。3D 沙盘祖先带 transform /
+ * will-change 时，Chromium 滚动态合成层会把「半透明 + blur」按钮洗成近白。
+ *
+ * 更关键的一点：按钮背后其实是浅金色 (224,202,145)，把浅宣纸
+ * rgba(250,240,215,.6~.86) 叠上去只会被提亮成 (249,237,209) ≈ 纯白。
+ * 五组像素实验后改用更暖更沉的宣纸黄 rgba(236,216,170,.92)，
+ * 实测 (235,215,169)，R-B=66，明显米黄且有暗金边勾勒，不再出戏。 */
+html body:has(.china-map__stage) .china-map__zoom button {
+  background-color: rgba(236, 216, 170, 0.92) !important;
+  background-image: linear-gradient(150deg,
+                      rgba(255, 246, 214, 0.22),
+                      rgba(176, 134, 62, 0.12)) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  /* 极细暗金线取代朱砂红边 */
+  border: 1px solid rgba(180, 140, 90, 0.6) !important;
+  border-radius: 4px !important;
+
+  /* 深褐字，与整体暖色调融合（+ / − / 复位 一并生效） */
+  color: #5a3d2b !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+
+  /* 补齐原生缺失的 background / box-shadow 过渡，让 hover 平滑 */
+  transition: background-color .25s ease,
+              border-color .25s ease,
+              color .25s ease,
+              box-shadow .25s ease !important;
+}
+
+/* 「复位」内层 <span> 继承按钮色，防止组件自带色把它拉回黑/红 */
+html body:has(.china-map__stage) .china-map__zoom button span {
+  color: inherit !important;
+}
+
+/* ---------- 二、悬停：宣纸提亮 + 边框描金 + 金晕微光 ---------- */
+html body:has(.china-map__stage) .china-map__zoom button:hover {
+  background-color: rgba(248, 232, 192, 0.96) !important;
+  border-color: rgba(212, 175, 55, 0.95) !important;
+  color: #5a3d2b !important;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.14),
+              0 0 0 1px rgba(212, 175, 55, 0.22) !important;
+}

@@ -1,0 +1,35 @@
+/* ==========================================================================
+   [PROFILE-CLEANUP] 个人中心登录页 · 去演示痕迹 + 留白重平衡
+   --------------------------------------------------------------------------
+   仅作用于 .profile__auth 登录卡片，不影响已登录个人中心与其它页面：
+   · 隐藏 Vue 渲染的「演示提示：后端未配置…」小字（profile__demo-hint）。
+     注：登录/注册逻辑完全保留，此处只去「页面上显示的文字」。
+   · 顶部虚线演示框（#mockDemoBannerLogin）与底部「管理员提示」（#adminGateHint）
+     已由 mock_users.js / admin_gate.js 停止注入（彻底不生成 DOM）。
+   · 移除这些元素后，补齐登录卡上下内边距与标题/表单间距，保证居中、呼吸自然。
+   ========================================================================== */
+
+/* 隐藏登录页底部「演示提示：后端未配置…」小字 */
+.profile__demo-hint[data-v-98b0bca0],
+.profile__demo-hint {
+  display: none !important;
+}
+
+/* 登录卡：移除顶部虚线框后，补齐上下呼吸感，避免留白失衡
+   !important 确保覆盖运行时注入的主站样式（其加载顺序晚于本文件） */
+.profile__auth-card[data-v-98b0bca0] {
+  padding: 38px 32px 40px !important;
+}
+
+/* 标题与副标题居中，间距自然 */
+.profile__auth-title[data-v-98b0bca0] {
+  margin: 0 0 8px !important;
+}
+.profile__auth-sub[data-v-98b0bca0] {
+  margin: 0 0 24px !important;
+}
+
+/* 表单内元素间距微调，让按钮下方不再空出演示文字的位置 */
+.profile__form[data-v-98b0bca0] {
+  gap: 13px !important;
+}

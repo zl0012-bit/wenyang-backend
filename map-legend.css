@@ -1,0 +1,179 @@
+/* ============================================================================
+ * [MAP-LEGEND] 纹样地图 · 沙盘左下角横向图例（纯 CSS 覆盖层，零 JS 改动）
+ * ----------------------------------------------------------------------------
+ * 版式：恢复第一版「沙盘内部左下角横向长条」，并做放大 + 宣纸质感升级。
+ *   位置 left:18px / bottom:18px（stage 内），与用户截图一致；
+ *   row + wrap + gap:20px；圆点 14×14；文字 15px 深褐；
+ *   宣纸半透明底 rgba(250,240,215,.8) + blur(8px) + 4px 小圆角
+ *   + 1px 暗金细边 + 极淡阴影 —— 融入沙盘底座，不做弹窗式高光/巨影。
+ *   同时撤销上一版胶囊为 .china-map__hint 加的 112px 下移（图例已回到
+ *   沙盘内部，提示文字恢复与沙盘底边的原生 76px 间距）。
+ *
+ * 技术现实：本站地图是内联 SVG（viewBox 0 0 1000 820），**不是 ECharts**；
+ *   图例是 Vue 渲染的 <div class="china-map__legend">，且是
+ *   .china-map__stage 的直接子元素。ECharts 的 orient / itemWidth /
+ *   itemHeight / itemGap 参数不存在，全部用等价 CSS 兑现。
+ *
+ * 为什么仍需 absolute：z-index 只对 positioned 元素生效，而沙盘的
+ *   .china-map__svg(z=1) 有 40px 巨型投影、stage::after 底座厚边会向下
+ *   延伸；图例必须 positioned + z-index:20 才能压住它们、不被 3D 遮挡。
+ *   同时它是 stage 子元素、不参与 rotateX(40deg)，永远平视。
+ *
+ * 颜色绝对一致：图例 <i> 的 background 由 Vue 内联写入（t.color），与 SVG
+ *   <circle class="map-marker__dot" fill="t.color"> 取自同一张色表（l/v/E）
+ *   + 同一默认金色 L="#C89B3C"。本文件**刻意不写 i 的 background**，
+ *   保留内联值；并复刻散点的「圆形 + 白色描边 + 中心白核」结构。
+ *
+ * 作用域：body:has(.china-map__stage) —— 仅 /map 命中；沙盘自检回滚 2D
+ *   时依然生效。旧 map-sandtable.css 的图例规则由本文件 !important 覆盖。
+ * 回滚：移除 index.html 中本文件的 <link> 即可。
+ * ========================================================================== */
+
+/* ---------- 一、定位与排版：沙盘内部左下角 · 横向长条 ---------- */
+body:has(.china-map__stage) .china-map__legend {
+  /* 取消左上角 / 底部居中定位，回到截图中的左下角 */
+  top: auto !important;
+  bottom: 18px !important;
+  left: 18px !important;
+  right: auto !important;
+  margin-top: 0 !important;
+  transform: none !important;
+
+  width: max-content;
+  min-width: 0 !important;
+  max-width: calc(100% - 36px) !important;
+
+  /* 横向 Flex 布局 */
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;            /* 小屏可换行，绝不畸形溢出 */
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 20px !important;                  /* 图例项拉开距离 */
+
+  /* 放大 padding + 宣纸半透明质感 */
+  padding: 12px 18px !important;
+  border-radius: 4px !important;
+  background: rgba(250, 240, 215, 0.8) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.5) !important;
+  /* 极淡阴影：贴在沙盘底座上，不要弹窗式悬浮感 */
+  box-shadow: 0 2px 8px rgba(74, 48, 20, 0.14) !important;
+
+  /* 醒目深色文字 */
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+  font-weight: 600 !important;
+  color: #4a2c14 !important;             /* 深褐 */
+
+  /* 适配 3D：压在倾斜地图与其投影之上，自身不参与透视变换 */
+  z-index: 20 !important;
+  pointer-events: auto;
+}
+
+/* ---------- 二、标题：恢复第一版简洁的「图例」二字 ---------- */
+body:has(.china-map__stage) .china-map__legend-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex: none;
+  width: auto !important;
+  font-family: var(--font-title, 'Noto Serif SC', serif) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  color: #8b1a1a !important;             /* 暗红 */
+  padding: 0 !important;
+  border: none !important;
+  white-space: nowrap;
+}
+/* 移除上一版的渐变钤记竖条与「/ LEGEND」英文后缀 */
+body:has(.china-map__stage) .china-map__legend-title::before {
+  display: none !important;
+}
+body:has(.china-map__stage) .china-map__legend-title::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* ---------- 三、条目：15px 深褐 + 克制 hover ---------- */
+body:has(.china-map__stage) .china-map__legend-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  flex: none;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  color: #4a2c14 !important;
+  white-space: nowrap;
+  transition: color .2s ease;
+}
+body:has(.china-map__stage) .china-map__legend-item:hover {
+  color: #8b1a1a !important;
+}
+
+/* ---------- 四、圆点：14×14 + 与地图散点同款描边/白核 ---------- */
+/* 注意：此处**不写 background**，保留 Vue 内联的 t.color（与散点 fill 同源） */
+body:has(.china-map__stage) .china-map__legend-item i {
+  position: relative !important;
+  flex: none !important;
+  display: inline-block !important;
+  box-sizing: border-box !important;
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 50% !important;
+  /* 与 .map-marker__dot 的 stroke="rgba(247,243,236,.6)" 同款 */
+  border: 1.2px solid rgba(247, 243, 236, 0.65) !important;
+  /* 弱金光：贴底座，不做浮夸发光 */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    0 0 6px rgba(200, 155, 60, 0.26) !important;
+  transition: box-shadow .2s ease;
+}
+/* 与 .map-marker__core（r = r*.42 的白色内核）同款复刻 */
+body:has(.china-map__stage) .china-map__legend-item i::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  margin: auto !important;
+  width: 5.9px !important;              /* 14 × .42 ≈ 5.9 */
+  height: 5.9px !important;
+  border-radius: 50% !important;
+  background: rgba(247, 243, 236, 0.5) !important;
+  pointer-events: none !important;
+}
+body:has(.china-map__stage) .china-map__legend-item:hover i {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    0 0 9px rgba(212, 175, 55, 0.5) !important;
+}
+
+/* ---------- 五、缩放按钮层级不变（右上角，与图例无交集） ---------- */
+body:has(.china-map__stage) .china-map__zoom { z-index: 21 !important; }
+
+/* ---------- 六、响应式：小屏收紧 ---------- */
+@media (max-width: 768px) {
+  body:has(.china-map__stage) .china-map__legend {
+    left: 10px !important;
+    bottom: 10px !important;
+    max-width: calc(100% - 20px) !important;
+    padding: 9px 12px !important;
+    gap: 10px 12px !important;
+    font-size: 12px !important;
+  }
+  body:has(.china-map__stage) .china-map__legend-title { font-size: 12px !important; }
+  body:has(.china-map__stage) .china-map__legend-item {
+    gap: 6px !important;
+    font-size: 12px !important;
+  }
+  body:has(.china-map__stage) .china-map__legend-item i {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  body:has(.china-map__stage) .china-map__legend-item i::after {
+    width: 5px !important;
+    height: 5px !important;
+  }
+}

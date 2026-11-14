@@ -1,0 +1,267 @@
+/* ==========================================================================
+   [DAILY-COVERFLOW] 每日一纹 · 纯 CSS 3D Coverflow（零第三方依赖 · 简洁稳定版）
+   --------------------------------------------------------------------------
+   · .carousel-outer : overflow:hidden  → 唯一允许裁剪的层，防止卡片撑破屏幕
+   · .carousel-stage : perspective:1500px + preserve-3d，绝不设 overflow:hidden
+                         （stage 负责 3D 空间，卡片在其内部做 rotateY/translateZ）
+   · .card           : 由 Vue currentIndex 动态绑定 is-active / is-left /
+                       is-right / is-hidden，4 个状态只做 CSS transform
+   · 卡片内部        : 固定 400px 高 + 宣纸白底 + 12px 圆角 + overflow:hidden
+                       上图(60%) / 下文(40%)，所有卡片 DOM 结构完全一致
+
+   稳定性原则（本版刻意简化）：
+   - 图片只用 object-fit:cover 铺满，不碰任何 clip-path / 半圆 border-radius / 绝对定位。
+   - .card 自身是「扁平盒子 + 3D 变换」，扁平不影响它在 stage 的 3D 旋转。
+   - 圆角只由 .card 一层 overflow:hidden + border-radius 处理，杜绝「左直右圆」畸形。
+   ========================================================================== */
+
+/* ---------- 1. 严格 DOM 层级与 3D 舞台 ---------- */
+.daily .carousel-outer {
+  position: relative;
+  width: 100%;
+  overflow: hidden !important;          /* 外层裁剪：3D 卡片不会撑破屏幕 */
+  padding: 22px 24px 30px;              /* 左右留出呼吸位：侧卡只裁边缘一点，营造空间延伸感 */
+  margin-top: 6px;
+}
+
+.daily .carousel-stage {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  perspective: 1500px;
+  -webkit-perspective: 1500px;
+  transform-style: preserve-3d;         /* 3D 空间由 stage 提供，卡片在其内旋转 */
+  -webkit-transform-style: preserve-3d;
+  /* 绝对不写 overflow:hidden —— 3D 基准面被裁会把整组卡片压成平面 */
+}
+
+/* ---------- 2. 卡片：固定结构 + 4 个状态变换 ---------- */
+.daily .card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  height: 400px;                       /* 写死高度：中间卡片不再比两侧高出一截 */
+  margin-left: -160px;
+  margin-top: -200px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;               /* 上图(60%) / 下文(40%) */
+  background: #fcf8ee;                  /* 极淡米黄底：与大背景同色系但更亮，温润不塑料 */
+  border: 1px solid rgba(212, 175, 55, .3);  /* 极淡暗金细线描边 */
+  border-radius: 14px;                 /* 统一圆角，单一裁切点 */
+  overflow: hidden;                    /* 图片随卡片圆角裁切，不另设遮罩 */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .1);  /* 四周柔和的大范围阴影：像温润玉石浮起 */
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: all .6s cubic-bezier(0.25, 1, 0.5, 1);  /* 带物理回弹的高级缓动 */
+  will-change: transform, opacity;
+}
+
+.daily .card:focus-visible {
+  outline: 2px solid var(--c-gold, #c89b3c);
+  outline-offset: 4px;
+}
+
+/* 居中卡片：温润暗金描边 + 柔和大范围阴影，焦点清晰但不刺眼 */
+.daily .card.is-active {
+  transform: translateX(0) translateZ(0) scale(1);
+  z-index: 10;
+  opacity: 1;
+  border: 1px solid rgba(200, 155, 60, .65);  /* 比侧卡更亮的暗金描边，标示焦点 */
+  /* 柔和暗影 + 极淡金环：温润玉石感，而非塑料高光 */
+  box-shadow:
+    0 26px 55px rgba(40, 28, 10, .20),
+    0 0 0 1px rgba(212, 175, 55, .35);
+}
+
+/* 左/右侧卡片共用：后移 + 压暗 + 更深底部投影，彻底沉入背景反衬中间 */
+.daily .card.is-left,
+.daily .card.is-right {
+  z-index: 5;
+  opacity: .72;
+  box-shadow: 0 22px 40px rgba(24, 14, 4, .46);
+}
+
+/* 左侧卡片：向外扩散，但保留 80% 可见，只裁边缘一点点 */
+.daily .card.is-left {
+  transform: translateX(-70%) rotateY(34deg) translateZ(-150px) scale(.82);
+}
+
+/* 右侧卡片：向外扩散，但保留 80% 可见，只裁边缘一点点 */
+.daily .card.is-right {
+  transform: translateX(70%) rotateY(-34deg) translateZ(-150px) scale(.82);
+}
+
+/* 侧卡图片压暗 + 降对比，强化景深（仅作用在 img 上，不影响 3D 旋转） */
+.daily .card.is-left .card-media img,
+.daily .card.is-right .card-media img {
+  filter: brightness(0.82) contrast(0.9);
+}
+
+/* 更外侧卡片：补一个远退变换，避免叠在中间显脏 */
+.daily .card.is-hidden {
+  transform: translateX(0) translateZ(-320px) scale(.7);
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ---------- 3. 卡片内容：flex 纵向填充，上图下文 ---------- */
+.daily .card-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 图片区：固定 224px（卡片 400 的 ~56%），object-fit:cover 完整铺满
+   背景设为深色：万一 3D/border-radius 裁切出现亚像素缝隙，透出的也是暗色而非白边 */
+.daily .card-media {
+  position: relative;
+  flex: 0 0 212px;
+  width: 100%;
+  height: 212px;
+  overflow: hidden;
+  background: #15131c;
+}
+
+/* 图片底部从下往上的柔化遮罩：让花纹自然隐入下方文字区，消除上下硬切割 */
+.daily .card-media::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  pointer-events: none;
+  background: linear-gradient(to top,
+    rgba(18, 12, 6, .55) 0%,
+    rgba(18, 12, 6, .22) 42%,
+    rgba(18, 12, 6, 0) 100%);
+}
+
+/* 关键修复：图片向四周各溢出 2px（inset:-2px），彻底盖死
+   border-radius + overflow:hidden + 3D 变换下可能产生的「左侧直边白边」亚像素缝隙。
+   图片本身 display:block + 100% 铺满，object-fit:cover 居中裁切。 */
+.daily .card-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;                    /* 解除全局 img{max-width:100%} 对过溢尺寸的钳制 */
+  object-fit: cover;                  /* 完整正常铺满，无遮罩、无畸形 */
+  object-position: center;
+  display: block;                     /* 消除行内元素底部白边 */
+  transform: scale(1.04);             /* 轻微放大过溢：盖死 3D/border-radius 裁切下的亚像素白边缝隙 */
+  transition: transform .4s var(--ease, ease);
+}
+.daily .card.is-active:hover .card-media img { transform: scale(1.10); }
+
+.daily .card-ph {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--c-paper, #f7f3ec);
+  color: var(--c-primary, #8b1a1a);
+  font-family: var(--font-title, serif);
+  font-size: 40px;
+}
+
+.daily .card-cat {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: var(--fs-xs, 11px);
+  color: #fff;
+  background: #1a1a2e8c;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill, 999px);
+}
+
+/* 文字区：占剩余 ~44%，溢出隐藏防止撑破卡片
+   用普通块级流（不用 flex 纵向），避免 flex-shrink 把标题压扁成半截 */
+.daily .card-body {
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  padding: 18px 18px 20px;
+  overflow: hidden;
+  text-align: center;                   /* 文字居中排版，注入国风仪式感 */
+}
+.daily .card-name {
+  font-family: var(--font-title, serif);
+  font-size: 20px;
+  font-weight: 800;                     /* 标题加粗 */
+  color: var(--c-primary, #8b1a1a);
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.daily .card-dynasty {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--c-gold, #c89b3c);
+  letter-spacing: 1px;
+}
+.daily .card-meaning {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-gray, #4d4433);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 标签做成居中排列的圆角胶囊 */
+.daily .card-tags {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+.daily .card-tags > * {
+  border-radius: 999px;                 /* 确保标签为圆角胶囊形态 */
+}
+
+/* 居中卡片的「点击查看详情 →」提示（纯 CSS，不侵入组件逻辑） */
+.daily .card.is-active .card-body::after {
+  content: "点击查看详情 →";
+  display: block;
+  margin: 12px auto 0;
+  padding-top: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  /* 渐变文字：暗红 → 金，温润有层次 */
+  background: linear-gradient(90deg, #8b1a1a 0%, #c0392b 55%, #a1721d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  /* 顶部极淡松柏绿点缀，增加国风层次（点睛一笔） */
+  border-top: 1px solid rgba(58, 107, 79, .28);
+  width: fit-content;
+}
+
+/* ---------- 响应式：只调尺寸，4 个状态 transform 与桌面完全一致 ---------- */
+@media (max-width: 768px) {
+  .daily .carousel-stage { height: 460px; }
+  .daily .card { width: 248px; margin-left: -124px; margin-top: -200px; }
+  .daily .card-name { font-size: 17px; }
+  .daily .card-meaning { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daily .card { transition: none; }
+}

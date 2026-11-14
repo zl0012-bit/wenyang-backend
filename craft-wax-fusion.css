@@ -1,0 +1,731 @@
+/* ===== 国风艺术字标题字体：本地子集（仅含「苗族蜡染」等标题用字，6KB） =====
+   来源：Google Fonts「Ma Shan Zheng 马善政毛笔行楷」(SIL OFL 1.1 开源)。
+   已用 fontTools 子集化，路径 /assets/fonts/wax-title.woff2，server 配好 MIME。
+   未覆盖的字（如副标题「·」）自动回落系统楷体/宋体，绝不缺字。 */
+@font-face {
+  font-family: 'WaxXingkai';
+  src: url('/assets/fonts/wax-title.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
+   [WAX-FUSION] 苗族蜡染详情页 · 全屏人物背景 + 宣纸遮罩 + 居中玻璃卡片
+   --------------------------------------------------------------------------
+   关键结构：背景层 .wxf-bg 由 JS 直接挂到 body（脱离 .cm/.cr-intro 的
+   max-width:1160px 与 overflow 限制），全屏 fixed 铺满视口，故上下不再漏底。
+   仅在路由 /craft/wax-dyeing 时由 JS 注入；切走自动移除。
+   ① 背景层：100vw/100vh、fixed、top0/left0、cover/center/no-repeat，
+      无 filter / 无 mix-blend-mode，绝对清晰。
+      层级用 z-index:0（而非 -1）：-1 在配合 backdrop-filter 毛玻璃时会被
+      合成到根背景之下而整屏发黑；0 位于根背景之上、#app(z-index:1) 之下，
+      既能铺满又不会盖住内容。
+   ② 遮罩：作为 .wxf-bg 的伪元素同样满屏，宣纸米黄 rgba(245,235,200,.68)。
+   ③ 前景：卡片 position:relative; z-index:10; max-width:1200 居中，半透明磨砂。
+      （不用 backdrop-filter：该属性在无 GPU 合成环境会把整屏采样成黑；
+        改用高不透明磨砂白 + 柔和阴影，视觉等效且全环境稳定。）
+   ④ 右图：真实蓝底白花布料蝴蝶照片，仅圆角 + 轻阴影，无白框/无描边。
+   ========================================================================== */
+
+/* —— ① 全屏背景层（挂在 body 上，彻底剥离出内容容器） —— */
+.wxf-bg {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 0 !important;                 /* 非 -1：避免与毛玻璃合成黑屏，且低于 #app(z:1) */
+  background-image: url('/assets/images/wax_inheritor.png') !important;
+  background-size: cover !important;
+  /* 人物脸在照片约 62% 处：cover 下水平仅溢出 ~167px，百分比越大图片越往左拉、
+     人物也越贴左侧卡片。30% 可把人物送到画面右侧安全区，完整露出脸；
+     right/70% 反而把脸推到卡片边缘被裁。 */
+  background-position: 30% center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;   /* 固定背景，滚动不动 */
+  filter: none !important;                /* 严禁模糊 */
+  mix-blend-mode: normal !important;      /* 严禁混合 */
+  pointer-events: none !important;
+}
+/* —— ② 宣纸遮罩层：满屏，照片透出若隐若现的轮廓 —— */
+.wxf-bg::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(245, 235, 200, 0.68) !important;
+}
+
+/* 内容栈明确高于全屏背景层（背景 z:0，#app 至少 z:1） */
+body:has(.wxf-bg) > #app {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* —— 父容器解除最大宽度限制（不影响已剥离的背景，卡片自己居中） —— */
+.cm.wxf-hero-cm {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* —— ③ hero 容器：满宽、垂直居中、内容浮于背景之上 —— */
+.cr-intro.wxf-hero {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;   /* 卡片靠左，右侧让给人物 */
+  padding: 64px 24px !important;
+}
+
+/* —— ③ 前景玻璃卡片：浮于背景之上 z-index:10 ——
+   颜色/质感（bg、blur、border、radius、shadow）已抽到文末「卡片质感统一」
+   共享规则，与下方工艺流程面板 .cr-process__item 100% 一致；此处仅保留布局。 */
+.cr-intro.wxf-hero .wxf-card {
+  position: relative !important;
+  z-index: 10 !important;
+  width: 100% !important;
+  max-width: 820px !important;              /* 收窄，给右侧人物留出空间 */
+  margin: 0 auto 0 3vw !important;          /* 靠左，不挡脸 */
+  /* 标题将绝对定位跨出左上角，卡片顶部留出空间，正文不与悬浮标题重叠 */
+  padding: 96px 40px 40px !important;
+  overflow: visible !important;             /* 允许标题越界悬浮，不裁切 */
+}
+
+/* —— 跨界悬浮标题组：绝对定位到卡片左上方，向上/向左越出卡片边缘 —— */
+.cr-intro.wxf-hero .section-title {
+  position: absolute !important;
+  top: -34px !important;                 /* 向上跨出卡片 */
+  left: -26px !important;                /* 向左跨出卡片 */
+  z-index: 20 !important;                /* 浮于卡片与内容之上 */
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  filter: drop-shadow(0 8px 18px rgba(60, 20, 8, 0.18)); /* 整组柔投影，烘托悬浮层次 */
+}
+/* 主标题：毛笔行楷艺术字，深朱砂红 + 双层阴影（暗金细描边 + 柔和深投影） */
+.cr-intro.wxf-hero .section-title__main {
+  margin: 0 !important;
+  font-family: 'WaxXingkai', 'STXingkai', '华文行楷', 'STKaiti', 'KaiTi', '楷体', 'LiSu', '隶书', serif !important;
+  font-size: 68px !important;            /* 字号放大 */
+  font-weight: 900 !important;           /* 加粗 */
+  letter-spacing: 4px !important;        /* 拉开字间距 */
+  line-height: 1.15 !important;
+  color: #8b1a1a !important;             /* 深朱砂红 */
+  text-shadow:
+    1px 1px 0 #d4af37,                  /* 第一层：细密暗金描边 */
+    -1px -1px 0 rgba(212, 175, 55, 0.55), /* 左上补一点金边，让浮雕更立体 */
+    3px 3px 10px rgba(0, 0, 0, 0.3);   /* 第二层：柔和深色投影 */
+}
+/* 副标题：缩小，紧挨主标题下方，系统楷体/宋体保证清晰 */
+.cr-intro.wxf-hero .section-title__sub {
+  margin: 4px 0 0 30px !important;        /* 右收进卡片浅底安全区 */
+  font-size: 14px !important;
+  letter-spacing: 2px !important;
+  color: #6b4526 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7) !important; /* 提亮，压在花纹上也清晰 */
+  font-family: 'KaiTi', '楷体', 'STKaiti', 'Noto Serif SC', serif !important;
+}
+/* 暗红色短横线（视觉引导，紧随主标题） */
+.cr-intro.wxf-hero .section-title__main::after {
+  content: "" !important;
+  display: block !important;
+  width: 62px !important;
+  height: 3px !important;
+  margin: 8px 0 0 30px !important;       /* 与副标题对齐，一起右收 */
+  border-radius: 2px !important;
+  background: linear-gradient(90deg, #8b1a1a, #b33c3c) !important;
+}
+/* 隐藏原有的金色波浪 svg，避免与暗红短横线重复打架 */
+.cr-intro.wxf-hero .section-title__rule {
+  display: none !important;
+}
+.cr-intro.wxf-hero .cr-intro__body {
+  display: grid !important;
+  grid-template-columns: 45fr 55fr !important;
+  gap: 48px !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* —— 左侧文字：直接落在玻璃上，无方块 —— */
+.cr-intro.wxf-hero .cr-intro__text {
+  position: relative !important;
+  z-index: 1 !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.cr-intro.wxf-hero .cr-intro__text p {
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.9 !important;
+  /* 卡片调通透后：深灰棕文字 + 微弱白发光 + 极轻微加粗，确保实景透出时仍清晰 */
+  color: #3f2f16 !important;
+  font-weight: 500 !important;
+  text-shadow:
+    0 1px 2px rgba(255, 255, 255, 0.8),   /* 用户指定的极微弱白色文字阴影 */
+    0 0 8px rgba(255, 255, 255, 0.5) !important; /* 叠一层柔外晕，压在实景上也读得清 */
+}
+
+/* —— ④ 右侧：真实蓝底白花布料蝴蝶照片，纯圆角、无白框、无描边 —— */
+.cr-intro.wxf-hero .cr-intro__media {
+  position: relative !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+.cr-intro.wxf-hero .cr-intro__media .pattern-border,
+.cr-intro.wxf-hero .cr-intro__media-cap,
+.cr-intro.wxf-hero .cr-intro__media-link,
+.cr-intro.wxf-hero .cr-intro__media > img:not(.wxf-butterfly) {
+  display: none !important;
+}
+/* [CARD-IMG] 卡片小图已换成「非遗技艺馆」总览页主图（760×760 方图）：
+   容器尺寸/圆角/阴影全部保持不变，只用 object-fit: cover 按原框裁切铺满，
+   方形源图不会拉伸变形。 */
+.cr-intro.wxf-hero .wxf-butterfly {
+  width: 82% !important;
+  max-width: 340px !important;
+  height: auto !important;
+  display: block !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  border-radius: 14px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
+/* —— 移动端：卡片单列堆叠 —— */
+@media (max-width: 860px) {
+  .cr-intro.wxf-hero {
+    padding: 40px 14px !important;
+    justify-content: center !important;
+  }
+  .cr-intro.wxf-hero .wxf-card {
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 26px 20px !important;
+  }
+  /* 小屏：标题收回常规流，避免越界溢出 */
+  .cr-intro.wxf-hero .section-title {
+    position: static !important;
+    margin: 0 0 18px !important;
+    filter: none !important;
+  }
+  .cr-intro.wxf-hero .section-title__main {
+    font-size: 46px !important;
+  }
+  .cr-intro.wxf-hero .cr-intro__body {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .cr-intro.wxf-hero .wxf-butterfly {
+    width: 70% !important;
+  }
+}
+
+/* ==========================================================================
+   [WAX-FLOW] 工艺流程区 · 视觉拯救
+   --------------------------------------------------------------------------
+   作用域 body:has(.wxf-bg)：全屏背景层只在本页由 JS 注入，其它 craft 详情页
+   的工艺流程不受影响。
+   ① 标题白色微弱发光 + 极淡浅色渐变条，压在深色背景上仍清晰；
+   ② 四个长条 .cr-process__item 由米黄实底改半透明毛玻璃，融入背景；
+   ③ 数字圆圈加白色描边/暗金内圈/柔投影，精致印章质感；
+   ④ 容器叠加从下往上的宣纸色渐变半透明底，压暗抢戏背景、突出面板。
+   注：容器有半透明渐变底作为毛玻璃的局部采样源，故本区使用
+       backdrop-filter:blur() 不会触发早前 fixed 背景层的首帧合成黑屏。
+   ========================================================================== */
+
+/* ④ 从下往上的宣纸色渐变遮罩（半透明底），把背景压暗、突出前方操作面板 */
+body:has(.wxf-bg) .cr-process {
+  position: relative;
+  background: linear-gradient(to top,
+    rgba(244, 234, 199, 0.90) 0%,
+    rgba(244, 234, 199, 0.74) 55%,
+    rgba(244, 234, 199, 0.38) 100%);
+  border-radius: 22px;
+  padding: 40px 32px 48px !important;
+}
+
+/* ① 标题：极淡浅色渐变背景条，横向柔入柔出，不形成方块边 */
+body:has(.wxf-bg) .cr-process .section-title {
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.42) 25%,
+    rgba(255, 255, 255, 0.52) 50%,
+    rgba(255, 255, 255, 0.42) 75%,
+    transparent);
+  border-radius: 12px;
+}
+/* ① 主标题：白色微弱文字发光（用户指定值 + 一层更柔的外晕） */
+body:has(.wxf-bg) .cr-process .section-title__main {
+  color: #8b1a1a !important;
+  text-shadow:
+    0 2px 10px rgba(255, 255, 255, 0.8),
+    0 0 22px rgba(255, 255, 255, 0.55) !important;
+}
+/* 副标题同样给一层白光，避免被背景吃掉 */
+body:has(.wxf-bg) .cr-process .section-title__sub {
+  color: #6b4526 !important;
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ②【卡片质感统一】上方「简介」大卡片 与 下方「工艺流程」四面板
+   边框(border)、圆角(radius)、阴影(box-shadow)、模糊(blur) 共用同一条声明，
+   参数 100% 一致、来源唯一，绝无厚薄之分，后续改一处即两处同步。
+   （再通透升级：模糊 16→8px，让卡片背后人物的手不再被糊成一片，两卡同步。）
+   仅「背景色」各自独立：上方更通透的暖白象牙色、下方维持半透明白。
+   （布局属性亦各自保留，不属于质感：.wxf-card 需 overflow:visible 让标题越界悬浮，
+     .cr-process__item 需 overflow:hidden 做折叠动画。） */
+.cr-intro.wxf-hero .wxf-card,
+body:has(.wxf-bg) .cr-process__item {
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+/* 上方「简介」卡片：更通透的半透明暖白象牙色，露出背后人物与点蜡的手 */
+.cr-intro.wxf-hero .wxf-card {
+  background: rgba(250, 245, 235, 0.30) !important;
+}
+/* 下方「工艺流程」面板：维持原半透明白（其上另有宣纸渐变底，故呈现暖调） */
+body:has(.wxf-bg) .cr-process__item {
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+/* 展开内容面板分隔线也改为半透明白，避免展开时露出割裂的实色边 */
+body:has(.wxf-bg) .cr-process__panel-in {
+  border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ③ 左侧数字圆圈：白色描边 + 暗金内圈 + 柔投影，精致印章质感 */
+body:has(.wxf-bg) .cr-process__num {
+  color: #fff8ec !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.7),
+    0 3px 10px rgba(120, 20, 20, 0.35) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+@media (max-width: 860px) {
+  body:has(.wxf-bg) .cr-process {
+    padding: 32px 16px 40px !important;
+  }
+}
+
+/* ==========================================================================
+   [SCENE-FUSION] 沉浸式实景页 · 复用蜡染页同一套 .wxf-* 类名与 DOM 结构
+   --------------------------------------------------------------------------
+   触发：/craft/embroidery（四大名绣）、/craft/tie-dyeing（白族扎染）、
+        /craft/blue-print（蓝印花布）。
+   JS 给这三页的 .wxf-bg 加 .wxf-scene 钩子；苗族蜡染不加，故原版 100% 不受影响。
+   ① 背景  各页专属图 / cover / no-repeat / fixed / right center
+   ② 遮罩  rgba(245,235,210,.65)
+   ②b 角标  白族扎染左上、蓝印花布右上各一层极轻暖白径向渐变兜底
+   ③ 展签  rgba(250,245,235,.55) + blur(16px) + 白边 + radius12 + 柔阴影，
+           收窄并靠左，右侧完整留给人物
+   ④ 视频卡 / 交互控件：外壳、卡片、播放钮、副文字胶囊、来源说明、
+           工艺流程面板统一半透明毛玻璃，不再是深靛蓝实底
+   ③④ 由下方 .wxf-scene 共享规则一次定义，三页样式绝对一致。
+   ========================================================================== */
+
+/* ① 全屏背景层 */
+.wxf-bg[data-craft="embroidery"] {
+  background-image: url('/assets/images/embroidery-bg.jpg?v=20261112emb2') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  /* 用户指定：人物在右、左侧留给展签。宽屏（宽高比 > 3:2）下水平无溢出，
+     right center 完整保留绣娘面部与手部；窄高视口见文末兜底规则。 */
+  background-position: right center !important;
+}
+/* ② 宣纸遮罩层 */
+.wxf-bg[data-craft="embroidery"]::after {
+  background: rgba(245, 235, 210, 0.65) !important;
+}
+
+/* --------------------------------------------------------------------------
+   [TIE-FUSION] 白族扎染详情页 · 同一套 .wxf-* 架构，仅背景 / 定位 / 水印参数不同
+   新图：蓝衣阿姨端竹筐走在挂满扎染布的小巷（1920×1078）。
+   ① 背景  tiedye-bg.jpg / cover / no-repeat / fixed / right center
+           （用户写 center right，两值语法里 right 是水平方向，等价 100% 50%）
+   ② 遮罩  rgba(245,235,210,.65)，与四大名绣完全一致
+   ②b 水印 原图左上角若有「人民视频 云南」台标：right center 在 1.6~1.78
+           视口下会自然裁掉左侧约 145~330px；再叠一层轻微暖白径向渐变兜底，
+           超宽屏 / 移动端也不会露出淡台标，同时柔化左上高亮墙沿。
+   ③④ 展签、视频卡、按钮全部走下方 .wxf-scene 共享规则，样式 100% 统一。
+   -------------------------------------------------------------------------- */
+.wxf-bg[data-craft="tie-dyeing"] {
+  background-image: url('/assets/images/tiedye-bg.jpg?v=20261112td1') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: right center !important;
+}
+.wxf-bg[data-craft="tie-dyeing"]::after {
+  background: rgba(245, 235, 210, 0.65) !important;
+}
+/* 左上角轻微白色渐变遮罩：z-index:1 压在 ::after 宣纸遮罩之上、内容之下。
+   只覆盖左上约 48%×44% 且向外快速透明，不影响右侧人物与竹筐。 */
+.wxf-bg[data-craft="tie-dyeing"]::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background: radial-gradient(ellipse 48% 44% at 0% 0%,
+      rgba(252, 248, 238, 0.46) 0%,
+      rgba(252, 248, 238, 0.22) 44%,
+      rgba(252, 248, 238, 0) 80%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   [BLUEPRINT-FUSION] 蓝印花布详情页 · 同一套 .wxf-* 架构
+   新图：老师傅在老宅窗前展开印染花版（1024×682，已确认无水印）。
+   ① 背景  blueprint-bg.jpg / cover / no-repeat / fixed / right center
+           人物在右（约 55%~92%）、左侧是窗棂与灰瓦留白；right center 让
+           老师傅侧脸、双臂与整块花版完整落在右侧，左侧收给毛玻璃展签。
+   ② 遮罩  rgba(245,235,210,.65)，与四大名绣 / 白族扎染完全一致
+   ②b 角标 实测右上角（提亮 1.9x + 高对比 2x 放大）无任何 Logo / 台标 /
+           乱码，该区亮度均值仅 21、亮像素占比 0%。仍加一层极轻暖白径向
+           渐变兜底（峰值 .18，仅覆盖右上 38%×34%），以后换成带台标的原片
+           也不露怯；超宽屏另用 right 62% 下移取景把画面顶部推出可视区。
+   ③④ 展签、视频卡、按钮全部走下方 .wxf-scene 共享规则，样式 100% 统一。
+   -------------------------------------------------------------------------- */
+.wxf-bg[data-craft="blue-print"] {
+  background-image: url('/assets/images/blueprint-bg.jpg?v=20261112bp1') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: right center !important;
+}
+.wxf-bg[data-craft="blue-print"]::after {
+  background: rgba(245, 235, 210, 0.65) !important;
+}
+/* 右上角极轻暖白渐变：压在 ::after 宣纸遮罩之上、内容之下；
+   比白族扎染左上角更轻，避免在深色砖墙上形成突兀亮斑。 */
+.wxf-bg[data-craft="blue-print"]::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background: radial-gradient(ellipse 38% 34% at 100% 0%,
+      rgba(252, 248, 238, 0.18) 0%,
+      rgba(252, 248, 238, 0.09) 46%,
+      rgba(252, 248, 238, 0) 82%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   [PAPERCUT-FUSION] 民间剪纸详情页 · 同一套 .wxf-* 架构
+   新图：中右老太太端坐桌前，身后满墙彩色窗花 / 剪纸（640×448，图面极乱）。
+   ① 背景  papercut-bg.jpg / cover / no-repeat / fixed / right center
+           人物在中右（约 55%~92%），右侧完整留给老太太的脸、手与窗花。
+   ② 遮罩  图面极乱（满墙高饱和剪纸），左侧若用 .65 平铺遮罩仍会透出
+           杂乱色块、压住文字。故覆盖成「左→右」重渐变：
+           rgba(245,235,210,.95) → .75(50%) → .2(100%)，
+           左侧近实底压住杂乱、向右逐档变透，让右侧人物与窗花自然浮出。
+   ③ 展签  rgba(250,245,235,.85) + blur(12px)（比其它实景页更不透、更压得住）。
+   ④ 视频卡 / 交互控件：仍走下方 .wxf-scene 共享规则，样式 100% 统一。
+   -------------------------------------------------------------------------- */
+.wxf-bg[data-craft="paper-cut"] {
+  background-image: url('/assets/images/papercut-bg.jpg?v=20261112pc1') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: right center !important;
+}
+/* ② 重渐变遮罩：左实右透，覆盖默认 .wxf-bg::after 的均一平铺遮罩 */
+.wxf-bg[data-craft="paper-cut"]::after {
+  background: linear-gradient(to right,
+      rgba(245, 235, 210, 0.95) 0%,
+      rgba(245, 235, 210, 0.75) 50%,
+      rgba(245, 235, 210, 0.20) 100%) !important;
+}
+
+/* ③ 民间剪纸专属展签：特异性（:has 内 data-craft → 0,4,0）高于下方共享
+       .wxf-scene 展签（0,2,0）。为与全站统一，背景色 / 模糊 / 描边与共享规则
+       一致（0.6 + blur16 + 暗金边）；其图面极乱，靠左重右轻遮罩已压住，故
+       不再用 0.85 死白，统一氛围。max-width / margin / padding 继承共享规则。 */
+body:has(.wxf-bg.wxf-scene[data-craft="paper-cut"]) .cr-intro.wxf-hero .wxf-card {
+  background: rgba(250, 245, 235, 0.6) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  max-width: min(600px, 40vw) !important;
+  margin: 0 auto 0 3vw !important;
+  padding: 88px 34px 34px !important;
+}
+
+/* --------------------------------------------------------------------------
+   [BROCADE-FUSION] 中国织锦详情页 · 同一套 .wxf-* 架构
+   用户新图（1024×680，极干净无台标）：老匠人侧影在右、左侧是虚化的木制织机。
+   ① 背景  brocade-bg.jpg / cover / no-repeat / fixed / right center
+           匠人在右（约 55%~92%），左侧虚化织机正好做毛玻璃卡片的衬底。
+           right center 把侧脸、双手与发光丝线完整留在右侧，左侧收给展签。
+   ② 遮罩  与四大名绣 / 白族扎染 / 蓝印花布一致：均一 rgba(245,235,210,.65)，
+           右侧匠人清晰透出、左侧虚化织机透过展签若隐若现。
+   ③ 展签  rgba(250,245,235,.6) + blur(16px) + 暗金边，与全站统一（用户指定值）。
+   ④ 视频卡 / 交互控件：仍走下方 .wxf-scene 共享规则，样式 100% 统一。
+   -------------------------------------------------------------------------- */
+.wxf-bg[data-craft="brocade"] {
+  background-image: url('/assets/images/brocade-bg.jpg?v=20261112brc2') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: right center !important;
+}
+/* ② 均一宣纸遮罩：与四大名绣 / 白族扎染 / 蓝印花布完全一致 */
+.wxf-bg[data-craft="brocade"]::after {
+  background: rgba(245, 235, 210, 0.65) !important;
+}
+
+/* ③ 中国织锦专属展签：特异性（:has 内 data-craft → 0,4,0）高于下方共享
+       .wxf-scene 展签（0,2,0）。为与全站统一，背景色 / 模糊 / 描边与共享规则一致
+       （0.6 + blur16 + 暗金边）；暗部背景上给左侧文字一块稳稳可读、又透出匠人
+       剪影的毛玻璃。max-width / margin / padding 继承共享规则。 */
+body:has(.wxf-bg.wxf-scene[data-craft="brocade"]) .cr-intro.wxf-hero .wxf-card {
+  background: rgba(250, 245, 235, 0.6) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  max-width: min(600px, 40vw) !important;
+  margin: 0 auto 0 3vw !important;
+  padding: 88px 34px 34px !important;
+}
+
+/* --------------------------------------------------------------------------
+   [WAXDYE-FUSION] 苗族蜡染详情页 · 复刻四大名绣全屏实景风格（仅改苗族蜡染，不影响其它板块）
+   ① 背景  wax_dyeing_bg.jpg / cover / no-repeat / fixed / center
+           （用户指定 center：把人物留在画面中右，左侧虚化蜡染布衬托毛玻璃展签；
+            右侧完整留给人物，卡片在左 ≤40vw 绝不挡脸 / 手）
+   ② 遮罩  rgba(245,235,210,.65)，与四大名绣 / 扎染 / 蓝印 / 剪纸 / 织锦完全一致
+   ③④ 展签、视频卡、工艺流程面板、代表纹样卡、交互按钮全部走下方 .wxf-scene 共享
+           规则，与四大名绣 100% 统一。DOM 结构与四大名绣完全一致（.wxf-card 包住
+           .section-title + .cr-intro__body，媒体蝴蝶图在卡内右栏），故无需重复样式。
+   -------------------------------------------------------------------------- */
+.wxf-bg[data-craft="wax-dyeing"] {
+  background-image: url('/assets/images/wax_dyeing_bg.jpg?v=20261112wxf1') !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-position: center !important;
+}
+/* ② 宣纸遮罩层：覆盖默认 .wxf-bg::after 的 0.68 暖调，换成全站统一 .65 */
+.wxf-bg[data-craft="wax-dyeing"]::after {
+  background: rgba(245, 235, 210, 0.65) !important;
+}
+
+/* ③ 毛玻璃展签（左侧文字区）：特异性高于文末 .wxf-card 共享规则。
+   全局统一质感（用户指定）：宣纸暖白 rgba(250,245,235,.6) + blur(16px) +
+   暗金描边 rgba(212,175,55,.4)；宽度收紧到 ≤40vw 并固定在屏幕左侧，
+   给右侧人物留出呼吸空间。民间剪纸 / 中国织锦的专属规则仅覆盖背景色 / 模糊值，
+   其余布局（max-width / margin / padding）与本共享规则一致。 */
+body:has(.wxf-bg.wxf-scene) .cr-intro.wxf-hero .wxf-card {
+  background: rgba(250, 245, 235, 0.6) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  max-width: min(600px, 40vw) !important;
+  margin: 0 auto 0 3vw !important;
+  padding: 88px 34px 34px !important;
+}
+body:has(.wxf-bg.wxf-scene) .cr-intro.wxf-hero .cr-intro__body {
+  grid-template-columns: 52fr 48fr !important;
+  gap: 26px !important;
+}
+body:has(.wxf-bg.wxf-scene) .wxf-butterfly {
+  width: 88% !important;
+  max-width: 250px !important;
+  border-radius: 12px !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+/* 毛笔字体子集只含「苗族蜡染」用字，这里改用楷体栈避免逐字回落不齐 */
+body:has(.wxf-bg.wxf-scene) .cr-intro.wxf-hero .section-title__main {
+  font-family: 'STKaiti', 'KaiTi', '楷体', 'STXingkai', '华文行楷', 'Noto Serif SC', serif !important;
+  font-size: 56px !important;
+}
+
+/* ③ 下方各内容区统一半透明宣纸底，让实景连续透出、不割裂 */
+body:has(.wxf-bg.wxf-scene) .cr-process,
+body:has(.wxf-bg.wxf-scene) .cr-patterns,
+body:has(.wxf-bg.wxf-scene) .cr-inherit,
+body:has(.wxf-bg.wxf-scene) .cm__value {
+  background: linear-gradient(to bottom,
+    rgba(247, 239, 220, 0.72) 0%,
+    rgba(247, 239, 220, 0.86) 100%) !important;
+  border-radius: 18px !important;
+}
+/* 工艺流程四面板：与展签同款毛玻璃 */
+body:has(.wxf-bg.wxf-scene) .cr-process__item {
+  background: rgba(250, 245, 235, 0.55) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+body:has(.wxf-bg.wxf-scene) .cr-process__panel-in {
+  border-top: 1px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ④ B 站视频跳转卡 + 页面交互控件：半透明 / 毛玻璃，融进实景 */
+body:has(.wxf-bg.wxf-scene) .cr-inherit__video-wrap {
+  margin-top: 26px !important;
+}
+body:has(.wxf-bg.wxf-scene) .pattern-border.cr-inherit__video {
+  background: rgba(250, 245, 235, 0.48) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.08) !important;
+  backdrop-filter: blur(14px) saturate(1.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+body:has(.wxf-bg.wxf-scene) .cr-inherit__video-stage.cvm-card {
+  background-color: rgba(250, 245, 235, 0.22) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 34px -14px rgba(60, 40, 18, 0.38),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.28) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  backdrop-filter: blur(6px) !important;
+}
+/* 遮罩由深蓝灰改暖白半透明，封面不再是一块实色 */
+body:has(.wxf-bg.wxf-scene) .cvm-card__scrim {
+  background:
+    linear-gradient(180deg, rgba(250, 245, 235, 0.10) 0%, rgba(70, 48, 24, 0.28) 100%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, rgba(250, 245, 235, 0.04), rgba(70, 48, 24, 0.22) 100%) !important;
+}
+body:has(.wxf-bg.wxf-scene) .cvm-card__play {
+  background: rgba(250, 245, 235, 0.32) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 8px 22px rgba(60, 40, 18, 0.24) !important;
+}
+body:has(.wxf-bg.wxf-scene) .cvm-card__sub {
+  background: rgba(250, 245, 235, 0.34) !important;
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+}
+body:has(.wxf-bg.wxf-scene) .cvm-card__hint {
+  background: rgba(250, 245, 235, 0.34) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 999px !important;
+  padding: 3px 10px !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+}
+body:has(.wxf-bg.wxf-scene) .cr-process button,
+body:has(.wxf-bg.wxf-scene) .cr-patterns button,
+body:has(.wxf-bg.wxf-scene) .cr-inherit button,
+body:has(.wxf-bg.wxf-scene) .cm__value button {
+  background: rgba(250, 245, 235, 0.55) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 窄高桌面视口（如 1024×900 平板竖屏 / 小窗口）：
+   cover 按高度缩放后会水平溢出，此时 right center(=100%) 反而把人物推到
+   画面左侧、可能被展签压住。与蜡染页同款策略改用 32% center，
+   把人物重新送回右半屏；卡片仍按 min(600px,40vw) 收在左侧。 */
+@media (max-aspect-ratio: 3/2) and (min-width: 861px) {
+  .wxf-bg[data-craft="embroidery"],
+  .wxf-bg[data-craft="tie-dyeing"],
+  .wxf-bg[data-craft="blue-print"],
+  .wxf-bg[data-craft="paper-cut"],
+  .wxf-bg[data-craft="brocade"] {
+    background-position: 32% center !important;
+  }
+}
+/* 超宽屏（宽高比 > 2.1）：按宽度缩放会上下裁掉较多。
+   四大名绣上移取景保住头顶；白族扎染 / 蓝印花布改为下移取景，
+   把画面顶部（含左上台标区、右上 Logo 区）推出可视区，配合渐变兜底双保险。 */
+@media (min-aspect-ratio: 21/10) and (min-width: 861px) {
+  .wxf-bg[data-craft="embroidery"] {
+    background-position: right 38% !important;
+  }
+  .wxf-bg[data-craft="tie-dyeing"],
+  .wxf-bg[data-craft="blue-print"],
+  .wxf-bg[data-craft="paper-cut"],
+  .wxf-bg[data-craft="brocade"] {
+    background-position: right 55% !important;
+  }
+}
+
+/* 移动端：背景偏右取景，卡片单列 */
+@media (max-width: 860px) {
+  /* 竖屏按高度缩放后水平溢出极大，right center 会把人物完全裁出画面；
+     按两张实景图各自比例取景，让人物留在右半屏 */
+  .wxf-bg[data-craft="embroidery"] { background-position: 72% center !important; }
+  .wxf-bg[data-craft="tie-dyeing"] { background-position: 58% center !important; }
+  /* 蓝印花布 3:2 在 390×844 下可见窗口仅占图宽约 31%，62% 可让老师傅侧脸
+     与花版落在可见区，卡片单列时人物仍能自展签上方透出 */
+  .wxf-bg[data-craft="blue-print"] { background-position: 62% center !important; }
+  /* 民间剪纸 ~3:2，竖屏按高度缩放水平溢出大；64% 让中右老太太的脸与手
+     落在可见区，卡片单列时人物仍能自展签上方透出 */
+  .wxf-bg[data-craft="paper-cut"] { background-position: 64% center !important; }
+  /* 中国织锦 3:2，匠人在右（约 55%~92%）。竖屏按高度缩放水平溢出极大：64% center
+     让侧脸与双手落在右半可见区，卡片单列时匠人仍能自展签上方透出。 */
+  .wxf-bg[data-craft="brocade"] { background-position: 64% center !important; }
+  body:has(.wxf-bg.wxf-scene) .cr-intro.wxf-hero .wxf-card {
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 26px 20px !important;
+  }
+  /* 关键：民间剪纸 / 中国织锦各自有 data-craft 专属展签规则（特异性 0,4,0 高于
+     上方共享 .wxf-scene 0,2,0），其 max-width:min(600px,43vw) 在 <860px 会压过
+     上面的 100% 覆盖、导致卡片塌成 ~167px、正文逐字换行。这里用同等特异性
+     （:has 内带 data-craft）在移动端把两页展签重新拉满宽，背景色/模糊不动。 */
+  body:has(.wxf-bg.wxf-scene[data-craft="paper-cut"]) .cr-intro.wxf-hero .wxf-card,
+  body:has(.wxf-bg.wxf-scene[data-craft="brocade"]) .cr-intro.wxf-hero .wxf-card {
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 26px 20px !important;
+  }
+  body:has(.wxf-bg.wxf-scene) .cr-intro.wxf-hero .section-title__main {
+    font-size: 42px !important;
+  }
+  /* 关键：.wxf-scene 段用 body:has(...) 高特异性设了两栏，
+     必须在这里用同等特异性覆盖回单列，否则小屏正文被挤成细长条 */
+  body:has(.wxf-bg.wxf-scene) .cr-intro.wxf-hero .cr-intro__body {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  body:has(.wxf-bg.wxf-scene) .wxf-butterfly {
+    width: 62% !important;
+    max-width: 230px !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+  body:has(.wxf-bg.wxf-scene) .cr-intro__media {
+    justify-content: center !important;
+  }
+}

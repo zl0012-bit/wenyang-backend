@@ -1,0 +1,209 @@
+/* ==========================================================================
+   鎏金主题 · Gilt Theme
+   --------------------------------------------------------------------------
+   仅覆盖「背景」相关设计令牌与背景图层。
+   内容、版式、组件结构、路由与跳转页面完全不变。
+   说明：--bg / --text 由前端主题 store 以内联样式写在 <html> 上，
+        因此此处必须使用 !important 才能生效。
+   ========================================================================== */
+
+/* ---------- 1. 鎏金配色令牌 ---------- */
+:root,
+html[data-theme='light'] {
+  /* 表面（卡片 / 面板 / 胶囊）—— 明亮鎏金面，浮于鎏金底之上 */
+  --bg: #f4e6c0 !important;
+  --text: #2c2c2c !important;
+
+  /* 鎏金体系 */
+  --gilt-deep: #7a5512;
+  --gilt-shadow: #a5791f;
+  --gilt-mid: #cfa23c;
+  --gilt-light: #e6c778;
+  --gilt-pale: #f6ead0;
+  --gilt-flash: #fff6d8;
+
+  /* 次级文字：鎏金底上需更实，用暖调深灰而非冷调中灰 */
+  --c-gray: #4d4433 !important;
+
+  /* 分隔线与阴影改为暖金，避免冷调蓝黑压脏金面 */
+  --border: rgba(122, 85, 18, 0.22) !important;
+  --shadow-sm: 0 2px 8px rgba(122, 85, 18, 0.14) !important;
+  --shadow-md: 0 8px 24px rgba(122, 85, 18, 0.18) !important;
+  --shadow-lg: 0 16px 48px rgba(122, 85, 18, 0.24) !important;
+  --shadow-card: 0 4px 16px rgba(122, 85, 18, 0.14) !important;
+  --shadow-hover: 0 14px 36px rgba(122, 85, 18, 0.26) !important;
+  --shadow-gold: 0 6px 20px rgba(207, 162, 60, 0.42) !important;
+  --shadow-float: 0 18px 48px rgba(207, 162, 60, 0.34) !important;
+}
+
+/* 深色模式：暗底鎏金（金箔在深色漆底上），保留主题切换的可用性 */
+html[data-theme='dark'] {
+  --bg: #241a08 !important;
+  --text: #f4e6c2 !important;
+
+  --c-gray: #c3b18c !important;
+  --c-primary: #d9a63f !important;
+  --c-paper: #f7efd9 !important;
+
+  --border: rgba(240, 220, 170, 0.2) !important;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  --shadow-hover: 0 14px 36px rgba(0, 0, 0, 0.6) !important;
+  --shadow-gold: 0 6px 20px rgba(217, 166, 63, 0.42) !important;
+  --shadow-float: 0 18px 48px rgba(217, 166, 63, 0.34) !important;
+}
+
+/* ---------- 2. 全站背景：大漆鎏金底 ---------- */
+html {
+  background-color: #cfa63f !important;
+  /* 自下而上：四角鎏金高光 + 中部熔金过渡 + 边缘琥珀收边 */
+  background-image:
+    radial-gradient(880px 600px at 12% 6%, rgba(255, 250, 230, 0.95) 0%, rgba(255, 250, 230, 0) 60%),
+    radial-gradient(720px 540px at 90% 4%, rgba(255, 242, 202, 0.78) 0%, rgba(255, 242, 202, 0) 58%),
+    radial-gradient(1000px 760px at 50% 106%, rgba(122, 85, 18, 0.52) 0%, rgba(122, 85, 18, 0) 62%),
+    radial-gradient(560px 440px at 4% 94%, rgba(150, 106, 24, 0.4) 0%, rgba(150, 106, 24, 0) 64%),
+    linear-gradient(135deg, #fbf3dc 0%, #eed9a4 24%, #e0bd6d 46%, #d0a641 70%, #bd8f2b 100%) !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+/* 金箔肌理 + 斜向金属拉丝（叠加在 html 上，不参与布局与层叠） */
+html::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.1) 0px,
+      rgba(255, 255, 255, 0) 3px,
+      rgba(120, 80, 12, 0.05) 5px,
+      rgba(255, 255, 255, 0) 8px
+    ),
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)' opacity='0.42'/%3E%3C/svg%3E");
+  background-size: auto, 180px 180px;
+  mix-blend-mode: soft-light;
+  opacity: 0.85;
+}
+
+/* 页面根节点透明，让鎏金底透出（卡片仍为不透明鎏金面，形成层次） */
+body {
+  background: transparent !important;
+}
+
+/* 保证应用内容位于肌理层之上 */
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+html[data-theme='dark'] {
+  background-color: #1c1405 !important;
+  background-image:
+    radial-gradient(900px 620px at 16% 8%, rgba(255, 231, 168, 0.24) 0%, rgba(255, 231, 168, 0) 60%),
+    radial-gradient(820px 560px at 86% 12%, rgba(217, 166, 63, 0.2) 0%, rgba(217, 166, 63, 0) 62%),
+    radial-gradient(1100px 820px at 50% 110%, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0) 66%),
+    linear-gradient(140deg, #3a2a0e 0%, #2a1d08 34%, #1d1405 62%, #120c03 100%) !important;
+}
+
+/* ---------- 3. 首屏「开场动态效果」鎏金化 ---------- */
+/* 首屏底：深色大漆底 + 鎏金高光（光轮/涟漪等动态层见 gilt-hero.css） */
+.hero[data-v-e52e0274] {
+  background:
+    radial-gradient(circle at 26% 20%, rgba(255, 226, 150, 0.28), transparent 44%),
+    radial-gradient(circle at 76% 80%, rgba(207, 162, 60, 0.26), transparent 48%),
+    radial-gradient(circle at 50% 52%, #3a2a10, #1a1206 68%, #0e0902 100%) !important;
+}
+
+/* 原「金色粒子」画布：形式已由 gilt-hero.css 的金丝光轮取代，此处隐藏可见性。
+   保留元素本身（不改动 Vue 结构），避免影响其内部渲染逻辑。 */
+.hero__canvas[data-v-e52e0274] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* 原静态降级里的「金色浮尘点阵」同样属于粒子形式，一并停用 */
+.hero__static-bg[data-v-e52e0274]::after {
+  display: none !important;
+}
+
+/* 粒子加载遮罩：由冷黑改为鎏金暗底 */
+.hero__loading[data-v-e52e0274] {
+  background: radial-gradient(circle at 50% 50%, #33240c 0%, #150e04 100%) !important;
+}
+
+/* 静态降级背景（画质=静态）改为鎏金暗底 + 金色浮尘 */
+.hero__static-bg[data-v-e52e0274] {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 226, 150, 0.2), transparent 42%),
+    radial-gradient(circle at 70% 70%, rgba(207, 162, 60, 0.22), transparent 46%),
+    radial-gradient(circle at 50% 50%, #362610, #170f04 72%) !important;
+}
+
+.hero__static-bg[data-v-e52e0274]::after {
+  background-image: radial-gradient(rgba(255, 226, 150, 0.42) 1px, transparent 1px) !important;
+  background-size: 26px 26px !important;
+  opacity: 0.6 !important;
+}
+
+/* 首屏鎏金描边框：强化"宝物"气质 */
+.hero__inner[data-v-e52e0274]::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -46px;
+  transform: translateX(-50%);
+  width: 168px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gilt-light), var(--gilt-flash), var(--gilt-light), transparent);
+  box-shadow: 0 0 16px rgba(255, 226, 150, 0.7);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* 主标题金色渐变描边加深，突出鎏金的立体感 */
+.hero__title[data-v-e52e0274] {
+  filter: drop-shadow(0 6px 22px rgba(200, 155, 60, 0.42)) drop-shadow(0 1px 0 rgba(255, 246, 216, 0.5)) !important;
+}
+
+/* 画质按钮 / 滚动提示的鎏金化 */
+.hero__quality[data-v-e52e0274] .q-btn {
+  border-color: rgba(240, 208, 130, 0.34) !important;
+  background: rgba(240, 208, 130, 0.08) !important;
+  color: rgba(250, 235, 195, 0.78) !important;
+}
+
+.hero__quality[data-v-e52e0274] .q-btn:hover {
+  border-color: var(--gilt-light) !important;
+  color: var(--gilt-flash) !important;
+}
+
+.hero__quality[data-v-e52e0274] .q-btn.active {
+  background: linear-gradient(180deg, #f9e7b0 0%, #d9b25e 100%) !important;
+  border-color: #f0d38a !important;
+  color: #3a2a0c !important;
+  box-shadow: 0 0 14px rgba(240, 200, 110, 0.55) !important;
+}
+
+/* ---------- 4. 全站通用鎏金细节 ---------- */
+/* 顶栏下方的鎏金细线，让深红顶栏与金色页面之间有一道金边过渡 */
+.app-header[data-v-0d85b9be] {
+  border-bottom: 1px solid rgba(255, 226, 150, 0.42) !important;
+  box-shadow: 0 6px 22px rgba(122, 85, 18, 0.22), inset 0 -1px 0 rgba(255, 246, 216, 0.28) !important;
+}
+
+/* 页脚：由近黑改为深鎏金铜色收边，与鎏金页面形成"漆底鎏金"的收束 */
+.site-footer[data-v-83b0b169] {
+  background:
+    radial-gradient(760px 300px at 50% 120%, rgba(255, 226, 150, 0.18), transparent 66%),
+    linear-gradient(180deg, #3a2a0c 0%, #241806 62%, #150e04 100%) !important;
+  border-top: 1px solid rgba(255, 226, 150, 0.36) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 246, 216, 0.22) !important;
+}
+
+/* 尊重系统「减少动态效果」偏好（首屏光轮与涟漪见 gilt-hero.css） */

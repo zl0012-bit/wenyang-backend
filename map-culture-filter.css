@@ -1,0 +1,246 @@
+/* ==========================================================================
+   [MAP-CULTURE-FILTER] 纹样地图 · 文化归类联动筛选（考古学严谨性）
+   --------------------------------------------------------------------------
+   目标：史前（新石器）按「考古学文化」归类，绝不出现现代民族称谓；
+         历史时期按「民族 / 族群」归类，两套维度不可混用。
+   作用域：body:has(.china-map__stage) —— 仅命中 /map 页面。
+   说明：注入的 DOM 由 map-culture-filter.js 生成，并携带
+         data-v-a1c08584 属性以复用站内 MapFilters 的 scoped 样式，
+         本文件只做增量增强，不重写站内基础样式。
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1) 图层按钮组「民族」→「文化/族群」
+   用 font-size:0 隐藏原文本 + ::after 重写文案：即便 Vue 重渲染把文本
+   写回「民族」，视觉仍恒定，不依赖 JS 反复改 DOM。
+   -------------------------------------------------------------------------- */
+body:has(.china-map__stage) .map-filters__seg .map-filters__seg-btn:nth-child(4) {
+  font-size: 0 !important;
+}
+body:has(.china-map__stage) .map-filters__seg .map-filters__seg-btn:nth-child(4)::after {
+  content: "文化/族群";
+  display: inline-block;
+  font-family: var(--font-body, inherit);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   2) 新增「文化归类」下拉 + 维度徽标
+   -------------------------------------------------------------------------- */
+body:has(.china-map__stage) .wb-cf-group {
+  flex: none;
+}
+body:has(.china-map__stage) .wb-cf-select {
+  min-width: 138px;
+  max-width: 200px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+body:has(.china-map__stage) .wb-cf-select:not(:disabled) {
+  border-color: rgba(184, 140, 52, .58) !important;
+  box-shadow: 0 0 0 2px rgba(184, 140, 52, .08);
+}
+body:has(.china-map__stage) .wb-cf-select:disabled {
+  opacity: .58;
+  cursor: not-allowed;
+}
+
+body:has(.china-map__stage) .wb-cf-dim {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--font-title, serif);
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: #6b4a12;
+  background: rgba(212, 175, 55, .14);
+  border: 1px solid rgba(184, 140, 52, .38);
+}
+body:has(.china-map__stage) .wb-cf-dim.is-pre {
+  color: #8b1a1a;
+  background: rgba(139, 26, 26, .08);
+  border-color: rgba(139, 26, 26, .3);
+}
+body:has(.china-map__stage) .wb-cf-dim.is-idle {
+  color: #7a6a54;
+  background: rgba(120, 105, 80, .08);
+  border-color: rgba(120, 105, 80, .22);
+}
+
+/* --------------------------------------------------------------------------
+   3) 文化归类信息卡（筛选栏下方横条，默认隐藏）
+   -------------------------------------------------------------------------- */
+body:has(.china-map__stage) .wb-cf-info {
+  display: none;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 14px 0 2px;
+  padding: 15px 18px 16px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid rgba(184, 140, 52, .42);
+  background: linear-gradient(105deg, rgba(250, 240, 215, .88), rgba(255, 251, 240, .74));
+  box-shadow: 0 8px 24px rgba(74, 48, 20, .10), inset 0 1px 0 rgba(255, 255, 255, .6);
+  animation: wb-cf-in .32s ease both;
+}
+body:has(.china-map__stage) .wb-cf-info.is-on {
+  display: flex;
+}
+@keyframes wb-cf-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body:has(.china-map__stage) .wb-cf-info__seal {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  font-family: var(--font-title, serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff8ec;
+  background: linear-gradient(145deg, #a52a2a, #7d1616);
+  box-shadow: 0 3px 10px rgba(125, 22, 22, .28), inset 0 0 0 2px rgba(255, 240, 220, .35);
+  transform: rotate(-4deg);
+}
+body:has(.china-map__stage) .wb-cf-info__body {
+  flex: 1;
+  min-width: 0;
+}
+body:has(.china-map__stage) .wb-cf-info__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+body:has(.china-map__stage) .wb-cf-info__title {
+  font-family: var(--font-title, serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: #5a2f16;
+  letter-spacing: .02em;
+}
+body:has(.china-map__stage) .wb-cf-info__era {
+  font-size: 12.5px;
+  color: #8a6a3a;
+}
+body:has(.china-map__stage) .wb-cf-info__tag {
+  font-size: 11px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: #8b1a1a;
+  background: rgba(139, 26, 26, .07);
+  border: 1px solid rgba(139, 26, 26, .26);
+}
+body:has(.china-map__stage) .wb-cf-info__lines {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.85;
+  color: #4a3a28;
+}
+body:has(.china-map__stage) .wb-cf-info__lines b {
+  color: #7d1616;
+  font-weight: 600;
+}
+body:has(.china-map__stage) .wb-cf-info__note {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8a7a62;
+}
+body:has(.china-map__stage) .wb-cf-info__close {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(120, 105, 80, .1);
+  color: #7a6a54;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+body:has(.china-map__stage) .wb-cf-info__close:hover {
+  background: rgba(139, 26, 26, .12);
+  color: #8b1a1a;
+}
+
+/* --------------------------------------------------------------------------
+   4) 地图散点联动：命中高亮 / 其余淡化
+   （.map-marker 自带内联 style="opacity:1"，故用 !important 覆盖）
+   -------------------------------------------------------------------------- */
+body:has(.china-map__stage) .map-marker.wb-cf-dim {
+  opacity: .15 !important;
+}
+/* 仅有「演示补充点位」时（如明清下白族·云南被底层 mock 过滤），
+   淡化程度放缓，避免整张沙盘发暗 */
+body:has(.china-map__stage) .map-marker.wb-cf-dim-soft {
+  opacity: .38 !important;
+}
+body:has(.china-map__stage) .map-marker.wb-cf-hl {
+  opacity: 1 !important;
+}
+body:has(.china-map__stage) .map-marker.wb-cf-hl .map-marker__dot {
+  stroke: #d4af37 !important;
+  stroke-width: 3.6 !important;
+  filter: drop-shadow(0 0 9px rgba(212, 175, 55, .9));
+}
+body:has(.china-map__stage) .map-marker.wb-cf-hl .map-marker__core {
+  fill: rgba(255, 248, 224, .92) !important;
+}
+
+/* 被底层 mock 按朝代过滤掉的区域：虚线「演示补充点位」 */
+body:has(.china-map__stage) .wb-cf-ghost {
+  pointer-events: none;
+}
+body:has(.china-map__stage) .wb-cf-ghost__ring {
+  fill: rgba(200, 155, 60, .14);
+  stroke: rgba(184, 140, 52, .92);
+  stroke-width: 2.4;
+  stroke-dasharray: 7 6;
+  animation: wb-cf-dash 14s linear infinite;
+}
+body:has(.china-map__stage) .wb-cf-ghost__core {
+  fill: rgba(212, 175, 55, .85);
+}
+/* 唯一命中点时加强描边与光晕，让它读起来是「命中」而非「缺失」 */
+body:has(.china-map__stage) .wb-cf-ghost.is-sole .wb-cf-ghost__ring {
+  fill: rgba(212, 175, 55, .22);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, .8));
+}
+body:has(.china-map__stage) .wb-cf-ghost.is-sole .wb-cf-ghost__core {
+  fill: #f6d98f;
+}
+@keyframes wb-cf-dash {
+  to { stroke-dashoffset: -130; }
+}
+
+/* --------------------------------------------------------------------------
+   5) 窄屏兜底：不撑破筛选栏，信息卡改为纵向
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body:has(.china-map__stage) .wb-cf-select {
+    min-width: 120px;
+    max-width: 160px;
+  }
+  body:has(.china-map__stage) .wb-cf-info {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  body:has(.china-map__stage) .wb-cf-info__seal {
+    width: 40px;
+    height: 40px;
+    font-size: 19px;
+  }
+}

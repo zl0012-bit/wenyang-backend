@@ -1,0 +1,260 @@
+/* ============================================================================
+ * [MAP-SANDTABLE] 纹样地图 · 国风 3D 数据沙盘（零依赖增强层） v3
+ * ----------------------------------------------------------------------------
+ * 技术现实：本项目地图为「内联 SVG 中国地图」（viewBox 0 0 1000 820），并非
+ *   ECharts；省份是 <path> + 可点击 .map-marker 圆点，拖拽/缩放/复位已由
+ *   <g transform="translate(...) scale(...)"> + 滚轮/指针事件原生实现（等价 roam）。
+ *   飞线/涟漪用 SVG 原生 <path>/<circle> + CSS/SMIL 动画，零新增依赖。
+ *
+ * v2 变更（用户要求「强化空间感」）：
+ *   · 舞台 overflow:hidden → visible，解除对 3D 倾斜与悬浮阴影的裁剪（关键）
+ *   · 深蓝夜色底 → transparent，陆地板块直接浮在宣纸米黄大背景上
+ *   · transform 改为容器自身 perspective(1200px) rotateX(40deg) scale(1.05)
+ *   · 悬浮巨影 box-shadow: 0 40px 80px rgba(0,0,0,.5)
+ *   · 省界改朱砂暗红/金，底部图例改毛玻璃并缩小
+ *   · 飞线/涟漪保留亮金，靠深褐托底/描边在浅背景上保持清晰
+ *
+ * v3 最终抛光：
+ *   · 陆地改通透浅米/宣纸色，省界改亮暗金 #d4af37 并加粗（金丝镶嵌）
+ *   · svg 多层硬边阴影 + 底座下沿 ::after 厚边 = 玻璃/实木托盘厚度
+ *   · 涟漪/汇聚点去掉 CSS filter，改同坐标 .sand-ground 落地盘贴合地面
+ *   · 鼠标移入即平滑展平（含底座），移出恢复 40°
+ *
+ * 作用域：全部规则以 html.wb-sand-on 为总开关（自检通过后由 JS 添加），
+ *   仅 /map 页命中；离开自动移除。兜底见 window.__wbSandtableRollback()。
+ * ========================================================================== */
+
+/* 防止 3D 倾斜后左右放大撑出页面横向滚动条（只裁水平，不影响纵向 3D） */
+html.wb-sand-on { overflow-x: hidden; }
+
+/* ---------- 一、3D 舞台：解除裁剪 + 透明宣纸底 ---------- */
+html.wb-sand-on .china-map__stage {
+  /* 关键：原 overflow:hidden 把倾斜后的地图与阴影裁成矩形贴图，看起来才"平" */
+  overflow: visible !important;
+  perspective: none;                       /* 改由 svg 的 transform perspective() 承担，避免双重透视 */
+  background: transparent !important;     /* 宣纸米黄大背景直接透出 */
+  border-color: rgba(139, 26, 26, .3) !important;   /* 朱砂淡边框 */
+  margin: 18px 0 76px;                    /* 倾斜下缘 + 悬浮巨影的缓冲区，避免压住下方提示文字 */
+}
+
+/* 地面投影板：不随 3D 倾斜，模拟地图悬浮在宣纸上方投下的暖褐阴影 */
+html.wb-sand-on .china-map__stage::before {
+  content: "";
+  position: absolute;
+  left: 2%; right: 2%; bottom: -10%; height: 40%;
+  background: radial-gradient(ellipse at 50% 40%,
+              rgba(60, 38, 14, .58), rgba(74, 48, 20, .24) 52%, transparent 78%);
+  filter: blur(28px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 底座下沿厚边：与地图共用同一 3D 变换，从倾斜地图下缘露出一条受光厚边，
+   让沙盘看起来是一块有厚度的玻璃/实木托盘，而不是一张纸 */
+html.wb-sand-on .china-map__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;                 /* 与地图同尺寸、共用同一 3D 变换 → 厚边随透视成梯形，不再脱节 */
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 14px;
+  /* 仅底缘 10% 上色：顶面高光 → 侧面暗金 → 实木深色底 */
+  background: linear-gradient(180deg,
+              transparent 0%, transparent 89%,
+              rgba(238, 214, 158, .92) 90%, rgba(176, 132, 62, .96) 94%,
+              rgba(96, 64, 26, .96) 98%, rgba(58, 38, 14, .96) 100%);
+  transform: perspective(1200px) rotateX(40deg) scale(1.05) translateY(18px);
+  transform-origin: center center;
+  transition: transform .6s ease;
+}
+
+/* 地图容器：容器自身 perspective + 40° 倾斜 + 巨大悬浮投影 */
+html.wb-sand-on .china-map__svg {
+  position: relative;
+  z-index: 1;
+  transform: perspective(1200px) rotateX(40deg) scale(1.05);
+  transform-origin: center center;
+  transition: transform .6s ease, filter .45s ease;
+  /* 4 层硬边 = 24px 托盘侧面厚度；最外层 = 巨大向下悬浮投影 */
+  box-shadow:
+    0 6px 0 rgba(168, 126, 58, .95),
+    0 12px 0 rgba(128, 90, 38, .95),
+    0 18px 0 rgba(92, 62, 26, .95),
+    0 24px 0 rgba(58, 38, 14, .95),
+    0 40px 80px rgba(0, 0, 0, .5);
+  will-change: transform;
+}
+
+/* 三、鼠标操作展平：rotateX 归零，保证点击零坐标偏移（perspective 保留以平滑插值） */
+html.wb-sand-on .china-map__stage.is-flat .china-map__svg {
+  transform: perspective(1200px) rotateX(0deg) scale(1.05);
+}
+/* 底座与地图同步展平，避免悬停时厚度边与地图错位 */
+html.wb-sand-on .china-map__stage.is-flat::after {
+  transform: perspective(1200px) rotateX(0deg) scale(1.05) translateY(18px);
+}
+
+/* ---------- 陆地板块 / 省界：通透宣纸 + 金丝镶嵌 ---------- */
+/* 半透明宣纸白叠在米黄大背景上，降低对比度、消除灰绿脏感；轮廓全靠亮暗金省界勾出 */
+html.wb-sand-on .china-map__province {
+  fill: rgba(247, 243, 236, .46) !important;
+  stroke: #d4af37 !important;            /* 亮暗金 · 金丝镶嵌 */
+  stroke-width: 1.7 !important;
+  stroke-opacity: .95 !important;
+}
+html.wb-sand-on .china-map__province:hover {
+  fill: rgba(212, 175, 55, .3) !important;   /* 暖金高亮，不再用朱砂压暗 */
+  stroke: #f3da8e !important;
+  stroke-width: 2.1 !important;
+}
+/* 文字：浮层本就深墨底 → 亮金；图例在浅毛玻璃上 → 墨色/朱砂 */
+html.wb-sand-on .china-map__tip strong { color: #f4d03f !important; }
+html.wb-sand-on .china-map__legend-title { color: #8b1a1a !important; }
+html.wb-sand-on .china-map__legend { color: #4d4433 !important; }
+
+/* 缩放按钮：宣纸白玻璃 + 朱砂字，与米黄大背景统一 */
+html.wb-sand-on .china-map__zoom button {
+  color: #8b1a1a !important;
+  background: rgba(247, 243, 236, .82) !important;
+  border-color: rgba(139, 26, 26, .38) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-weight: 700;
+}
+html.wb-sand-on .china-map__zoom button:hover {
+  color: #c89b3c !important;
+  background: rgba(255, 250, 238, .95) !important;
+  border-color: #c89b3c !important;
+}
+
+/* UI 层压在倾斜地图之上，保证按钮/图例/浮层清晰可点 */
+html.wb-sand-on .china-map__zoom,
+html.wb-sand-on .china-map__legend { z-index: 6; }
+html.wb-sand-on .china-map__tip { z-index: 7; }
+
+/* ---------- 四、底部图例：毛玻璃 · 缩小 · 左下角边框内 ---------- */
+html.wb-sand-on .china-map__legend {
+  left: 14px;
+  bottom: 14px;
+  max-width: 54%;
+  gap: 5px 9px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  background: rgba(247, 243, 236, .58) !important;
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  border: 1px solid rgba(139, 26, 26, .28);
+  box-shadow: 0 3px 12px rgba(74, 48, 20, .16);
+}
+html.wb-sand-on .china-map__legend-title { font-size: 11.5px; }
+html.wb-sand-on .china-map__legend-item i { width: 9px; height: 9px; border-radius: 2px; }
+
+/* ---------- 二、动态流光飞线 + 雷达涟漪（SVG 注入节点） ---------- */
+/* 整个特效层绝不拦截省份/marker 点击与 roam 拖拽 */
+#wb-sand-fx { pointer-events: none; }
+
+/* 深褐托底：浅色宣纸背景上给亮金流光一圈暗槽，保证清晰又不改金色本身 */
+.sand-line-base {
+  fill: none;
+  stroke: rgba(96, 62, 20, .5);
+  stroke-width: 3.6;
+  vector-effect: non-scaling-stroke;
+}
+/* pathLength=100 → dasharray「22 100」= 22% 亮段拖尾，等效 trailLength≈0.6 */
+.sand-line-flow {
+  fill: none;
+  stroke: #ffdf7a;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 5px rgba(255, 223, 122, 1));
+  stroke-dasharray: 22 100;
+  animation: sand-flow 2.4s linear infinite;
+}
+@keyframes sand-flow {
+  from { stroke-dashoffset: 122; }
+  to   { stroke-dashoffset: 0; }
+}
+/* SMIL animateMotion 驱动的金色箭头（等效 effect.symbol='arrow'）
+   暗边改为 SVG 原生描边，与路径同坐标，避免 3D 合成层造成的偏移 */
+.sand-arrow {
+  fill: #fff0b8;
+  stroke: rgba(96, 62, 20, .88);
+  stroke-width: .9;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 5px rgba(255, 223, 122, 1));
+}
+
+/* 落地盘：与涟漪/汇聚点严格同心，给散点一个贴地暗色基座。
+   去掉 CSS filter —— 3D 倾斜下 filter 会新建合成层，发光易与地面错位显「飘」 */
+.sand-ground {
+  fill: rgba(74, 48, 20, .1);
+  stroke: rgba(96, 62, 20, .38);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 重点省份金色雷达涟漪：3 个圆环错峰扩散 */
+.sand-ripple circle {
+  fill: none;
+  stroke: #ffdf7a;
+  stroke-width: 2.4;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;       /* 缩放中心锁定为圆心，跨浏览器一致 */
+  transform-origin: center;
+  animation: sand-ripple 2.8s ease-out infinite;
+}
+.sand-ripple circle:nth-child(2) { animation-delay: .93s; }
+.sand-ripple circle:nth-child(3) { animation-delay: 1.86s; }
+@keyframes sand-ripple {
+  0%   { transform: scale(.12); opacity: 0; }
+  14%  { opacity: .95; }
+  70%  { opacity: .72; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+/* 甘肃主汇聚点常驻雷达环 */
+.sand-radar {
+  fill: none;
+  stroke: rgba(160, 106, 24, .72);
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+.sand-hub {
+  fill: #fff0b8;
+  stroke: rgba(96, 62, 20, .92);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---------- 抽屉层级与联动 ---------- */
+html.wb-sand-on .region-popup { z-index: 9999 !important; }
+html.wb-sand-on body:has(.region-popup) .china-map__stage {
+  filter: blur(4px) brightness(.6);
+}
+html.wb-sand-on body:has(.region-popup) .sand-line-flow,
+html.wb-sand-on body:has(.region-popup) .sand-ripple circle {
+  animation-play-state: paused;
+}
+
+/* 底部提示压在倾斜地图之上，保证缓冲带内清晰可读 */
+html.wb-sand-on .china-map__hint {
+  position: relative;
+  z-index: 3;
+  color: #6b4d1f !important;
+  text-shadow: 0 1px 0 rgba(255, 250, 238, .85);
+}
+
+/* ---------- 响应式 / 无障碍 ---------- */
+@media (max-width: 768px) {
+  html.wb-sand-on .china-map__svg { transform: perspective(1200px) rotateX(24deg) scale(1.03); }
+  html.wb-sand-on .china-map__stage.is-flat .china-map__svg { transform: perspective(1200px) rotateX(0deg) scale(1.03); }
+  html.wb-sand-on .china-map__stage::after { transform: perspective(1200px) rotateX(24deg) scale(1.03) translateY(18px); }
+  html.wb-sand-on .china-map__stage.is-flat::after { transform: perspective(1200px) rotateX(0deg) scale(1.03) translateY(18px); }
+  html.wb-sand-on .china-map__legend { max-width: 80%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.wb-sand-on .china-map__svg,
+  html.wb-sand-on .china-map__stage::after { transition: none; }
+  .sand-line-flow, .sand-ripple circle { animation: none !important; }
+}

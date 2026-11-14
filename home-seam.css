@@ -1,0 +1,112 @@
+/* ==========================================================================
+   [HOME-SEAM] 首页「六境」→「每日一纹」长卷衔接
+   --------------------------------------------------------------------------
+   问题：两个 section 本身透明、共用 html 的全站鎏金大背景，但「每日一纹」
+         (.dlg) 的顶光聚光与回纹暗纹用 ::before/::after + inset:0 从 section
+         顶部硬切入，形成一条横贯全屏的明暗拼接色带，像两块底板拼在一起。
+
+   做法：
+     1) 显式清空两个模块各自的底色 / 上下分割线 / 阴影 —— 只继承 html 大背景。
+     2) 顶光与暗纹不删除（保留博物馆展台氛围），改为上下边缘 mask 渐隐 +
+        略降强度，让光晕像长卷上自然化开，不再有横向硬边。
+     3) 两模块之间原本就有约 95px 留白（六境卡片底 → 每日一纹标题），
+        在留白正中放一条极精致的暗金国风小分割线：两端渐隐短线 + 中心菱形。
+        用 .dlg-head 的两个伪元素实现，零 JS 改动、不新增 DOM、不改变布局。
+
+   作用域：仅首页 .dlg；直接删掉 index.html 里本文件的 <link> 即可完整回滚。
+   注意：daily-marquee.css 会被注入脚本 append 到 <head> 末尾，故此处一律
+        用含 #dmqMarqueeRoot 的高特异性选择器 + !important 稳稳覆盖。
+   ========================================================================== */
+
+/* —— 1. 背景完全统一：两个模块都不带自己的底色与分割线 —— */
+#features.features,
+section.dlg#dmqMarqueeRoot {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+/* —— 2. 顶光 / 回纹暗纹：上下柔和淡出，融进整幅长卷 —— */
+section.dlg#dmqMarqueeRoot::before {
+  opacity: .72 !important;
+  -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, .35) 9%,
+      #000 22%,
+      #000 78%,
+      rgba(0, 0, 0, .35) 92%,
+      transparent 100%) !important;
+  mask-image: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, .35) 9%,
+      #000 22%,
+      #000 78%,
+      rgba(0, 0, 0, .35) 92%,
+      transparent 100%) !important;
+}
+section.dlg#dmqMarqueeRoot::after {
+  -webkit-mask-image: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, .45) 8%,
+      #000 24%,
+      #000 76%,
+      rgba(0, 0, 0, .45) 92%,
+      transparent 100%) !important;
+  mask-image: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, .45) 8%,
+      #000 24%,
+      #000 76%,
+      rgba(0, 0, 0, .45) 92%,
+      transparent 100%) !important;
+}
+
+/* —— 3. 国风小分割线：渐隐暗金短线 + 中心菱形钤记 ——
+   .dlg-head 顶部即「每日一纹」标题上沿；-47px 正好落在
+   六境卡片底与标题之间的留白正中。绝对定位不参与 flex 流。 */
+.dlg-head::before {
+  content: "" !important;
+  position: absolute !important;
+  top: -47px !important;
+  left: 50% !important;
+  width: 264px !important;
+  height: 1px !important;
+  transform: translateX(-50%) !important;
+  background: linear-gradient(90deg,
+      rgba(150, 106, 28, 0) 0%,
+      rgba(150, 106, 28, .30) 10%,
+      rgba(150, 106, 28, .72) 34%,
+      rgba(150, 106, 28, .72) 43%,
+      rgba(150, 106, 28, 0) 47%,
+      rgba(150, 106, 28, 0) 53%,
+      rgba(150, 106, 28, .72) 57%,
+      rgba(150, 106, 28, .72) 66%,
+      rgba(150, 106, 28, .30) 90%,
+      rgba(150, 106, 28, 0) 100%) !important;
+  pointer-events: none !important;
+}
+.dlg-head::after {
+  content: "" !important;
+  position: absolute !important;
+  top: -51px !important;
+  left: 50% !important;
+  width: 9px !important;
+  height: 9px !important;
+  transform: translateX(-50%) rotate(45deg) !important;
+  background: linear-gradient(135deg,
+      #f0d89a 0%, #c9a24c 48%, #9a7220 100%) !important;
+  border: 1px solid rgba(120, 84, 20, .55) !important;
+  box-shadow:
+      0 0 0 3px rgba(255, 248, 225, .42),
+      0 1px 6px rgba(90, 60, 10, .30) !important;
+  pointer-events: none !important;
+}
+
+/* 小屏留白变窄：分割线上提、缩短，仍居中不压字 */
+@media (max-width: 768px) {
+  .dlg-head::before { top: -30px !important; width: 190px !important; }
+  .dlg-head::after  { top: -34px !important; }
+}

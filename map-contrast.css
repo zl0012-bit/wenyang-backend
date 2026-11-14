@@ -1,0 +1,65 @@
+/* ============================================================
+ * [MAP-CONTRAST] 纹样地图 · 文字对比度无障碍修复（WCAG AA ≥ 4.5:1）
+ *
+ * 实测问题（全页截图像素采样，非理论值）：
+ *   .map-page__filter-note  1.79:1  ← 暗金 #c89b3c 糊在宣纸金底上
+ *   .china-map__hint        2.19:1  ← #6b4d1f + 1px 白 text-shadow 把小字糊白
+ *   .map-filters__clear     1.86:1  ← 「清空筛选」暗金细字
+ *   .wb-cf-info__note / __era / .wb-cf-dim.is-idle ← 信息卡辅助说明偏浅
+ *
+ * 关键：hint 位于 3D 沙盘深金渐变区（底约 rgb(143,116,57)），
+ *   实测单纯换深色仍不达标（#5a3d2b → 2.24，近黑 #241a10 → 3.89）。
+ *   唯一既用用户指定色又达 AA 的方案 = 去发虚白光 + 浅宣纸铭牌底衬（7.13:1）。
+ *
+ * 作用域：仅 /map（html body:has(.map-page)），特异性压过 Vue scoped 与沙盘层。
+ * 只改颜色 / 字重 / 底衬，不动 DOM、文案、筛选与地图逻辑。
+ * ============================================================ */
+
+/* ---------- 一、地图上方：状态筛选文字 ----------
+ * 录屏反馈「依然太浅」：原 #4a3b32 在沙盘右侧深金渐变
+ * (218,181,93) 上仅约 4.9:1，缩略图/手机端观感发灰。
+ * 再加深到接近黑褐并提字重，保证金色底任何位置都一眼清晰。 */
+html body:has(.map-page) .map-page__filter-note {
+  color: #33251a !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* ---------- 二、底部：版权与来源说明 ---------- */
+html body:has(.map-page) .china-map__hint {
+  color: #5a3d2b !important;
+  font-weight: 500 !important;
+  /* 去掉 0 1px 0 rgba(255,250,238,.85)：12.5px 小字笔画被白光糊成浅灰 */
+  text-shadow: none !important;
+
+  /* 宣纸铭牌底衬：把深金背景提亮，深褐字对比度 2.19 → 7.13 */
+  background: rgba(250, 240, 215, 0.82) !important;
+  border: 1px solid rgba(180, 140, 90, 0.35) !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ---------- 三、全局排查：其它发虚的浅色说明 / 操作文字 ---------- */
+html body:has(.map-page) .map-filters__clear {
+  color: #5a3d2b !important;
+  font-weight: 500 !important;
+  border-color: rgba(90, 61, 43, 0.55) !important;
+}
+html body:has(.map-page) .map-filters__clear:hover {
+  color: #3a2718 !important;
+  border-color: rgba(212, 175, 55, 0.95) !important;
+}
+
+/* 「文化归类」联动信息卡：年代 / 注记 / 关闭 / 未选徽标 */
+html body:has(.map-page) .wb-cf-info__era {
+  color: #6b4a12 !important;
+  font-weight: 500 !important;
+}
+html body:has(.map-page) .wb-cf-info__note,
+html body:has(.map-page) .wb-cf-dim.is-idle,
+html body:has(.map-page) .wb-cf-info__close {
+  color: #5a3d2b !important;
+  font-weight: 500 !important;
+}

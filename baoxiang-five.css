@@ -1,0 +1,596 @@
+/* ============================================================================
+ * [BAOXIANG-FIVE] 宝相花结构拆解 · 绝对定位 + 中心法阵 + 经络式精准引线  (bx9)
+ *
+ *   一、舞台：.sa__stage 放大到 800 × 680（等比 --bx-u 缩放），父容器撑满、取消 Flex
+ *   二、阵列：六元素全部 position:absolute，以 (50%, 50%+26px) 为统一锚点，
+ *             translate(-50%,-50%) + 偏移量 形成正五边形（72° 均分）
+ *             · 中心全景 180px（最上层地标，圆形裁切）
+ *             · 五个局部 140px（原 110px × 1.3）
+ *             · 偏移量按 1.3 倍同比放大：上 -221 / 左上 -195,-65 / 右上 195,-65
+ *               / 左下 -124,169 / 右下 124,169
+ *   三、引线：不再"从圆边随便画"。每条引线用「圆内特征锚点 A → 标签中心 B」
+ *             的极坐标精确落位（rotate + 定长），起点钉在圆内红瓣/绿叶/蓝瓣
+ *             的真实质心上，并配经络针点，形成"穴位—经络"式高级拆解。
+ *             锚点由源图色彩聚类实测得出（见文件末注释）。
+ *   四、切图：右下「外层花瓣」修正为 600% / 63% 44%（红白莲花瓣，红占比 .52）
+ *   五、作用域零外溢：全部选择器带 body:has(.baoxiang-layers)
+ * ========================================================================== */
+
+/* ── 0) 舞台：放大撑满，等比缩放变量挂在这里供子元素继承 ──────────────── */
+html body:has(.baoxiang-layers) .sa__stage {
+  --bx-u: 1;
+  width: min(calc(800px * var(--bx-u)), 100%) !important;
+  height: calc(680px * var(--bx-u)) !important;
+  aspect-ratio: auto !important;
+  margin-bottom: 40px !important;
+  /* 3D 舞台裁切：中心自转 / 花瓣外散时不得把旁边元素挤飞或溢出 */
+  overflow: hidden !important;
+}
+
+html body:has(.baoxiang-layers) .baoxiang-layers {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  /* 统一动画节拍：花瓣散开 / 中心自转 / 逆向收回全部 1.2s，一气呵成 */
+  --bx-dur: 1.2s;
+}
+
+/* ── 1) 六元素：统一绝对定位，锚点 = 舞台正中下移 26px（视觉光学居中） ── */
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--center,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--top,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--left,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--right,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--bottom,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--fifth {
+  position: absolute !important;
+  left: 50% !important;
+  top: calc(50% + 26px * var(--bx-u)) !important;
+  width: calc(140px * var(--bx-u)) !important;
+  height: calc(140px * var(--bx-u)) !important;
+  margin: 0 !important;
+  /* 合拢：全部归位中心（花苞态） */
+  transform: translate(-50%, -50%) translate(0px, 0px) rotate(0deg);
+  /* 各花瓣的目标位移量与旋转方向（由下方 .is-exploded 逐条覆写） */
+  --bx-tx: 0px;
+  --bx-ty: 0px;
+  --bx-rot: 180deg;
+  /* 单击「拆解」→ 旋转绽放；单击「重组」→ 逆向收回。两类动画帧见下方 §2 */
+  animation: none;
+  /* 合拢默认态：五个局部不显示 —— 中心只呈现完整宝相花全景，
+     不允许任何一块局部切图叠在它上面（否则会被读成"中心切成了红花瓣"） */
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* 拆解态：五个局部淡入并向外炸开；opacity 延迟 0.16s，
+   使"先向外走、再显形"成为从中心图背后平滑浮出的效果 */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--top,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--left,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--right,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--bottom,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--fifth {
+  opacity: 1 !important;
+  visibility: visible !important;
+  /* 位移 / 旋转 / 透明度全部交给 @keyframes（见 §2），此处不再用 transition */
+}
+
+/* 中心全景图必须始终可见 —— 上面的合拢隐藏规则虽只针对五个局部，
+   但同样作用在本组选择器上，这里显式还原，中心永远不参与显隐 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx--center {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* 中心全景图：180px，比周围五个更大，圆形裁切，定死在正中。
+   z-index 必须最高：合拢时它就是画面主体，任何局部图都不得压在它上面 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx--center {
+  width: calc(180px * var(--bx-u)) !important;
+  height: calc(180px * var(--bx-u)) !important;
+  z-index: 20 !important;
+}
+
+/* 局部圆：永远填满 figure，靠父体 transform 移动 */
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--top .bx-circle,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--left .bx-circle,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--right .bx-circle,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--bottom .bx-circle,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--fifth .bx-circle {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  transform: none;
+  opacity: 1 !important;
+  /* 细金环 + 投影：圆片边界更"器械化"，符合经络图质感 */
+  box-shadow:
+    0 0 0 1px rgba(214, 178, 110, .62),
+    0 0 0 4px rgba(24, 16, 8, .16),
+    0 12px 32px rgba(60, 40, 15, .34) !important;
+  transition: box-shadow .6s ease !important;
+}
+
+/* 中心圆：必须还原被基础样式 scale(.5)/scale(.34) 压小的圆片，
+   否则 180px 的 figure 只画出 90px 的盘面（比局部还小） */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx--center .bx-circle {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none;
+  opacity: 1 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 1px rgba(226, 188, 104, .85),
+    0 0 0 5px rgba(24, 16, 8, .18),
+    0 18px 44px rgba(60, 40, 15, .38) !important;
+}
+
+/* ══ 中心全景图 · 自转联动（.center-panorama）════════════════════════════
+ *   旋转载体 = .center-panorama .bx-circle（圆片本体，已 border-radius:50%
+ *               + overflow:hidden，转起来永远是完美圆形，不露方角）
+ *   · 绝不 rotate figure 本身：figure 的 transform 是 translate(-50%,-50%)
+ *     定位，加 rotate 会连中心点一起被转偏 → 中心图会跑出舞台
+ *   · 拆解：顺时针 360°；重组：逆时针平滑转回 0°
+ *   · 时长 1.2s 与花瓣散开 / 收回完全同步（--bx-dur）
+ * ─────────────────────────────────────────────────────────────────────── */
+html body:has(.baoxiang-layers) .baoxiang-layers .center-panorama .bx-circle {
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  transform: rotate(0deg);
+  transition: transform var(--bx-dur) cubic-bezier(0.25, 1, 0.5, 1) !important;
+  will-change: transform;
+}
+
+/* 拆解态：顺时针自转整圈 */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .center-panorama .bx-circle {
+  transform: rotate(360deg);
+}
+
+/* 重组态（is-collapsing 接管期仍保持 360°，收回到位后由 JS 摘类 → 归 0°） */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+  .center-panorama .bx-circle {
+  transform: rotate(0deg);
+}
+
+/* 局部层级：低于中心图（中心 z-index 20），拆解后五个花瓣绕中心外散，
+   不会盖住中心全景；引线层 z-index 8 亦在中心之下 */
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--top,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--left,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--right,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--bottom,
+html body:has(.baoxiang-layers) .baoxiang-layers
+  .bx--fifth {
+  z-index: 5;
+}
+
+/* ── 2) 旋转绽放（Rotational Explosion） ──────────────────────────────────
+ *   每条花瓣 = 绕【自身圆心】旋转 --bx-rot + 同步平移 (--bx-tx, --bx-ty)
+ *   · 旋转写在 translate(-50%,-50%) 之后 → 绕自身中心自转，圆片不会被压扁
+ *   · 位移与旋转分两个 --bx-anim 覆盖，互不干扰，都可独立降级
+ *   · 关键帧显式声明 0%/100% 完整 transform，避免 !important 打断插值
+ *   · 只用关键帧、不用 transition：《重组》时属性变化不会触发动画回放，
+ *     归位后不会有残余偏移（这是"收回后错位"的常见根因）
+ *   · 前半段 z-index: 1 < 中心(20)，像从母体背后长出来；60% 落到 5 恢复常态
+ * ─────────────────────────────────────────────────────────────────────── */
+@keyframes bxPetalOut {
+  0% {
+    transform: translate(-50%, -50%) translate(0px, 0px) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%)
+      translate(var(--bx-tx), var(--bx-ty))
+      rotate(var(--bx-rot));
+    opacity: 1;
+  }
+}
+@keyframes bxPetalIn {
+  0% {
+    transform: translate(-50%, -50%)
+      translate(var(--bx-tx), var(--bx-ty))
+      rotate(var(--bx-rot));
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(0px, 0px) rotate(0deg);
+    opacity: 0;
+  }
+}
+/* 层级：飞出前半段藏在母体背后，落位后恢复 */
+@keyframes bxPetalZ {
+  0%, 45% { z-index: 1; }
+  60%, 100% { z-index: 5; }
+}
+
+/* 目标位移（偏移量按 1.3 倍同比放大，正五边形 72° 均分，与上一版逐像素一致） */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx--top {
+  --bx-tx: calc(0px * var(--bx-u));
+  --bx-ty: calc(-221px * var(--bx-u));
+  --bx-rot: 180deg;
+  transform: translate(-50%, -50%)
+    translate(var(--bx-tx), var(--bx-ty))
+    rotate(var(--bx-rot));
+}
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx--left {
+  --bx-tx: calc(-195px * var(--bx-u));
+  --bx-ty: calc(-65px * var(--bx-u));
+  --bx-rot: -180deg; /* 左上逆时针 */
+  transform: translate(-50%, -50%)
+    translate(var(--bx-tx), var(--bx-ty))
+    rotate(var(--bx-rot));
+}
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx--right {
+  --bx-tx: calc(195px * var(--bx-u));
+  --bx-ty: calc(-65px * var(--bx-u));
+  --bx-rot: 180deg; /* 右上顺时针 */
+  transform: translate(-50%, -50%)
+    translate(var(--bx-tx), var(--bx-ty))
+    rotate(var(--bx-rot));
+}
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx--bottom {
+  --bx-tx: calc(-124px * var(--bx-u));
+  --bx-ty: calc(169px * var(--bx-u));
+  --bx-rot: -180deg;
+  transform: translate(-50%, -50%)
+    translate(var(--bx-tx), var(--bx-ty))
+    rotate(var(--bx-rot));
+}
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx--fifth {
+  --bx-tx: calc(124px * var(--bx-u));
+  --bx-ty: calc(169px * var(--bx-u));
+  --bx-rot: 180deg;
+  transform: translate(-50%, -50%)
+    translate(var(--bx-tx), var(--bx-ty))
+    rotate(var(--bx-rot));
+}
+
+/* 拆解动画：0.9s 甩出。cubic-bezier(.22,.88,.3,1) 前段极陡（干脆出手）、
+   后段平缓（稳稳落位），兼顾"弹射感"与"不抖动"
+   步进式声明 → 不认识自定义属性动画的浏览器自然取最后一条，双保险 */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--top,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--left,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--right,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--bottom,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+  .bx--fifth {
+  animation:
+    bxPetalOut 1.2s cubic-bezier(0.22, 0.88, 0.3, 1) both,
+    bxPetalZ 1.2s linear both !important;
+}
+
+/* 重组动画：逆向 180° 收回。
+   仅用 .is-collapsing 覆盖 animation —— transform 终值仍由 .is-exploded 决定，
+   不需要"先删再加"，因此不会触发父级 MutationObserver 的循环。
+   透明度 70% 前保持 1，最后 30% 淡出：归位瞬间正好消失，不压中心全景 */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+  .bx--top,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+  .bx--left,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+  .bx--right,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+  .bx--bottom,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+  .bx--fifth {
+  opacity: 1 !important;
+  visibility: visible !important;
+  animation:
+    bxPetalIn 1.2s cubic-bezier(0.5, 0, 0.3, 1) both,
+    bxPetalZ 1.2s linear reverse both !important;
+}
+
+/* 无障碍兜底：用户开启了"减少动态效果"时，放弃旋转与位移动画，
+   直接以淡入淡出呈现，坐标与排版完全不变（不会错位） */
+@media (prefers-reduced-motion: reduce) {
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+    .bx--top,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+    .bx--left,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+    .bx--right,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+    .bx--bottom,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded
+    .bx--fifth,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+    .bx--top,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+    .bx--left,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+    .bx--right,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+    .bx--bottom,
+  html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing
+    .bx--fifth {
+    animation: none !important;
+  }
+  /* 减少动态效果：中心图不做 360° 自转，直接静态呈现 */
+  html body:has(.baoxiang-layers) .baoxiang-layers .center-panorama .bx-circle {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* 拆解态终值兜底：--bx-* 变量与 transform 已在逐条规则里写死，
+   动画结束后由 animation-fill-mode: both 保持 100% 帧，二者一致，不会错位 */
+
+/* ── 3) 切图修正 ─────────────────────────────────────────────────────── */
+/* 右上「青蓝花瓣」：带白边、高光清晰的石青花瓣（原 61.8%/73.5% 为死蓝暗部） */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-bg--right {
+  background-image: url(/assets/artifacts/baoxiang.jpg);
+  background-repeat: no-repeat;
+  background-size: 420% auto;
+  background-position: 54% 68%;
+  background-color: #f6f3ec;
+}
+/* 右下「外层花瓣」：真正的红白色莲花瓣（红瓣占 52%，白边 + 金线轮廓） */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-bg--fifth {
+  background-image: url(/assets/artifacts/baoxiang.jpg);
+  background-repeat: no-repeat;
+  background-size: 600% auto;
+  background-position: 63% 44%;
+  background-color: #f6f3ec;
+}
+
+/* ── 4) 标签：按引线终点自然摆放，文字居中 + 微弱阴影，绝不压图 ──────── */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tags .bx-tag {
+  transform: translate(-50%, -50%) !important;
+  margin: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 2px !important;
+  padding: 7px 13px !important;
+  border-radius: 10px !important;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .5s ease .34s !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx-tag {
+  opacity: .95;
+}
+
+/* 收回时（.is-collapsing）：标签、引线、针点必须与花瓣同步撤退，
+   不能留下"引线孤悬在空处"的半截画面。
+   花瓣 0.68s 收回且 70% 后淡出，这里让标注提前在 0.22s 内淡掉 */
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing .bx-tag,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing .bx-leads .bx-lead,
+html body:has(.baoxiang-layers) .baoxiang-layers.is-collapsing .bx-leads .bx-pin {
+  opacity: 0 !important;
+  transition: opacity .22s ease !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag b,
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag span {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .62), 0 0 6px rgba(0, 0, 0, .32) !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag b {
+  font-size: 13.5px !important;
+  letter-spacing: .06em !important;
+  line-height: 1.25 !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag span {
+  font-size: 10.5px !important;
+  letter-spacing: .04em !important;
+  line-height: 1.2 !important;
+  opacity: .88 !important;
+}
+
+/* 旧引线（标签内部）全部停用，改由 .bx-leads 层统一绘制 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag .bx-lead {
+  display: none !important;
+}
+
+/* 标签落点：沿各自放射角外移，与圆片保持 >20px 净空 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag--top {
+  left: 50% !important;
+  top: calc(50% + 26px * var(--bx-u) - 323px * var(--bx-u)) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag--left {
+  left: calc(50% - 332px * var(--bx-u)) !important;
+  top: calc(50% + 26px * var(--bx-u) - 111px * var(--bx-u)) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag--right {
+  left: calc(50% + 332px * var(--bx-u)) !important;
+  top: calc(50% + 26px * var(--bx-u) - 111px * var(--bx-u)) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag--bottom {
+  left: calc(50% - 194px * var(--bx-u)) !important;
+  top: calc(50% + 26px * var(--bx-u) + 274px * var(--bx-u)) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag--fifth {
+  left: calc(50% + 194px * var(--bx-u)) !important;
+  top: calc(50% + 26px * var(--bx-u) + 274px * var(--bx-u)) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* ── 5) 经络引线层：锚点 → 标签中心，精确 rotate + 定长 ───────────────── */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-leads {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 8 !important;
+  pointer-events: none !important;
+}
+
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-leads .bx-lead {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 26px * var(--bx-u));
+  height: 2px;
+  border-radius: 2px;
+  transform-origin: 0 50%;
+  /* 起于穴位、末于标签：起点全透明，由"针点"独自标记穴位，
+     避免针点旁再糊出一团光斑（会被误读成第二个点） */
+  background: linear-gradient(
+    90deg,
+    rgba(226, 188, 104, 0) 0%,
+    rgba(226, 188, 104, .55) 22%,
+    rgba(228, 190, 108, .96) 68%,
+    rgba(200, 160, 88, 1) 100%
+  );
+  box-shadow:
+    0 0 0 .6px rgba(22, 13, 3, .52),
+    0 0 5px rgba(214, 176, 96, .34);
+  opacity: 0;
+  transition: opacity .42s ease .34s;
+  pointer-events: none;
+}
+/* Vue 内置样式给所有 .bx-lead 自带一个 11px 金圆点（::after），
+   会把"穴位针点"糊成两个点 —— 在本层彻底关掉 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-leads .bx-lead::after,
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-leads .bx-lead::before {
+  content: none !important;
+  display: none !important;
+}
+
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx-leads .bx-lead {
+  opacity: 1;
+}
+
+/* 正上 · 中心莲台：锚点 (-2,-208) → 标签，-89° ，长 115 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-lead--top {
+  width: calc(121px * var(--bx-u));
+  transform: translate(calc(-2px * var(--bx-u)), calc(-208px * var(--bx-u)))
+    translateY(-50%) rotate(-89deg);
+}
+/* 左上 · 缠枝红瓣：锚点 (-212,-72) → 标签，-162°，长 126 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-lead--left {
+  width: calc(132px * var(--bx-u));
+  transform: translate(calc(-212px * var(--bx-u)), calc(-72px * var(--bx-u)))
+    translateY(-50%) rotate(-162deg);
+}
+/* 右上 · 青蓝花瓣：锚点 (224,-62) → 标签，-24.4°，长 119 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-lead--right {
+  width: calc(125px * var(--bx-u));
+  transform: translate(calc(224px * var(--bx-u)), calc(-62px * var(--bx-u)))
+    translateY(-50%) rotate(-24.4deg);
+}
+/* 左下 · 绿叶肌理：锚点 (-132,175) → 标签，122.1°，长 117 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-lead--bottom {
+  width: calc(123px * var(--bx-u));
+  transform: translate(calc(-132px * var(--bx-u)), calc(175px * var(--bx-u)))
+    translateY(-50%) rotate(122.1deg);
+}
+/* 右下 · 外层花瓣：锚点 (129,181) → 标签，55°，长 114 */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-lead--fifth {
+  width: calc(120px * var(--bx-u));
+  transform: translate(calc(129px * var(--bx-u)), calc(181px * var(--bx-u)))
+    translateY(-50%) rotate(55deg);
+}
+
+/* 穴位针点：钉在圆内特征花色质心上（红瓣 / 蓝瓣 / 绿叶 / 莲台 / 红白瓣） */
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-leads .bx-pin {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 26px * var(--bx-u));
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 36% 32%,
+    #fffdf3 0 16%,
+    #eac87f 42%,
+    #c89d4f 100%
+  );
+  box-shadow:
+    0 0 0 1.6px rgba(16, 9, 2, .74),
+    0 0 10px rgba(226, 188, 104, .72);
+  opacity: 0;
+  transition: opacity .42s ease .34s;
+  pointer-events: none;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers.is-exploded .bx-leads .bx-pin {
+  opacity: 1;
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-pin--top {
+  transform: translate(calc(-2px * var(--bx-u)), calc(-208px * var(--bx-u))) translate(-50%, -50%);
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-pin--left {
+  transform: translate(calc(-212px * var(--bx-u)), calc(-72px * var(--bx-u))) translate(-50%, -50%);
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-pin--right {
+  transform: translate(calc(224px * var(--bx-u)), calc(-62px * var(--bx-u))) translate(-50%, -50%);
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-pin--bottom {
+  transform: translate(calc(-132px * var(--bx-u)), calc(175px * var(--bx-u))) translate(-50%, -50%);
+}
+html body:has(.baoxiang-layers) .baoxiang-layers .bx-pin--fifth {
+  transform: translate(calc(129px * var(--bx-u)), calc(181px * var(--bx-u))) translate(-50%, -50%);
+}
+
+/* ── 6) 窄屏等比收缩 ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  html body:has(.baoxiang-layers) .sa__stage { --bx-u: .8; }
+}
+@media (max-width: 760px) {
+  html body:has(.baoxiang-layers) .sa__stage { --bx-u: .66; }
+  html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag b { font-size: 12px !important; }
+  html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag span { font-size: 9.5px !important; }
+}
+@media (max-width: 620px) {
+  html body:has(.baoxiang-layers) .sa__stage { --bx-u: .54; }
+}
+@media (max-width: 500px) {
+  html body:has(.baoxiang-layers) .sa__stage { --bx-u: .44; }
+  html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag b { font-size: 10.5px !important; }
+  html body:has(.baoxiang-layers) .baoxiang-layers .bx-tag span { font-size: 8.5px !important; }
+}
+
+/* ============================================================================
+ * 引线锚点实测依据（源图 baoxiang.jpg 407×910，PIL 复算 background 切片后
+ * 在 140px 圆内做色彩量化聚类，取特征簇质心，单位为 140px 圆的像素偏移）：
+ *   top    中心莲台  金色蕊心簇 rgb(176,147,107)  (48.5%,59.6%) → (-2, +13)
+ *   left   缠枝红瓣  红瓣簇 rgb(178,109,80)       (40.5%,47.3%) → (-17, -7)
+ *   right  青蓝花瓣  石青簇 rgb(22,51,75)         (70.8%,52.3%) → (+29, +3)
+ *   bottom 绿叶肌理  叶绿簇 rgb(115,135,117)      (43.3%,54.5%) → (-8, +6)
+ *   fifth  外层花瓣  红瓣簇 (63%,44% 窗口) 52% 占比，质心 (53.4%,58.8%) → (+5,+12)
+ * ========================================================================== */
