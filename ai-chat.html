@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>纹以载道 · AI 对话组件</title>
+<style>
+  :root {
+    --bg: #f7f3ec; --panel: #ffffff; --ink: #2b2620; --muted: #8a7f70;
+    --accent: #9c3b2e; --accent2: #c9a05a; --line: #e7ddd0; --bot: #f3ece1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--ink); display: flex; justify-content: center; padding: 24px;
+  }
+  .chat {
+    width: 100%; max-width: 720px; height: 82vh; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 16px; display: flex; flex-direction: column;
+    box-shadow: 0 12px 40px rgba(60,40,20,.10); overflow: hidden;
+  }
+  .chat__hd {
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(90deg, #fff, #fbf6ee);
+  }
+  .chat__hd h1 { font-size: 16px; margin: 0; letter-spacing: 1px; }
+  .chat__hd .mode { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .chat__body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; gap: 10px; }
+  .row--user { justify-content: flex-end; }
+  .row--bot  { justify-content: flex-start; }
+  .bubble {
+    max-width: 78%; padding: 10px 14px; border-radius: 14px; line-height: 1.6; font-size: 14px;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .row--user .bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .row--bot  .bubble { background: var(--bot); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .bubble code { background: #eaddc8; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  /* 配色卡片 */
+  .palette { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .swatch { width: 56px; text-align: center; font-size: 10px; color: var(--muted); }
+  .swatch i { display: block; width: 56px; height: 56px; border-radius: 8px; border: 1px solid rgba(0,0,0,.08); margin-bottom: 3px; }
+  .swatch b { color: var(--ink); font-size: 11px; }
+  /* 图层卡片 */
+  .layers { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .layers li { margin: 2px 0; }
+  /* 来源 */
+  .src { margin-top: 8px; font-size: 12px; }
+  .src summary { cursor: pointer; color: var(--accent); }
+  .src__item { padding: 4px 0; border-bottom: 1px dashed var(--line); }
+  /* 图片预览 + 画布 */
+  .imgwrap { position: relative; margin-top: 8px; max-width: 320px; }
+  .imgwrap img, .imgwrap canvas { width: 100%; border-radius: 10px; display: block; border: 1px solid var(--line); }
+  .imgwrap canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+  /* 输入区 */
+  .chat__ft { border-top: 1px solid var(--line); padding: 12px; background: #fff; }
+  .ft__top { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .preview { position: relative; width: 48px; height: 48px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+  .preview img { width: 100%; height: 100%; object-fit: cover; }
+  .preview button { position: absolute; right: -4px; top: -4px; border: none; background: var(--accent); color: #fff; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 11px; line-height: 1; }
+  .ft__row { display: flex; gap: 8px; }
+  .ft__row input[type=text] { flex: 1; padding: 11px 14px; border: 1px solid var(--line); border-radius: 22px; font-size: 14px; outline: none; }
+  .ft__row input[type=text]:focus { border-color: var(--accent2); }
+  .btn { border: none; border-radius: 22px; padding: 0 18px; font-size: 14px; cursor: pointer; }
+  .btn--send { background: var(--accent); color: #fff; }
+  .btn--img { background: var(--bot); color: var(--ink); border: 1px solid var(--line); padding: 0 12px; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .typing span { display: inline-block; width: 6px; height: 6px; margin: 0 1px; background: var(--muted); border-radius: 50%; animation: blink 1.2s infinite both; }
+  .typing span:nth-child(2){ animation-delay:.2s } .typing span:nth-child(3){ animation-delay:.4s }
+  @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+  .err { background: #fdecea; color: #a1261b; border: 1px solid #f3c2bb; padding: 10px 14px; border-radius: 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="chat">
+    <div class="chat__hd">
+      <h1>纹以载道 · AI 导览</h1>
+      <label class="mode"><input type="checkbox" id="reactMode" /> ReAct 多轮</label>
+    </div>
+    <div class="chat__body" id="body"></div>
+    <div class="chat__ft">
+      <div class="ft__top" id="previewArea" style="display:none">
+        <div class="preview">
+          <img id="previewImg" alt="预览" />
+          <button id="clearImg" title="移除">×</button>
+        </div>
+        <span style="font-size:12px;color:var(--muted)">已选图片，发送时将一并上传</span>
+      </div>
+      <div class="ft__row">
+        <input type="text" id="input" placeholder="问问纹样的寓意、对比朝代纹样，或上传图片做再设计…" />
+        <button class="btn btn--img" id="pickImg">🖼 图片</button>
+        <button class="btn btn--send" id="send">发送</button>
+        <input type="file" id="file" accept="image/*" hidden />
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================================================================
+ * 配置区：后端地址（方案 A：相对路径 + server.js 代理，天然支持外网/跨设备）
+ *  - 默认留空 ''：请求走同源相对路径 /api/agent_chat，由 server.js 代理到 8000
+ *  - 可用 URL 参数覆盖：?api=https://你的后端地址  （仅调试用）
+ * ========================================================================= */
+const API_BASE = new URLSearchParams(location.search).get('api') || '';
+const apiUrl = (p) => API_BASE + p;
+
+const CURRENT_PAGE_TEXT = '纹样宝库';   // 纯文本语境
+const CURRENT_PAGE_IMG  = 'AI共创';     // 图片语境
+
+/* DOM */
+const $ = (id) => document.getElementById(id);
+const body = $('body'), input = $('input'), sendBtn = $('send');
+const fileInput = $('file'), previewArea = $('previewArea'), previewImg = $('previewImg');
+let pendingImage = null;   // 待发送的图片 File
+
+/* ---------- 工具：加消息 ---------- */
+function addRow(side, node) {
+  const row = document.createElement('div');
+  row.className = 'row row--' + side;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.appendChild(node);
+  row.appendChild(bubble);
+  body.appendChild(row);
+  body.scrollTop = body.scrollHeight;
+  return row;
+}
+function addText(side, text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return addRow(side, d);
+}
+function addError(text) {
+  const d = document.createElement('div');
+  d.className = 'err';
+  d.textContent = '⚠️ ' + text;
+  addRow('bot', d);
+}
+function showTyping() {
+  const d = document.createElement('div');
+  d.className = 'typing';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  const row = addRow('bot', d);
+  return row;
+}
+
+/* ---------- 智能渲染：配色 / 图层 / 来源 ---------- */
+function renderVision(toolResults, imgSrc) {
+  const frag = document.createDocumentFragment();
+
+  // 1) 配色方案
+  const colors = toolResults?.vision?.extract_color;
+  if (colors && colors.palette && colors.palette.length) {
+    const card = document.createElement('div');
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size:13px;margin-top:6px;color:var(--accent)';
+    title.textContent = '🎨 提取到的主色板（点击色块复制 Hex）';
+    const pal = document.createElement('div');
+    pal.className = 'palette';
+    colors.palette.forEach(c => {
+      const s = document.createElement('div');
+      s.className = 'swatch';
+      s.innerHTML = `<i style="background:${c.hex}"></i><b>${c.hex}</b>${(c.ratio*100).toFixed(0)}%`;
+      s.title = '点击复制 ' + c.hex;
+      s.style.cursor = 'pointer';
+      s.onclick = () => navigator.clipboard?.writeText(c.hex);
+      pal.appendChild(s);
+    });
+    card.appendChild(title); card.appendChild(pal);
+    frag.appendChild(card);
+  }
+
+  // 2) 图层拆分（在图片上画 bbox + 文案）
+  const seg = toolResults?.vision?.segment_pattern;
+  if (seg && imgSrc) {
+    const wrap = document.createElement('div');
+    wrap.className = 'imgwrap';
+    const img = document.createElement('img'); img.src = imgSrc;
+    const cv = document.createElement('canvas');
+    img.onload = () => {
+      cv.width = img.clientWidth; cv.height = img.clientHeight;
+      const ctx = cv.getContext('2d');
+      const sx = img.clientWidth / img.naturalWidth, sy = img.clientHeight / img.naturalHeight;
+      (seg.layers || []).slice(0, 12).forEach((ly, i) => {
+        const [x, y, w, h] = ly.bbox;
+        ctx.strokeStyle = `hsl(${(i*47)%360} 70% 45%)`; ctx.lineWidth = 2;
+        ctx.strokeRect(x*sx, y*sy, w*sx, h*sy);
+        ctx.fillStyle = `hsl(${(i*47)%360} 70% 45%)`;
+        ctx.font = '11px sans-serif';
+        ctx.fillText('#' + ly.label, x*sx + 2, y*sy + 12);
+      });
+    };
+    wrap.appendChild(img); wrap.appendChild(cv);
+    frag.appendChild(wrap);
+  }
+  if (seg) {
+    const ul = document.createElement('ul');
+    ul.className = 'layers';
+    ul.innerHTML = `<li>🔪 共切分出 <b>${seg.num_components}</b> 个图层（可用于分层再设计）</li>` +
+      (seg.layers || []).slice(0, 3).map(l =>
+        `<li>图层 #${l.label}：面积占比 ${(l.area_ratio*100).toFixed(1)}%</li>`).join('');
+    frag.appendChild(ul);
+  }
+  return frag;
+}
+
+function renderSources(sources) {
+  if (!sources || !sources.length) return null;
+  const details = document.createElement('details');
+  details.className = 'src';
+  const sum = document.createElement('summary');
+  sum.textContent = `📚 检索到 ${sources.length} 枚相关纹样`;
+  details.appendChild(sum);
+  sources.slice(0, 5).forEach(s => {
+    const it = document.createElement('div');
+    it.className = 'src__item';
+    it.innerHTML = `<b>${s.name}</b> · ${s.origin_std} · ${s.theme} <span style="color:var(--muted)">相似度 ${s.score}</span>`;
+    details.appendChild(it);
+  });
+  return details;
+}
+
+function renderBot(data, imgSrc) {
+  const node = document.createElement('div');
+  if (data.answer) {
+    const t = document.createElement('div');
+    t.textContent = data.answer;
+    node.appendChild(t);
+  }
+  const vis = renderVision(data.tool_results, imgSrc);
+  if (vis.childNodes.length) node.appendChild(vis);
+  const src = renderSources(data.sources);
+  if (src) node.appendChild(src);
+  if (!node.childNodes.length) {
+    const t = document.createElement('div');
+    t.textContent = '（暂无返回内容）';
+    node.appendChild(t);
+  }
+  return addRow('bot', node);
+}
+
+/* ---------- 请求：纯文本 ---------- */
+async function sendText() {
+  const text = input.value.trim();
+  if (!text) return;
+  addText('user', text);
+  input.value = '';
+  const typing = showTyping();
+  const mode = $('reactMode').checked ? 'react' : 'default';
+  try {
+    const resp = await fetch(apiUrl('/api/agent_chat'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_input: text, current_page: CURRENT_PAGE_TEXT, has_image: false, mode
+      })
+    });
+    body.removeChild(typing);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    renderBot(data, null);
+  } catch (e) {
+    if (typing.parentNode) body.removeChild(typing);
+    addError('请求失败：' + e.message + '。请确认后端已启动（./start.sh）且地址正确。');
+  }
+}
+
+/* ---------- 请求：图片（FormData） ---------- */
+async function sendImageWithText() {
+  const text = input.value.trim() || '请分析这张纹样的配色与结构，并给出再设计建议';
+  const file = pendingImage;
+  if (!file) { await sendText(); return; }
+  addText('user', (text ? text + '\n' : '') + '🖼 [图片]');
+  input.value = '';
+  const typing = showTyping();
+  const mode = $('reactMode').checked ? 'react' : 'default';
+  try {
+    const fd = new FormData();
+    fd.append('user_input', text);
+    fd.append('current_page', CURRENT_PAGE_IMG);
+    fd.append('image', file);
+    fd.append('mode', mode);
+    const resp = await fetch(apiUrl('/api/agent_chat'), { method: 'POST', body: fd });
+    body.removeChild(typing);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const imgSrc = URL.createObjectURL(file);   // 用于在气泡里画图层
+    renderBot(data, imgSrc);
+    clearImage();
+  } catch (e) {
+    if (typing.parentNode) body.removeChild(typing);
+    addError('图片请求失败：' + e.message);
+  }
+}
+
+/* ---------- 图片选择 / 预览 ---------- */
+function onPick() { fileInput.click(); }
+fileInput.addEventListener('change', () => {
+  const f = fileInput.files[0];
+  if (!f) return;
+  pendingImage = f;
+  previewImg.src = URL.createObjectURL(f);
+  previewArea.style.display = 'flex';
+});
+function clearImage() {
+  pendingImage = null; fileInput.value = '';
+  previewArea.style.display = 'none';
+}
+$('clearImg').addEventListener('click', clearImage);
+
+/* ---------- 事件绑定 ---------- */
+sendBtn.addEventListener('click', () => pendingImage ? sendImageWithText() : sendText());
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter') (pendingImage ? sendImageWithText() : sendText()); });
+$('pickImg').addEventListener('click', onPick);
+
+/* 首次提示 */
+addText('bot', '你好，我是「纹以载道」AI 导览。可以问我纹样的寓意、对比不同朝代纹样，或上传一张纹样图片做配色与结构分析。');
+</script>
+</body>
+</html>
