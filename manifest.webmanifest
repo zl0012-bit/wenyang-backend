@@ -1,0 +1,19 @@
+{
+  "name": "纹以载道·数启新章 | 非遗纹样数字博物馆",
+  "short_name": "纹样博物馆",
+  "description": "AI 驱动的中国传统非遗纹样数字博物馆，收录 574 枚纹样、32 个分类。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#cfa23c",
+  "theme_color": "#cfa23c",
+  "icons": [
+    {
+      "src": "/favicon.svg?v=20261006",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

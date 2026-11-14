@@ -1,0 +1,17 @@
+{
+  "name": "wenyang-museum",
+  "version": "1.0.0",
+  "description": "纹以载道·数启新章 —— AI 驱动的中国传统非遗纹样数字博物馆（含智谱 GLM-4-Flash AI 共创）",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "puppeteer-core": "^23.11.1"
+  }
+}

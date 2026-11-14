@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.svg?v=20261019" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="纹以载道·数启新章 —— AI 驱动的中国传统非遗纹样数字博物馆，收录 574 枚纹样、32 个分类，提供纹样识别、AI 共创、结构拆解与沉浸式浏览。"
+    />
+    <meta name="theme-color" content="#cfa23c" />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- 社交分享（Open Graph / Twitter Card） -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="纹以载道·数启新章" />
+    <meta property="og:title" content="纹以载道·数启新章 | 非遗纹样数字博物馆" />
+    <meta
+      property="og:description"
+      content="AI 驱动的中国传统非遗纹样数字博物馆：574 枚纹样、32 分类、AI 共创与纹样库联动。"
+    />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="纹以载道·数启新章 | 非遗纹样数字博物馆" />
+    <meta
+      name="twitter:description"
+      content="AI 驱动的中国传统非遗纹样数字博物馆：574 枚纹样、32 分类、AI 共创与纹样库联动。"
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- [CRAFT-FOUC] 非遗详情页首帧隐藏（关键内联样式：先于任何外部 CSS 生效，
+         消灭「点击后先闪无背景旧排版」的 FOUC）。.wxf-ready 落下后 0.3s 淡入。 -->
+    <style>
+      /* 用 html + 双 class 提升特异性，确保盖过 Vue scoped 的 .cr-intro[data-v-*]
+         与组件入场动画（GSAP 写入的行内 opacity），一律以本规则为准。 */
+      html[data-wb-craft-route] .cm.cm--topic,
+      html[data-wb-craft-route] .cm.cm--topic.cr-intro,
+      html[data-wb-craft-route] .cr-intro,
+      html[data-wb-craft-route] .cr-intro.cr-intro {
+        opacity: 0 !important;
+        transition: opacity 0.3s ease-in-out !important;
+      }
+      html[data-wb-craft-route].wxf-ready .cm.cm--topic,
+      html[data-wb-craft-route].wxf-ready .cm.cm--topic.cr-intro,
+      html[data-wb-craft-route].wxf-ready .cr-intro,
+      html[data-wb-craft-route].wxf-ready .cr-intro.cr-intro,
+      html.wxf-ready[data-wb-craft-route] .cr-intro,
+      html.wxf-ready[data-wb-craft-route] .cm.cm--topic {
+        opacity: 1 !important;
+        transition: opacity 0.3s ease-in-out !important;
+      }
+      html[data-wb-craft-route] body {
+        background-color: #f3e7cf;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html[data-wb-craft-route] .cm.cm--topic,
+        html[data-wb-craft-route] .cr-intro {
+          transition: none !important;
+        }
+      }
+    </style>
+    <script>
+      /* 详情页路由标记：尽早打上，保证首帧就是隐藏态 */
+      (function () {
+        if (/^\/craft\/[a-z-]+\/?$/.test(location.pathname)) {
+          document.documentElement.setAttribute('data-wb-craft-route', '');
+        }
+      })();
+    </script>
+    <!-- 字体：标题思源宋体 / 正文思源黑体 / 数字英文 Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Long+Cang&family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>纹以载道·数启新章 | 非遗纹样数字博物馆</title>
+    <script type="module" crossorigin src="/assets/index-CmHYjBy8.js?v=20261107miao"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-vue-VRxU-hdw.js" />
+    <link rel="modulepreload" crossorigin href="/assets/vendor-XYS8_Jc0.js" />
+    <link rel="modulepreload" crossorigin href="/assets/vendor-gsap-iqAWp17U.js" />
+    <link rel="stylesheet" crossorigin href="/assets/index-CsD7uYws.css" />
+    <!-- 鎏金主题（务必位于框架样式之后，以覆盖背景令牌） -->
+    <link rel="stylesheet" href="/assets/gilt-intro.css?v=20261019" />
+    <link rel="stylesheet" href="/assets/gilt-theme.css?v=20261019" />
+    <link rel="stylesheet" href="/assets/gilt-hero.css?v=20261019" />
+    <link rel="stylesheet" href="/assets/gilt-logo.css?v=20261019" />
+    <!-- AI 功能「演示模式」标注层（叠加，不改变任何原有内容与跳转） -->
+    <link rel="stylesheet" href="/assets/gilt-demo.css?v=20261019" />
+    <!-- [CRAFT-VIDEO-LINK] 传承人纪实 · 外链引导卡片（去 iframe 弹窗，复用 :root 设计令牌） -->
+    <link rel="stylesheet" href="/assets/craft-video-link.css?v=20261111t7" />
+    <!-- [WAX-PATTERNS] 蜡染代表纹样取景：按图错开 object-position，仅命中 wax_photo_*.jpg -->
+    <link rel="stylesheet" href="/assets/wax-patterns.css?v=20261107miao6" />
+    <!-- [MAP-SANDTABLE] 纹样地图 · 国风 3D 数据沙盘（零依赖 CSS 增强层，含兜底回滚） -->
+    <link rel="stylesheet" href="/assets/map-sandtable.css?v=20261107sand6" />
+    <!-- [DAILY-COVERFLOW] 每日一纹 · 纯 CSS 3D 封面流（外层裁剪 / 舞台 3D / 状态变换 / 文字抬 Z） -->
+    <link rel="stylesheet" href="/assets/daily-coverflow.css?v=20261107jade" />
+    <!-- [DAILY-LINKED] 每日一纹 · 左侧纵向控制轴 + 右侧错落画册（替代 3D Coverflow / 纯 CSS marquee） -->
+    <link rel="stylesheet" href="/assets/daily-marquee.css?v=20261110type1" />
+    <!-- [HOME-SEAM] 六境 → 每日一纹长卷衔接：共用大背景 + 暗金国风小分割线 -->
+    <link rel="stylesheet" href="/assets/home-seam.css?v=20261108seam1" />
+    <!-- [LIB-FILTER-SCROLLBAR] 纹样宝库 · 多维筛选面板 4px 暗金国风细滚动条 -->
+    <link rel="stylesheet" href="/assets/library-scrollbar.css?v=20261109filter1" />
+    <!-- [EVOLUTION-SCROLLBAR] 朝代长廊 · 演变对比横向滚动条 6px 暗金国风化 -->
+    <!-- [EC-SQUARE] 演变对比卡片方形统一 + 隐藏横向滚动条（取代旧 evolution-scrollbar.css） -->
+    <link rel="stylesheet" href="/assets/evolution-cards-square.css?v=20261113ecsq2" />
+    <!-- [PROFILE-CLEANUP] 个人中心登录页 · 去演示痕迹 + 留白重平衡 -->
+    <link rel="stylesheet" href="/assets/profile-cleanup.css?v=20261108cleanup" />
+    <!-- [WAX-FUSION] 苗族蜡染详情页 · 人物融合式图文排版（传承人虚影 + 蝴蝶纹前景） -->
+    <link rel="stylesheet" href="/assets/craft-wax-fusion.css?v=20261113wxf3" />
+    <!-- [MAP-LEGEND] 纹样地图 · 图例重构（沙盘左下角横向放大版 / 宣纸毛玻璃 / 14px 同源圆点） -->
+    <link rel="stylesheet" href="/assets/map-legend.css?v=20261110legend3" />
+    <!-- [MAP-CULTURE] 纹样地图 · 文化归类联动筛选（史前考古学文化 / 历史时期民族·族群，零源码改动） -->
+    <link rel="stylesheet" href="/assets/map-culture-filter.css?v=20261110culture3" />
+    <!-- [MAP-ZOOM] 纹样地图 · 右上角缩放控件国风化（宣纸毛玻璃 / 暗金细边 / 深褐字 / 4px 方角） -->
+    <link rel="stylesheet" href="/assets/map-zoom.css?v=20261110zoom3" />
+    <!-- [MAP-CONTRAST] 纹样地图 · 文字对比度无障碍修复（状态文字 / 底部来源 / 辅助说明，WCAG AA） -->
+    <link rel="stylesheet" href="/assets/map-contrast.css?v=20261110contrast2" />
+    <!-- [MAP-FLIGHT-LEGEND] 纹样地图 · 流光飞线图例 / 学术角标 / 悬停释义（颜色与飞线同源） -->
+    <link rel="stylesheet" href="/assets/map-flight-legend.css?v=20261112flight8" />
+    <!-- [MAP-REGION-TYPO] 纹样地图 · 省份抽屉 · 纯字号放大（标题/统计/介绍/卡片标题释义/朝代标签） -->
+    <link rel="stylesheet" href="/assets/map-region-typography.css?v=20261112typo5" />
+    <!-- [CRAFT-CARDS] 非遗技艺馆总览页 · 六张展签统一正方形（aspect-ratio 1/1 + 12px 圆角 + cover） -->
+    <link rel="stylesheet" href="/assets/crafts-gallery-cards.css?v=20261113craftcard1" />
+    <script defer src="/assets/crafts-gallery-cards.js?v=20261113craftcard1"></script>
+    <!-- [PATTERN-MODEL-VIEWER] 纹样详情页 · 平面图 / 3D鉴赏（宣纸毛玻璃容器） -->
+    <link rel="stylesheet" href="/assets/pattern-model-viewer.css?v=20261111mv6" />
+    <!-- [BAOXIANG-FIVE] 宝相花结构拆解 · 五瓣花式五向散开（110px 局部圆 / px 坐标 / 5 组标签引线） -->
+    <link rel="stylesheet" href="/assets/baoxiang-five.css?v=20261112bx12a" />
+    <!-- [MODEL-VIEWER] Google <model-viewer> 3.4.0 · 纹样详情页 3D 鉴赏
+         需求指定的引入行（由下方守卫脚本注入到 <head>，URL / 版本 / type 完全一致）：
+         <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script> -->
+    <script>
+      (function () {
+        /* model-viewer 3.4.0 在模块顶层即创建 WebGLRenderer：无 WebGL 的环境会在
+           customElements.define 之前抛错，导致组件完全不可用。先做能力检测：
+           不支持时不加载组件，由详情页面板切换为静态预览，保证零报错。 */
+        var supported = false;
+        try {
+          var c = document.createElement('canvas');
+          supported = !!(c.getContext('webgl2') || c.getContext('webgl') ||
+                         c.getContext('experimental-webgl'));
+        } catch (e) { supported = false; }
+        window.__mvWebGL = supported;
+
+        window.__mvBootstrap = (function () {
+          var started = false;
+          function local() {
+            if (!window.__mvWebGL) return;
+            if (started || (window.customElements && customElements.get('model-viewer'))) return;
+            started = true;
+            var s = document.createElement('script');
+            s.type = 'module';
+            s.src = '/assets/vendor/model-viewer-3.4.0.min.js?v=20261111mv1';
+            document.head.appendChild(s);
+          }
+          function check() {
+            if (window.__mvWebGL && !(window.customElements && customElements.get('model-viewer'))) local();
+          }
+          return { local: local, check: check };
+        })();
+
+        if (window.__mvWebGL) {
+          /* async：脱离 defer 队列，CDN 不可达时不阻塞 DOMContentLoaded 与站内其它注入脚本 */
+          var cdn = document.createElement('script');
+          cdn.type = 'module';
+          cdn.async = true;
+          cdn.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js';
+          cdn.onerror = function () { window.__mvBootstrap.local(); };
+          document.head.appendChild(cdn);
+          setTimeout(function () { window.__mvBootstrap.check(); }, 2500);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- ===== 鎏金开场：独立覆盖层，播放结束即从 DOM 移除，不影响站内任何内容与跳转 ===== -->
+    <div id="giltIntro" class="gilt-intro" role="presentation" aria-hidden="true">
+      <div class="gilt-intro__flash"></div>
+      <div class="gilt-intro__half gilt-intro__half--top"></div>
+      <div class="gilt-intro__half gilt-intro__half--bottom"></div>
+      <div class="gilt-intro__stage">
+        <div class="gilt-intro__halo"></div>
+        <svg class="gilt-intro__emblem" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="giltStroke" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#a1721d" />
+              <stop offset="22%" stop-color="#e6c778" />
+              <stop offset="42%" stop-color="#fff6d8" />
+              <stop offset="62%" stop-color="#d9b25e" />
+              <stop offset="82%" stop-color="#f2d68f" />
+              <stop offset="100%" stop-color="#b8860b" />
+            </linearGradient>
+          </defs>
+          <circle class="gi-draw" cx="100" cy="100" r="86" stroke-width="1.5" style="--len:541;--delay:0s" />
+          <circle class="gi-draw" cx="100" cy="100" r="64" stroke-width="1.2" style="--len:403;--delay:.1s" />
+          <path class="gi-draw" d="M100 26 L174 100 L100 174 L26 100 Z" stroke-width="1.2" style="--len:419;--delay:.2s" />
+          <path class="gi-draw" d="M52 52 H148 V148 H52 Z" stroke-width="1.2" style="--len:384;--delay:.3s" />
+          <circle class="gi-draw" cx="100" cy="100" r="12" stroke-width="1.6" style="--len:76;--delay:.42s" />
+          <circle class="gi-dot" cx="196" cy="100" r="2.4" style="--delay:.62s" />
+          <circle class="gi-dot" cx="167.9" cy="167.9" r="2.4" style="--delay:.68s" />
+          <circle class="gi-dot" cx="100" cy="196" r="2.4" style="--delay:.74s" />
+          <circle class="gi-dot" cx="32.1" cy="167.9" r="2.4" style="--delay:.8s" />
+          <circle class="gi-dot" cx="4" cy="100" r="2.4" style="--delay:.86s" />
+          <circle class="gi-dot" cx="32.1" cy="32.1" r="2.4" style="--delay:.92s" />
+          <circle class="gi-dot" cx="100" cy="4" r="2.4" style="--delay:.98s" />
+          <circle class="gi-dot" cx="167.9" cy="32.1" r="2.4" style="--delay:1.04s" />
+        </svg>
+        <h1 class="gilt-intro__title">纹以载道</h1>
+        <p class="gilt-intro__sub">数启新章</p>
+        <div class="gilt-intro__rule"></div>
+        <p class="gilt-intro__hint">中国非遗纹样数字博物馆</p>
+      </div>
+      <div class="gilt-intro__dust"></div>
+    </div>
+    <!-- ===== 鎏金首屏动态层：金丝光轮 · 回纹环带 · 金色涟漪 ===== -->
+    <div id="giltHeroFx" class="gilt-hero-fx" aria-hidden="true">
+      <div class="ghf-veil"></div>
+      <div class="ghf-lattice"></div>
+      <div class="ghf-beam"></div>
+      <svg class="ghf-rings" viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+        <g class="ghf-spin-a">
+          <circle cx="500" cy="500" r="430" />
+          <circle class="ghf-dash-a" cx="500" cy="500" r="404" />
+        </g>
+        <g class="ghf-spin-b">
+          <circle cx="500" cy="500" r="336" />
+          <g class="ghf-meanders">
+            <g transform="translate(870 500) rotate(0) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(761.6 761.6) rotate(45) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(500 870) rotate(90) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(238.4 761.6) rotate(135) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(130 500) rotate(180) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(238.4 238.4) rotate(225) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(500 130) rotate(270) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(761.6 238.4) rotate(315) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+          </g>
+        </g>
+        <g class="ghf-spin-c">
+          <circle class="ghf-dash-b" cx="500" cy="500" r="268" />
+        </g>
+        <g class="ghf-glint-a">
+          <circle class="ghf-glint" cx="500" cy="500" r="404" stroke-dasharray="52 2486" />
+        </g>
+        <g class="ghf-glint-c">
+          <circle class="ghf-glint" cx="500" cy="500" r="268" stroke-dasharray="34 1650" />
+        </g>
+        <g class="ghf-spin-b">
+          <circle cx="500" cy="500" r="196" />
+        </g>
+      </svg>
+      <div class="ghf-ripples"><i></i><i></i><i></i></div>
+    </div>
+    <div id="app"></div>
+    <script src="/assets/gilt-intro.js?v=20261019" defer></script>
+    <script src="/assets/gilt-hero.js?v=20261019" defer></script>
+    <script src="/assets/gilt-logo.js?v=20261019" defer></script>
+    <script src="/assets/gilt-demo.js?v=20261019" defer></script>
+    <!-- [AI-WORKFLOW] 导航入口：bundle 导航数组已原生含「AI 共创」，注入脚本冗余（曾导致导航重复），已移除 -->
+    <!-- [ADMIN] 个人中心登录页管理员分流入口 -->
+    <script src="/admin_gate.js?v=20261019b" defer></script>
+    <!-- [MOCK] 测试账号（纯前端 mock，演示用） -->
+    <script src="/mock_users.js?v=20261024c" defer></script>
+    <!-- [FEEDBACK] 打通「关于我们」意见反馈表单 → 后台「反馈管理」页（localStorage 持久化） -->
+    <script src="/feedback_inject.js" defer></script>
+    <!-- [DETAIL-ARTIFACTS] 详情页「演变脉络/应用场景」通用图谱 v7：建立纹样→图文强关联字典（龙纹专属图谱 / 云纹入库中 / 其余沿用通用）+ 入库中优雅提示，杜绝图文串台 -->
+    <script src="/detail_artifacts_inject.js?v=20261112art9" defer></script>
+    <!-- [MOCK] 个人中心「我的创作」详情增强 -->
+    <script src="/profile_enhance.js" defer></script>
+    <!-- ===== AI 共创增强模块（智谱 GLM-4-Flash Function Calling 智能体工作流）=====
+         来自第二个项目，已调试完成。接管「AI 创艺工坊」页（/ai）的
+         纹样识别 / 纹样共创 / AI 导览 / 故事剧场 / 智能配色 / 问答知识库 六个 Tab，
+         样式运行于 Shadow DOM，不影响站内任何既有样式。 -->
+    <!-- [AI-GALLERY] AI 回答的站内纹样配图画廊（文字下方缩略图 + 点击跳详情页） -->
+    <script src="/assets/copilot/ai_gallery.js?v=20261106c" defer></script>
+    <script src="/assets/copilot/ai-copilot.js?v=20261105c" defer></script>
+    <!-- GLM-4-Flash 流式调用客户端 + 站内纹样库联动桥（复用已调试逻辑，国风主题） -->
+    <script src="/assets/copilot/ai_glm.js" defer></script>
+    <script src="/assets/copilot/ai_pattern_bridge.js?v=20261107quiz5" defer></script>
+    <!-- ★ AI 导览真接入补丁：把 copilot（Shadow DOM）里的本地模拟替换为真实
+         /api/agent_chat 调用（文本 + 图片 + ReAct 开关 + 工具标签点亮联动） -->
+    <script src="/assets/ws-real.js?v=20261113qa2" defer></script>
+    <!-- [AI-ACTIONS] 智能配色「一键复制色卡」+ 纹样共创「一键下载高清原图」 -->
+    <script src="/assets/copilot/ai_actions.js?v=20261107f" defer></script>
+    <!-- [CRAFT-VIDEO-LINK] 非遗技艺馆「传承人故事」→ 外链引导卡片（运行时把封面按钮改造为 <a target=_blank> 前往 B 站） -->
+    <script src="/craft_video_link.js?v=20261111t7" defer></script>
+    <!-- [FLOAT-DRAG] 右下角悬浮件（纹样联动 / AI 导览）改为可拖拽 + 边界限制 + 位置记忆 -->
+    <script src="/float_drag_inject.js?v=20261020" defer></script>
+    <!-- [MAP-SANDTABLE] 纹样地图 · 3D 舞台 / 流光飞线 / 雷达涟漪 / 热区展平 / 抽屉联动（自检失败自动回滚 2D） -->
+    <script src="/assets/map_sandtable.js?v=20261107sand6" defer></script>
+    <!-- [DAILY-LINKED] 每日一纹 · 左侧纵向控制轴 + 右侧错落画册（读取已渲染卡片数据，替换旧 coverflow 区块） -->
+    <script src="/assets/daily-marquee.js?v=20261110type1" defer></script>
+    <!-- [WAX-FUSION] 苗族蜡染详情页 · 人物融合式图文排版（仅 /craft/wax-dyeing 生效） -->
+    <script src="/assets/craft-wax-fusion.js?v=20261113wxf3" defer></script>
+    <!-- [CRAFT-FOUC] 非遗详情页 · 背景图预加载 + 外壳 ready 态 + 鎏金开场层清理 -->
+    <link rel="stylesheet" href="/assets/craft-fouc-guard.css?v=20261113fouc5" />
+    <script src="/assets/craft-fouc-guard.js?v=20261113fouc5" defer></script>
+    <!-- [MAP-CULTURE] 纹样地图 · 文化归类联动筛选（仅 /map 生效，幂等 tick 保活 + 离开清理） -->
+    <script src="/assets/map-culture-filter.js?v=20261110culture3" defer></script>
+    <!-- [MAP-FLIGHT-LEGEND] 纹样地图 · 流光飞线图例 / 学术角标 / 悬停释义 -->
+    <script src="/assets/map-flight-legend.js?v=20261112flight8" defer></script>
+    <!-- [PATTERN-MODEL-VIEWER] 纹样详情页 · 平面图/3D鉴赏 Tab + model-viewer 容器（仅 /pattern/:id 生效） -->
+    <script src="/assets/pattern-model-viewer.js?v=20261112mv8" defer></script>
+    <!-- [BAOXIANG-FIVE] 宝相花结构拆解 · 注入第 5 个局部/标签并镜像 Vue 的 composed/exploded 状态 -->
+    <script src="/assets/baoxiang-five.js?v=20261112bx12a" defer></script>
+  </body>
+</html>

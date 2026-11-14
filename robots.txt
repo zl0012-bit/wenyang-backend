@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.svg?v=20261019" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="纹以载道·数启新章 —— AI 驱动的中国传统非遗纹样数字博物馆，收录 574 枚纹样、32 个分类，提供纹样识别、AI 共创、结构拆解与沉浸式浏览。"
+    />
+    <meta name="theme-color" content="#cfa23c" />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- 社交分享（Open Graph / Twitter Card，方案 §九.3） -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="纹以载道·数启新章" />
+    <meta property="og:title" content="纹以载道·数启新章 | 非遗纹样数字博物馆" />
+    <meta
+      property="og:description"
+      content="AI 驱动的中国传统非遗纹样数字博物馆：574 枚纹样、32 分类、6 大 AI 功能，看见、读懂、再创。"
+    />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="纹以载道·数启新章 | 非遗纹样数字博物馆" />
+    <meta
+      name="twitter:description"
+      content="AI 驱动的中国传统非遗纹样数字博物馆：574 枚纹样、32 分类、6 大 AI 功能。"
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- 字体：标题思源宋体 / 正文思源黑体 / 数字英文 Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@400;500;700&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>纹以载道·数启新章 | 非遗纹样数字博物馆</title>
+    <script type="module" crossorigin src="/assets/index-CmHYjBy8.js?v=20261019"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-vue-VRxU-hdw.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-XYS8_Jc0.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-gsap-iqAWp17U.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CsD7uYws.css">
+    <!-- 鎏金主题（务必位于框架样式之后，以覆盖背景令牌） -->
+    <link rel="stylesheet" href="/assets/gilt-intro.css?v=20261019">
+    <link rel="stylesheet" href="/assets/gilt-theme.css?v=20261019">
+    <link rel="stylesheet" href="/assets/gilt-hero.css?v=20261019">
+    <link rel="stylesheet" href="/assets/gilt-logo.css?v=20261019">
+    <!-- AI 功能「演示模式」标注层（叠加，不改变任何原有内容与跳转） -->
+    <link rel="stylesheet" href="/assets/gilt-demo.css?v=20261019">
+  </head>
+  <body>
+    <!-- ===== 鎏金开场：独立覆盖层，播放结束即从 DOM 移除，不影响站内任何内容与跳转 ===== -->
+    <div id="giltIntro" class="gilt-intro" role="presentation" aria-hidden="true">
+      <div class="gilt-intro__flash"></div>
+      <div class="gilt-intro__half gilt-intro__half--top"></div>
+      <div class="gilt-intro__half gilt-intro__half--bottom"></div>
+      <div class="gilt-intro__stage">
+        <div class="gilt-intro__halo"></div>
+        <svg class="gilt-intro__emblem" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="giltStroke" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#a1721d" />
+              <stop offset="22%" stop-color="#e6c778" />
+              <stop offset="42%" stop-color="#fff6d8" />
+              <stop offset="62%" stop-color="#d9b25e" />
+              <stop offset="82%" stop-color="#f2d68f" />
+              <stop offset="100%" stop-color="#b8860b" />
+            </linearGradient>
+          </defs>
+          <circle class="gi-draw" cx="100" cy="100" r="86" stroke-width="1.5" style="--len:541;--delay:0s" />
+          <circle class="gi-draw" cx="100" cy="100" r="64" stroke-width="1.2" style="--len:403;--delay:.1s" />
+          <path class="gi-draw" d="M100 26 L174 100 L100 174 L26 100 Z" stroke-width="1.2" style="--len:419;--delay:.2s" />
+          <path class="gi-draw" d="M52 52 H148 V148 H52 Z" stroke-width="1.2" style="--len:384;--delay:.3s" />
+          <circle class="gi-draw" cx="100" cy="100" r="12" stroke-width="1.6" style="--len:76;--delay:.42s" />
+          <circle class="gi-dot" cx="196" cy="100" r="2.4" style="--delay:.62s" />
+          <circle class="gi-dot" cx="167.9" cy="167.9" r="2.4" style="--delay:.68s" />
+          <circle class="gi-dot" cx="100" cy="196" r="2.4" style="--delay:.74s" />
+          <circle class="gi-dot" cx="32.1" cy="167.9" r="2.4" style="--delay:.8s" />
+          <circle class="gi-dot" cx="4" cy="100" r="2.4" style="--delay:.86s" />
+          <circle class="gi-dot" cx="32.1" cy="32.1" r="2.4" style="--delay:.92s" />
+          <circle class="gi-dot" cx="100" cy="4" r="2.4" style="--delay:.98s" />
+          <circle class="gi-dot" cx="167.9" cy="32.1" r="2.4" style="--delay:1.04s" />
+        </svg>
+        <h1 class="gilt-intro__title">纹以载道</h1>
+        <p class="gilt-intro__sub">数启新章</p>
+        <div class="gilt-intro__rule"></div>
+        <p class="gilt-intro__hint">中国非遗纹样数字博物馆</p>
+      </div>
+      <div class="gilt-intro__dust"></div>
+    </div>
+    <!-- ===== 鎏金首屏动态层：金丝光轮 · 回纹环带 · 金色涟漪 =====
+         平时不显示；由 gilt-hero.js 移入首页 .hero 内才铺开，离开首页即随之隐藏 -->
+    <div id="giltHeroFx" class="gilt-hero-fx" aria-hidden="true">
+      <div class="ghf-veil"></div>
+      <div class="ghf-lattice"></div>
+      <div class="ghf-beam"></div>
+      <svg class="ghf-rings" viewBox="0 0 1000 1000" aria-hidden="true" focusable="false">
+        <g class="ghf-spin-a">
+          <circle cx="500" cy="500" r="430" />
+          <circle class="ghf-dash-a" cx="500" cy="500" r="404" />
+        </g>
+        <g class="ghf-spin-b">
+          <circle cx="500" cy="500" r="336" />
+          <g class="ghf-meanders">
+            <g transform="translate(870 500) rotate(0) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(761.6 761.6) rotate(45) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(500 870) rotate(90) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(238.4 761.6) rotate(135) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(130 500) rotate(180) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(238.4 238.4) rotate(225) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(500 130) rotate(270) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+            <g transform="translate(761.6 238.4) rotate(315) translate(-12 -12)"><path d="M0 24H24V0H0V16H16V8H8V12" /></g>
+          </g>
+        </g>
+        <g class="ghf-spin-c">
+          <circle class="ghf-dash-b" cx="500" cy="500" r="268" />
+        </g>
+        <g class="ghf-glint-a">
+          <circle class="ghf-glint" cx="500" cy="500" r="404" stroke-dasharray="52 2486" />
+        </g>
+        <g class="ghf-glint-c">
+          <circle class="ghf-glint" cx="500" cy="500" r="268" stroke-dasharray="34 1650" />
+        </g>
+        <g class="ghf-spin-b">
+          <circle cx="500" cy="500" r="196" />
+        </g>
+      </svg>
+      <div class="ghf-ripples"><i></i><i></i><i></i></div>
+    </div>
+    <div id="app"></div>
+    <script src="/assets/gilt-intro.js?v=20261019" defer></script>
+    <script src="/assets/gilt-hero.js?v=20261019" defer></script>
+    <script src="/assets/gilt-logo.js?v=20261019" defer></script>
+    <script src="/assets/gilt-demo.js?v=20261019" defer></script>
+      <!-- [AI-WORKFLOW] 导航入口（外部脚本） -->
+    <script src="/nav_inject.js" defer></script>
+    <!-- [ADMIN] 个人中心登录页管理员分流入口 -->
+    <script src="/admin_gate.js" defer></script>
+    <!-- [MOCK] 测试账号（纯前端 mock，演示用） -->
+    <script src="/mock_users.js" defer></script>
+    <!-- [MOCK] 个人中心「我的创作」详情增强 -->
+    <script src="/profile_enhance.js" defer></script>
+</body>
+</html>
